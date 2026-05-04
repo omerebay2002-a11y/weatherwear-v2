@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: 245 239 230; /* parchment */
+    --ink: 26 20 16; /* ebony */
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    overscroll-behavior-y: none;
+  }
+
+  body {
+    font-family: "Heebo", system-ui, sans-serif;
+    background: rgb(var(--bg));
+    color: rgb(var(--ink));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  #root {
+    min-height: 100dvh;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3 {
+    font-family: "Frank Ruhl Libre", Georgia, serif;
+    font-weight: 500;
+    letter-spacing: -0.012em;
+  }
+
+  ::selection {
+    background: #D9B47C;
+    color: #1A1410;
+  }
+
+  button {
+    font-family: inherit;
+  }
+}
+
+@layer components {
+  /* Frosted glass — used for floating panels */
+  .frost {
+    background: rgba(245, 239, 230, 0.78);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 6px 20px -8px rgba(40, 20, 10, 0.25);
+  }
+
+  .frost-dark {
+    background: rgba(26, 20, 16, 0.72);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    color: #F5EFE6;
+    border: 1px solid rgba(184, 149, 106, 0.3);
+  }
+
+  /* Brass plate — engraved label feel */
+  .brass-plate {
+    background-image: linear-gradient(135deg,
+      #E8C896 0%,
+      #D9B47C 30%,
+      #B8956A 60%,
+      #8C6B42 100%
+    );
+    box-shadow:
+      inset 0 1px 0 rgba(255, 240, 210, 0.7),
+      inset 0 -1px 0 rgba(60, 40, 20, 0.4),
+      0 1px 3px rgba(40, 20, 10, 0.3);
+    color: #2D1A0A;
+    text-shadow: 0 1px 0 rgba(255, 240, 210, 0.5);
+  }
+
+  /* Hide scrollbar but keep scroll */
+  .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+
+  /* Tracked label — uppercase tiny eyebrow */
+  .label-tracked {
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    font-feature-settings: "tnum";
+  }
+
+  /* Soft cream card */
+  .card {
+    background: #FAF6EE;
+    border: 1px solid rgba(184, 149, 106, 0.25);
+    border-radius: 4px;
+    box-shadow: 0 4px 14px -8px rgba(60, 40, 20, 0.2);
+  }
+}
+
+@layer utilities {
+  .safe-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom), 0px);
+  }
+  .safe-top {
+    padding-top: max(env(safe-area-inset-top), 0px);
+  }
+}
