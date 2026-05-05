@@ -50,15 +50,21 @@ export default function Wardrobe() {
         </Suspense>
       </div>
 
-      {/* Hint text — top center */}
-      <motion.div
-        className="absolute top-4 inset-x-0 z-20 pointer-events-none safe-top text-center"
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-      >
-        <p className="font-editorial italic text-sm text-walnut-500">{hint}</p>
-      </motion.div>
+      {/* Hint — only when cabinet is closed */}
+      <AnimatePresence>
+        {!open && (
+          <motion.div
+            key="hint"
+            className="absolute top-4 inset-x-0 z-20 pointer-events-none safe-top text-center"
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.25 }}
+          >
+            <p className="font-editorial italic text-sm text-walnut-500">{hint}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* FAB — Add item */}
       <motion.button
@@ -73,22 +79,21 @@ export default function Wardrobe() {
         <Plus className="h-7 w-7" strokeWidth={2.2} />
       </motion.button>
 
-      {/* Close cabinet button — only when open */}
+      {/* Close cabinet — top-right corner, appears only when open */}
       <AnimatePresence>
         {open && (
           <motion.button
             key="close-cabinet"
-            initial={{ scale: 0, opacity: 0, y: -8 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            transition={{ type: "spring", damping: 22, stiffness: 280 }}
-            whileTap={{ scale: 0.92 }}
+            transition={{ type: "spring", damping: 24, stiffness: 300 }}
+            whileTap={{ scale: 0.88 }}
             onClick={() => setOpen(false)}
-            className="absolute bottom-24 right-5 z-30 frost-dark rounded-full h-14 px-5 flex items-center gap-2 shadow-soft-lg"
+            className="absolute top-4 right-4 z-30 safe-top frost-dark rounded-full h-11 w-11 flex items-center justify-center shadow-soft-lg"
             aria-label="סגרי ארון"
           >
-            <X className="h-5 w-5" strokeWidth={2.2} />
-            <span className="font-display text-sm">סגרי ארון</span>
+            <X className="h-5 w-5" strokeWidth={2} />
           </motion.button>
         )}
       </AnimatePresence>

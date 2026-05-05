@@ -18,7 +18,7 @@ export default function Room3D({ open, onToggle, onCompartmentClick }: Props) {
     <Canvas
       shadows
       dpr={[1.5, 2]}
-      camera={{ position: [0, 1.7, 5.0], fov: 40 }}
+      camera={{ position: [0, 1.7, 5.8], fov: 44 }}
       gl={{
         antialias: true,
         alpha: false,
@@ -26,7 +26,7 @@ export default function Room3D({ open, onToggle, onCompartmentClick }: Props) {
       }}
       style={{ width: "100%", height: "100%", background: "transparent" }}
       onCreated={({ camera }) => {
-        camera.lookAt(0, 1.55, -0.3);
+        camera.lookAt(0, 1.5, -0.3);
       }}
     >
       {/* Warm ambient — fills shadows but doesn't wash out */}
@@ -62,11 +62,11 @@ export default function Room3D({ open, onToggle, onCompartmentClick }: Props) {
         <Floor />
         <Walls />
 
-        {/* Window on back wall, just above cabinet top */}
-        <Window position={[0, 3.0, -1.69]} width={1.6} height={1.1} />
+        {/* Window on back wall, above cabinet */}
+        <Window position={[0, 2.95, -1.69]} width={1.5} height={1.0} />
 
-        {/* Brass chandelier — hovers above cabinet top */}
-        <Chandelier position={[0, 3.05, 0.6]} />
+        {/* Brass chandelier — clearly above and in front of cabinet */}
+        <Chandelier position={[0, 3.6, 0.8]} />
 
         {/* The hero — wardrobe */}
         <Cabinet

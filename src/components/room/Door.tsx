@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
+import { MathUtils } from "three";
 import type { Group } from "three";
 import BrassHandle from "./BrassHandle";
 
@@ -15,8 +16,7 @@ interface Props {
   delayMs?: number;
 }
 
-const OPEN_ANGLE = (95 * Math.PI) / 180; // 95° forward swing
-const DAMPING = 0.085; // ≈ 1.4s settle at 60fps
+const OPEN_ANGLE = (95 * Math.PI) / 180;
 
 export default function Door({
   pivot,
@@ -37,7 +37,9 @@ export default function Door({
   useEffect(() => {
     if (scheduledRef.current) clearTimeout(scheduledRef.current);
     const setTarget = () => {
-      targetRef.current = open ? hingeDir * OPEN_ANGLE : 0;
+      // Negative of hingeDir: right-hand Y-rotation pushes the door backward,
+      // so we negate to swing it forward (toward +Z / camera).
+      targetRef.current = open ? -hingeDir * OPEN_ANGLE : 0;
     };
     if (delayMs > 0 && open) {
       scheduledRef.current = setTimeout(setTarget, delayMs);
@@ -49,10 +51,10 @@ export default function Door({
     };
   }, [open, delayMs, hingeDir]);
 
-  useFrame(() => {
+  useFrame((_, dt) => {
     const g = groupRef.current;
     if (!g) return;
-    g.rotation.y += (targetRef.current - g.rotation.y) * DAMPING;
+    g.rotation.y = MathUtils.damp(g.rotation.y, targetRef.current, 4, dt);
   });
 
   return (
