@@ -1,6 +1,6 @@
 import { useState, useMemo, lazy, Suspense } from "react";
-import { motion } from "framer-motion";
-import { Plus } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Plus, X } from "lucide-react";
 import { useWardrobe } from "../contexts/WardrobeContext";
 import ItemDetailDialog from "../components/wardrobe/ItemDetailDialog";
 import AddItemSheet from "../components/wardrobe/AddItemSheet";
@@ -72,6 +72,26 @@ export default function Wardrobe() {
       >
         <Plus className="h-7 w-7" strokeWidth={2.2} />
       </motion.button>
+
+      {/* Close cabinet button — only when open */}
+      <AnimatePresence>
+        {open && (
+          <motion.button
+            key="close-cabinet"
+            initial={{ scale: 0, opacity: 0, y: -8 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{ type: "spring", damping: 22, stiffness: 280 }}
+            whileTap={{ scale: 0.92 }}
+            onClick={() => setOpen(false)}
+            className="absolute bottom-24 right-5 z-30 frost-dark rounded-full h-14 px-5 flex items-center gap-2 shadow-soft-lg"
+            aria-label="סגרי ארון"
+          >
+            <X className="h-5 w-5" strokeWidth={2.2} />
+            <span className="font-display text-sm">סגרי ארון</span>
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       {/* Modals */}
       <CompartmentSheet
