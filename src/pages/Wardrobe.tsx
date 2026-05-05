@@ -1,11 +1,12 @@
 import { useState, useMemo, lazy, Suspense } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Plus, ChevronUp } from "lucide-react";
+import { motion } from "framer-motion";
+import { Plus } from "lucide-react";
 import { useWardrobe } from "../contexts/WardrobeContext";
-import ItemGrid from "../components/wardrobe/ItemGrid";
 import ItemDetailDialog from "../components/wardrobe/ItemDetailDialog";
 import AddItemSheet from "../components/wardrobe/AddItemSheet";
+import CompartmentSheet from "../components/wardrobe/CompartmentSheet";
 import type { ClothingItem } from "../types";
+import type { Compartment } from "../components/room/Cabinet";
 
 // Code-split the 3D scene — keeps Today page bundle small
 const Room3D = lazy(() => import("../components/room/Room3D"));
@@ -15,10 +16,11 @@ export default function Wardrobe() {
   const [open, setOpen] = useState(false);
   const [adding, setAdding] = useState(false);
   const [selected, setSelected] = useState<ClothingItem | null>(null);
+  const [compartment, setCompartment] = useState<Compartment | null>(null);
 
   const itemCount = items.length;
   const hint = useMemo(() => {
-    if (open) return "הקליקי שוב על הארון לסגירה";
+    if (open) return "הקליקי על מדור בארון לראות פריטים";
     if (itemCount === 0) return "הקליקי על הארון לפתיחה";
     return `${itemCount} פריטים · הקליקי על הארון לפתיחה`;
   }, [open, itemCount]);
@@ -40,7 +42,11 @@ export default function Wardrobe() {
             </div>
           }
         >
-          <Room3D open={open} onToggle={() => setOpen((o) => !o)} />
+          <Room3D
+            open={open}
+            onToggle={() => setOpen((o) => !o)}
+            onCompartmentClick={setCompartment}
+          />
         </Suspense>
       </div>
 
@@ -67,46 +73,17 @@ export default function Wardrobe() {
         <Plus className="h-7 w-7" strokeWidth={2.2} />
       </motion.button>
 
-      {/* Items panel — slides up when cabinet is open */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            key="items-panel"
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{
-              type: "spring",
-              damping: 30,
-              stiffness: 220,
-              delay: 0.3, // wait for doors
-            }}
-            className="absolute bottom-16 inset-x-0 z-20 mx-auto max-w-md"
-          >
-            <div className="frost mx-3 rounded-t-xl rounded-b-md max-h-[50dvh] overflow-y-auto no-scrollbar">
-              <div className="sticky top-0 frost flex items-center justify-between px-5 py-3 border-b border-walnut-100/50">
-                <h3 className="font-display text-base text-ebony">בארון שלך</h3>
-                <button
-                  onClick={() => setOpen(false)}
-                  className="text-walnut-400 hover:text-walnut-600"
-                  aria-label="סגרי"
-                >
-                  <ChevronUp className="h-5 w-5 rotate-180" />
-                </button>
-              </div>
-              <div className="px-4 py-4">
-                <ItemGrid
-                  items={items}
-                  onItemClick={setSelected}
-                  onAddClick={() => setAdding(true)}
-                />
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Modals */}
+      <CompartmentSheet
+        compartment={compartment}
+        items={items}
+        onClose={() => setCompartment(null)}
+        onItemClick={(item) => {
+          setCompartment(null);
+          setSelected(item);
+        }}
+        onAddClick={() => setAdding(true)}
+      />
       <AddItemSheet open={adding} onClose={() => setAdding(false)} />
       <ItemDetailDialog
         item={selected}

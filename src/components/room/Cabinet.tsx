@@ -1,20 +1,28 @@
 import Door from "./Door";
 
+export type Compartment = "shirts" | "coats" | "folded" | "drawers";
+
 interface Props {
   open: boolean;
   onToggle: () => void;
+  onCompartmentClick: (c: Compartment) => void;
 }
 
 /**
  * Walnut wardrobe — 2.4m × 2.0m × 0.6m. Centered at world (0, 1.2, -0.5).
  *
- * Interior (visible when doors swing open):
- *   • Top-left  → hanging rod for shirts (5 wood hangers)
- *   • Top-right → hanging rod for coats (4 bulkier hangers)
- *   • Bottom-left  → 3 wood shelves for folded items
- *   • Bottom-right → 3 drawers with brass pulls
+ * Interactions:
+ *   • Click cabinet body (or doors) → toggle open/close
+ *   • Click a specific compartment INTERIOR (only meaningful when open) →
+ *     onCompartmentClick(compartment) — parent renders a panel of just those items
+ *
+ * Compartment layout:
+ *   • Top-left  → "shirts" (top + dress) — 5 wood hangers
+ *   • Top-right → "coats" (outerwear) — 4 bulkier hangers
+ *   • Bottom-left  → "folded" (bottom + shoes) — 3 wood shelves
+ *   • Bottom-right → "drawers" (accessory + bag) — 3 drawer fronts
  */
-export default function Cabinet({ open, onToggle }: Props) {
+export default function Cabinet({ open, onToggle, onCompartmentClick }: Props) {
   const cabX = 0,
     cabY = 1.2,
     cabZ = -0.5;
@@ -96,6 +104,30 @@ export default function Cabinet({ open, onToggle }: Props) {
           <boxGeometry args={[1.94, 2.34, 0.005]} />
           <meshStandardMaterial color="#9C7950" roughness={0.85} />
         </mesh>
+
+        {/* ======== INVISIBLE CLICK TARGETS — one per compartment ========
+            Only render when doors are open, so they don't intercept the
+            close-cabinet click while doors are visible. */}
+        {open && (
+          <>
+            <CompartmentHotspot
+              position={[-0.5, 0.6, 0.05]}
+              onClick={() => onCompartmentClick("shirts")}
+            />
+            <CompartmentHotspot
+              position={[0.5, 0.6, 0.05]}
+              onClick={() => onCompartmentClick("coats")}
+            />
+            <CompartmentHotspot
+              position={[-0.5, -0.6, 0.05]}
+              onClick={() => onCompartmentClick("folded")}
+            />
+            <CompartmentHotspot
+              position={[0.5, -0.6, 0.05]}
+              onClick={() => onCompartmentClick("drawers")}
+            />
+          </>
+        )}
 
         {/* ======== TOP-LEFT: hanging rod for shirts ======== */}
         <HangingRod
@@ -203,6 +235,38 @@ export default function Cabinet({ open, onToggle }: Props) {
 }
 
 // ─── Internal helpers ───
+
+/**
+ * An invisible click-receiver covering a single compartment.
+ * Slightly bigger than the compartment so the user has a generous tap target.
+ */
+function CompartmentHotspot({
+  position,
+  onClick,
+}: {
+  position: [number, number, number];
+  onClick: () => void;
+}) {
+  return (
+    <mesh
+      position={position}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        document.body.style.cursor = "pointer";
+      }}
+      onPointerOut={() => {
+        document.body.style.cursor = "auto";
+      }}
+    >
+      <boxGeometry args={[0.92, 1.1, 0.4]} />
+      <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+    </mesh>
+  );
+}
 
 interface HangingRodProps {
   position: [number, number, number];

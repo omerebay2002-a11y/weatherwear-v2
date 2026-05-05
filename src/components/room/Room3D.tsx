@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import { ContactShadows, Environment } from "@react-three/drei";
-import Cabinet from "./Cabinet";
+import Cabinet, { type Compartment } from "./Cabinet";
 import Floor from "./Floor";
 import Walls from "./Walls";
 import Chandelier from "./Chandelier";
@@ -10,9 +10,10 @@ import Window from "./Window";
 interface Props {
   open: boolean;
   onToggle: () => void;
+  onCompartmentClick: (c: Compartment) => void;
 }
 
-export default function Room3D({ open, onToggle }: Props) {
+export default function Room3D({ open, onToggle, onCompartmentClick }: Props) {
   return (
     <Canvas
       shadows
@@ -68,7 +69,11 @@ export default function Room3D({ open, onToggle }: Props) {
         <Chandelier position={[0, 3.05, 0.6]} />
 
         {/* The hero — wardrobe */}
-        <Cabinet open={open} onToggle={onToggle} />
+        <Cabinet
+          open={open}
+          onToggle={onToggle}
+          onCompartmentClick={onCompartmentClick}
+        />
 
         <ContactShadows
           position={[0, 0.001, 0]}
