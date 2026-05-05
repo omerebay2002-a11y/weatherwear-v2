@@ -4,8 +4,10 @@ import { ContactShadows, Environment } from "@react-three/drei";
 import Cabinet, { type Compartment } from "./Cabinet";
 import Floor from "./Floor";
 import Walls from "./Walls";
-import Chandelier from "./Chandelier";
+import PendantLights from "./PendantLights";
 import Window from "./Window";
+import Rug from "./Rug";
+import Bench from "./Bench";
 
 interface Props {
   open: boolean;
@@ -19,24 +21,20 @@ export default function Room3D({ open, onToggle, onCompartmentClick }: Props) {
       shadows
       dpr={[1.5, 2]}
       camera={{ position: [0, 1.7, 5.8], fov: 44 }}
-      gl={{
-        antialias: true,
-        alpha: false,
-        powerPreference: "high-performance",
-      }}
+      gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
       style={{ width: "100%", height: "100%", background: "transparent" }}
       onCreated={({ camera }) => {
         camera.lookAt(0, 1.5, -0.3);
       }}
     >
-      {/* Warm ambient — fills shadows but doesn't wash out */}
-      <ambientLight intensity={0.32} color="#FFF1D9" />
+      {/* Warm ambient — fills corners without washing out shadows */}
+      <ambientLight intensity={0.28} color="#FFF0D8" />
 
-      {/* Warm key light from upper-right */}
+      {/* Primary key light — warm, from upper-right, casts shadows */}
       <directionalLight
-        position={[2.5, 4.5, 3.5]}
-        intensity={0.95}
-        color="#FFE2B2"
+        position={[3, 5, 4]}
+        intensity={0.9}
+        color="#FFE0AA"
         castShadow
         shadow-mapSize={[2048, 2048]}
         shadow-camera-left={-4}
@@ -44,31 +42,33 @@ export default function Room3D({ open, onToggle, onCompartmentClick }: Props) {
         shadow-camera-top={5}
         shadow-camera-bottom={-2}
         shadow-camera-near={0.5}
-        shadow-camera-far={12}
-        shadow-bias={-0.0008}
+        shadow-camera-far={14}
+        shadow-bias={-0.001}
       />
 
-      {/* Cool fill from the window side */}
-      <directionalLight
-        position={[-2.0, 3.5, -1.0]}
-        intensity={0.4}
-        color="#C7D7E8"
-      />
+      {/* Cool back-fill from window side — creates warm/cool contrast */}
+      <directionalLight position={[-2.5, 3, -1.5]} intensity={0.35} color="#B8D0E8" />
 
-      {/* Soft front-below fill — lifts cabinet's lower half */}
-      <pointLight position={[0, 1.0, 2.0]} intensity={0.25} color="#FFE6C8" />
+      {/* Subtle front fill — lifts the floor/bench without flattening */}
+      <pointLight position={[0, 0.8, 3]} intensity={0.18} color="#FFE6C8" distance={6} decay={2} />
 
       <Suspense fallback={null}>
         <Floor />
         <Walls />
 
-        {/* Window on back wall, above cabinet */}
+        {/* Rug — dark charcoal rectangle, between camera and cabinet */}
+        <Rug position={[0, 0.001, 1.1]} />
+
+        {/* Bench — low walnut seat in front of cabinet */}
+        <Bench position={[0, 0, 0.55]} />
+
+        {/* Window on back wall above cabinet */}
         <Window position={[0, 2.95, -1.69]} width={1.5} height={1.0} />
 
-        {/* Brass chandelier — clearly above and in front of cabinet */}
-        <Chandelier position={[0, 3.6, 0.8]} />
+        {/* 3-pendant linear light above the scene */}
+        <PendantLights position={[0, 3.6, 0.5]} />
 
-        {/* The hero — wardrobe */}
+        {/* The hero */}
         <Cabinet
           open={open}
           onToggle={onToggle}
@@ -77,10 +77,10 @@ export default function Room3D({ open, onToggle, onCompartmentClick }: Props) {
 
         <ContactShadows
           position={[0, 0.001, 0]}
-          opacity={0.5}
-          scale={7}
-          blur={2.0}
-          far={2.5}
+          opacity={0.55}
+          scale={8}
+          blur={1.8}
+          far={3}
           resolution={1024}
         />
 

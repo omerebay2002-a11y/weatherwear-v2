@@ -1,64 +1,60 @@
 /**
- * Walls — back + 2 sides with depth-creating tonal contrast.
- * Back wall is the warmest cream; side walls are slightly cooler/dustier
- * (this is a classic interior trick — same hue, different temperature).
- * Crown moulding + chair rail + walnut baseboard add architectural feel.
+ * Room walls — back + 2 sides.
+ * Back wall is the warmest, sides are slightly cooler (classic interior depth trick).
+ * Architectural details: walnut skirting boards + slim chair rail.
+ * A ceiling plane closes the top of the room, giving proper spatial boundaries.
  */
 export default function Walls() {
   return (
     <group>
-      {/* Back wall — warm cream */}
+      {/* Ceiling — off-white, gives room real enclosure */}
+      <mesh position={[0, 5.5, 0]} rotation={[Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[12, 8]} />
+        <meshStandardMaterial color="#F8F4EE" roughness={1} />
+      </mesh>
+
+      {/* Back wall — warm ivory */}
       <mesh position={[0, 2.5, -1.7]} receiveShadow>
-        <planeGeometry args={[12, 6]} />
-        <meshStandardMaterial color="#EFE4D0" roughness={0.95} />
+        <planeGeometry args={[12, 7]} />
+        <meshStandardMaterial color="#F0E8D8" roughness={0.95} />
       </mesh>
 
-      {/* Left wall — cooler dusty cream */}
-      <mesh position={[-4, 2.5, 0.5]} rotation={[0, Math.PI / 2, 0]} receiveShadow>
-        <planeGeometry args={[6, 6]} />
-        <meshStandardMaterial color="#D8CCB6" roughness={0.95} />
+      {/* Left wall — cooler off-white */}
+      <mesh position={[-4, 2.5, 1.5]} rotation={[0, Math.PI / 2, 0]} receiveShadow>
+        <planeGeometry args={[8, 7]} />
+        <meshStandardMaterial color="#DDD0BC" roughness={0.95} />
       </mesh>
 
-      {/* Right wall — slightly different to break symmetry */}
-      <mesh position={[4, 2.5, 0.5]} rotation={[0, -Math.PI / 2, 0]} receiveShadow>
-        <planeGeometry args={[6, 6]} />
-        <meshStandardMaterial color="#DCC9B2" roughness={0.95} />
+      {/* Right wall — warm side shadow tone */}
+      <mesh position={[4, 2.5, 1.5]} rotation={[0, -Math.PI / 2, 0]} receiveShadow>
+        <planeGeometry args={[8, 7]} />
+        <meshStandardMaterial color="#DBC7B0" roughness={0.95} />
       </mesh>
 
-      {/* Crown moulding at the top of back wall */}
-      <mesh position={[0, 5.0, -1.69]}>
-        <boxGeometry args={[12, 0.12, 0.04]} />
-        <meshStandardMaterial color="#F5EFE6" roughness={0.85} />
+      {/* Walnut skirting boards — all three walls */}
+      <mesh position={[0, 0.1, -1.69]} receiveShadow>
+        <boxGeometry args={[12, 0.2, 0.035]} />
+        <meshStandardMaterial color="#3E2510" roughness={0.75} />
+      </mesh>
+      <mesh position={[-3.99, 0.1, 1.5]} rotation={[0, Math.PI / 2, 0]} receiveShadow>
+        <boxGeometry args={[8, 0.2, 0.035]} />
+        <meshStandardMaterial color="#3E2510" roughness={0.75} />
+      </mesh>
+      <mesh position={[3.99, 0.1, 1.5]} rotation={[0, -Math.PI / 2, 0]} receiveShadow>
+        <boxGeometry args={[8, 0.2, 0.035]} />
+        <meshStandardMaterial color="#3E2510" roughness={0.75} />
       </mesh>
 
-      {/* Chair rail — subtle horizontal accent at mid-height */}
-      <mesh position={[0, 2.0, -1.69]}>
-        <boxGeometry args={[12, 0.04, 0.025]} />
-        <meshStandardMaterial color="#7E5733" roughness={0.7} />
+      {/* Slim chair rail — back wall only */}
+      <mesh position={[0, 2.05, -1.688]}>
+        <boxGeometry args={[12, 0.035, 0.02]} />
+        <meshStandardMaterial color="#8C6B42" roughness={0.65} />
       </mesh>
 
-      {/* Walnut baseboard */}
-      <mesh position={[0, 0.09, -1.69]} receiveShadow>
-        <boxGeometry args={[12, 0.18, 0.03]} />
-        <meshStandardMaterial color="#42291C" roughness={0.85} />
-      </mesh>
-
-      {/* Side wall baseboards */}
-      <mesh
-        position={[-3.99, 0.09, 0.5]}
-        rotation={[0, Math.PI / 2, 0]}
-        receiveShadow
-      >
-        <boxGeometry args={[6, 0.18, 0.03]} />
-        <meshStandardMaterial color="#42291C" roughness={0.85} />
-      </mesh>
-      <mesh
-        position={[3.99, 0.09, 0.5]}
-        rotation={[0, -Math.PI / 2, 0]}
-        receiveShadow
-      >
-        <boxGeometry args={[6, 0.18, 0.03]} />
-        <meshStandardMaterial color="#42291C" roughness={0.85} />
+      {/* Crown moulding — back wall */}
+      <mesh position={[0, 5.0, -1.688]}>
+        <boxGeometry args={[12, 0.08, 0.03]} />
+        <meshStandardMaterial color="#F5EDE0" roughness={0.85} />
       </mesh>
     </group>
   );
