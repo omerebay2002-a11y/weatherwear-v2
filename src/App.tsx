@@ -9,11 +9,13 @@ import MigrationBanner from "./components/auth/MigrationBanner";
 
 export default function App() {
   const location = useLocation();
-  const { userId, loading } = useAuth();
+  const { userId, loading, configured } = useAuth();
 
   if (loading) return null; // brief flicker while Firebase resolves session
 
-  if (!userId) return <SignInScreen />;
+  // Sign-in is required only when Firebase is configured.
+  // Without env vars, the app runs locally with localStorage (offline mode).
+  if (configured && !userId) return <SignInScreen />;
 
   return (
     <>

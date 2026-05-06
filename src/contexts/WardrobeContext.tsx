@@ -51,10 +51,10 @@ function rowToItem(d: Record<string, unknown>): ClothingItem {
   };
 }
 
-async function uploadImage(userId: string, itemId: string, dataUrl: string): Promise<string> {
+async function uploadImage(uid: string, itemId: string, dataUrl: string): Promise<string> {
   if (!storage) return dataUrl;
   const blob = dataUrlToBlob(dataUrl);
-  const imgRef = ref(storage, `wardrobe/${userId}/${itemId}.jpg`);
+  const imgRef = ref(storage, `wardrobe/${uid}/${itemId}.jpg`);
   await uploadBytes(imgRef, blob, { contentType: "image/jpeg" });
   return getDownloadURL(imgRef);
 }
@@ -63,17 +63,23 @@ async function uploadImage(userId: string, itemId: string, dataUrl: string): Pro
 
 export function WardrobeProvider({ children }: { children: React.ReactNode }) {
   const { userId } = useAuth();
-  const [items, setItems] = useState<ClothingItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [localItemsToMigrate, setLocalItemsToMigrate] = useState<ClothingItem[]>(() => loadItems());
+  const useCloud = !!(userId && db);
 
-  // Load from Firestore when user logs in
+  // Initial state: load from localStorage when not in cloud mode
+  const [items, setItems] = useState<ClothingItem[]>(() => useCloud ? [] : loadItems());
+  const [loading, setLoading] = useState(useCloud);
+  const [localItemsToMigrate, setLocalItemsToMigrate] = useState<ClothingItem[]>(
+    () => useCloud ? loadItems() : []
+  );
+
+  // Save to localStorage continuously when in local mode
   useEffect(() => {
-    if (!userId || !db) {
-      setItems([]);
-      setLoading(false);
-      return;
-    }
+    if (!useCloud) saveItems(items);
+  }, [items, useCloud]);
+
+  // Load from Firestore when in cloud mode
+  useEffect(() => {
+    if (!useCloud || !db || !userId) return;
     setLoading(true);
     const col = collection(db, "users", userId, "wardrobe");
     getDocs(query(col, orderBy("createdAt", "desc")))
@@ -82,11 +88,12 @@ export function WardrobeProvider({ children }: { children: React.ReactNode }) {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [userId]);
+  }, [useCloud, userId]);
 
   const add = useCallback((item: ClothingItem) => {
-    if (!userId || !db) return;
     setItems((prev) => [item, ...prev]);
+
+    if (!useCloud || !userId || !db) return;
 
     (async () => {
       let imageUrl = item.imageUrl;
@@ -99,43 +106,39 @@ export function WardrobeProvider({ children }: { children: React.ReactNode }) {
       const data = { ...item, imageUrl: imageUrl ?? null };
       await setDoc(doc(db!, "users", userId, "wardrobe", item.id), data);
     })();
-  }, [userId]);
+  }, [useCloud, userId]);
 
   const update = useCallback((item: ClothingItem) => {
-    if (!userId || !db) return;
     setItems((prev) => prev.map((i) => (i.id === item.id ? item : i)));
-    setDoc(doc(db!, "users", userId, "wardrobe", item.id), item).catch(console.error);
-  }, [userId]);
+    if (!useCloud || !userId || !db) return;
+    setDoc(doc(db, "users", userId, "wardrobe", item.id), item).catch(console.error);
+  }, [useCloud, userId]);
 
   const remove = useCallback((id: string) => {
-    if (!userId || !db) return;
     setItems((prev) => prev.filter((i) => i.id !== id));
-    deleteDoc(doc(db!, "users", userId, "wardrobe", id)).catch(console.error);
+    if (!useCloud || !userId || !db) return;
+    deleteDoc(doc(db, "users", userId, "wardrobe", id)).catch(console.error);
     if (storage) {
       deleteObject(ref(storage, `wardrobe/${userId}/${id}.jpg`)).catch(() => {/* no file = OK */});
     }
-  }, [userId]);
+  }, [useCloud, userId]);
 
   const clear = useCallback(() => {
-    if (!userId || !db) return;
     setItems([]);
-    // Delete all docs
+    if (!useCloud || !userId || !db) return;
     const col = collection(db, "users", userId, "wardrobe");
     getDocs(col).then(({ docs }) => {
       docs.forEach((d) => deleteDoc(d.ref).catch(console.error));
     });
-  }, [userId]);
+  }, [useCloud, userId]);
 
   // Migrate localStorage items to Firestore
   const migrate = useCallback(async () => {
-    if (!userId || !localItemsToMigrate.length) return;
-    for (const item of localItemsToMigrate) {
-      add(item);
-    }
-    // Clear localStorage after migration
+    if (!useCloud || !localItemsToMigrate.length) return;
+    for (const item of localItemsToMigrate) add(item);
     saveItems([]);
     setLocalItemsToMigrate([]);
-  }, [userId, localItemsToMigrate, add]);
+  }, [useCloud, localItemsToMigrate, add]);
 
   const dismissMigration = useCallback(() => {
     saveItems([]);
