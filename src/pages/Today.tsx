@@ -84,37 +84,6 @@ export default function Today() {
     [generate]
   );
 
-  if (isEmpty) {
-    return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="min-h-[100dvh] flex flex-col items-center justify-center gap-6 pb-24 px-8"
-        dir="rtl"
-      >
-        <svg width="48" height="56" viewBox="0 0 48 56" fill="none" aria-hidden className="opacity-40">
-          <rect x="2" y="2" width="44" height="52" rx="3" stroke="#5C3E22" strokeWidth="2" />
-          <line x1="24" y1="2" x2="24" y2="54" stroke="#5C3E22" strokeWidth="1.5" />
-          <line x1="2" y1="28" x2="46" y2="28" stroke="#5C3E22" strokeWidth="1" />
-          <circle cx="20" cy="17" r="2" fill="#B8956A" />
-          <circle cx="28" cy="17" r="2" fill="#B8956A" />
-        </svg>
-        <div className="text-center">
-          <p className="font-display text-lg text-ebony mb-2">הארון ריק</p>
-          <p className="font-editorial italic text-sm text-walnut-400">הוסיפי בגדים לארון תחילה</p>
-        </div>
-        <button
-          type="button"
-          onClick={() => navigate("/")}
-          className="brass-plate rounded-sm px-6 py-3 text-sm font-medium"
-        >
-          לארון שלי ←
-        </button>
-      </motion.div>
-    );
-  }
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -131,7 +100,28 @@ export default function Today() {
         <BridgeVisual items={outfitItems} loading={loading} />
 
         <AnimatePresence mode="wait">
-          {outfit || loading ? (
+          {isEmpty ? (
+            <motion.div
+              key="empty"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="mx-4 rounded-md border border-brass/20 bg-parchment-light p-6 text-center"
+              dir="rtl"
+            >
+              <p className="font-display text-base text-ebony mb-2">הארון ריק</p>
+              <p className="font-editorial italic text-sm text-walnut-400 mb-4">
+                הוסיפי בגדים לארון כדי לקבל המלצת לוק
+              </p>
+              <button
+                type="button"
+                onClick={() => navigate("/")}
+                className="brass-plate rounded-sm px-5 py-2.5 text-sm font-medium"
+              >
+                לארון שלי ←
+              </button>
+            </motion.div>
+          ) : outfit || loading ? (
             <OutfitCard
               key="card"
               outfit={outfit}

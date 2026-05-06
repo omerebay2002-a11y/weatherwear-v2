@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Camera, Sparkles, Loader2, RefreshCw } from "lucide-react";
-import { motion } from "framer-motion";
+import { Camera, Loader2, RefreshCw } from "lucide-react";
 import ItemDraftForm, { type ItemDraft } from "./ItemDraftForm";
 import { analyzeClothing } from "../../lib/claude";
 import type { ClothingItem } from "../../types";
@@ -16,44 +15,35 @@ export default function PhotoCapture({ onSave, onCancel, onError }: Props) {
   const [analyzing, setAnalyzing] = useState(false);
   const [draft, setDraft] = useState<ItemDraft | null>(null);
 
-  const handleFile = (file: File) => {
+  const handleFile = async (file: File) => {
     const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") {
-        setImageUrl(reader.result);
-        setDraft(null);
+    reader.onload = async () => {
+      const url = reader.result as string;
+      setImageUrl(url);
+      setDraft(null);
+      // Auto-analyze immediately — no extra button tap needed
+      setAnalyzing(true);
+      try {
+        const result = await analyzeClothing({ mode: "image", imageBase64: url });
+        setDraft({
+          name: result.name,
+          category: result.category,
+          color: result.color,
+          colorHex: result.colorHex,
+          material: result.material,
+          brand: result.brand,
+          model: result.model,
+          season: result.season,
+          formality: result.formality,
+        });
+      } catch {
+        onError("הניתוח נכשל. ערכי ידנית.");
+        setDraft({});
+      } finally {
+        setAnalyzing(false);
       }
     };
     reader.readAsDataURL(file);
-  };
-
-  const handleAnalyze = async () => {
-    if (!imageUrl) return;
-    setAnalyzing(true);
-    try {
-      const result = await analyzeClothing({ mode: "image", imageBase64: imageUrl });
-      setDraft({
-        name: result.name,
-        category: result.category,
-        color: result.color,
-        colorHex: result.colorHex,
-        material: result.material,
-        brand: result.brand,
-        model: result.model,
-        season: result.season,
-        formality: result.formality,
-      });
-    } catch (e) {
-      onError(
-        e instanceof Error
-          ? `הניתוח נכשל: ${e.message}`
-          : "הניתוח נכשל. אפשר להזין ידנית."
-      );
-      // Allow manual entry as fallback
-      setDraft({});
-    } finally {
-      setAnalyzing(false);
-    }
   };
 
   if (draft) {
@@ -70,7 +60,7 @@ export default function PhotoCapture({ onSave, onCancel, onError }: Props) {
   return (
     <div className="space-y-4" dir="rtl">
       {!imageUrl ? (
-        <label className="block">
+        <label className="block cursor-pointer">
           <input
             type="file"
             accept="image/*"
@@ -81,55 +71,34 @@ export default function PhotoCapture({ onSave, onCancel, onError }: Props) {
               if (f) handleFile(f);
             }}
           />
-          <div className="cursor-pointer rounded-sm border-2 border-dashed border-walnut-200 hover:border-walnut-400 hover:bg-walnut-50 transition py-12 flex flex-col items-center text-walnut-400">
-            <Camera className="h-10 w-10 mb-3" />
-            <span className="font-display text-base text-ebony mb-1">
-              צלמי או העלי תמונה
-            </span>
-            <span className="text-xs text-walnut-400">
-              של פריט בודד, רצוי על רקע נקי
-            </span>
+          <div className="rounded-sm border-2 border-dashed border-walnut-200 hover:border-brass transition py-14 flex flex-col items-center gap-3 text-walnut-400">
+            <Camera className="h-12 w-12" strokeWidth={1.4} />
+            <div className="text-center">
+              <p className="font-display text-base text-ebony">צלמי פריט</p>
+              <p className="text-xs text-walnut-400 mt-1">AI יזהה אוטומטית</p>
+            </div>
           </div>
         </label>
       ) : (
-        <>
-          <div className="relative aspect-square w-full overflow-hidden rounded-sm bg-parchment-dark">
-            <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+        <div className="relative aspect-square w-full overflow-hidden rounded-sm bg-parchment-dark">
+          <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+          {analyzing && (
+            <div className="absolute inset-0 bg-ebony/60 flex flex-col items-center justify-center gap-3">
+              <Loader2 className="h-8 w-8 animate-spin text-brass" />
+              <p className="font-editorial italic text-parchment text-sm">מזהה פריט…</p>
+            </div>
+          )}
+          {!analyzing && (
             <button
-              onClick={() => setImageUrl("")}
+              type="button"
+              onClick={() => { setImageUrl(""); setDraft(null); }}
               className="absolute top-2 left-2 frost-dark rounded-full p-2"
               aria-label="החליפי תמונה"
             >
               <RefreshCw className="h-4 w-4" />
             </button>
-          </div>
-
-          <motion.button
-            whileTap={{ scale: 0.97 }}
-            onClick={handleAnalyze}
-            disabled={analyzing}
-            className="brass-plate w-full font-display text-base py-4 rounded-sm flex items-center justify-center gap-2 tracking-wide"
-          >
-            {analyzing ? (
-              <>
-                <Loader2 className="h-5 w-5 animate-spin" />
-                מנתחת את הפריט…
-              </>
-            ) : (
-              <>
-                <Sparkles className="h-5 w-5" />
-                נתחי לי את הפריט
-              </>
-            )}
-          </motion.button>
-
-          <button
-            onClick={() => setDraft({})}
-            className="w-full text-center text-sm text-walnut-400 hover:text-walnut-600 transition py-2"
-          >
-            או — דלגי וערכי ידנית
-          </button>
-        </>
+          )}
+        </div>
       )}
     </div>
   );
