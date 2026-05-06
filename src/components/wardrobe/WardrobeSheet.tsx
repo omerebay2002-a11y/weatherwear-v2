@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { ChevronDown, Plus } from "lucide-react";
+import { ChevronDown, Plus, Sparkles } from "lucide-react";
 import Sheet from "../ui/Sheet";
 import ItemCard from "./ItemCard";
 import type { ClothingItem, ClothingCategory } from "../../types";
-import { CATEGORY_LABEL } from "../../lib/utils";
+import { CATEGORY_LABEL, newId } from "../../lib/utils";
+import { SEED_ITEMS } from "../../lib/seed-wardrobe";
+import { useWardrobe } from "../../contexts/WardrobeContext";
 
 const CATEGORY_ORDER: ClothingCategory[] = [
   "top", "bottom", "dress", "outerwear", "shoes", "bag", "accessory",
@@ -60,9 +62,27 @@ export default function WardrobeSheet({
   onAddClick,
 }: Props) {
   const reduced = useReducedMotion();
+  const { add } = useWardrobe();
   const [expanded, setExpanded] = useState<Set<ClothingCategory>>(
     () => new Set(initialCategories)
   );
+
+  const importSeed = () => {
+    SEED_ITEMS.forEach((seed, i) => {
+      add({
+        ...seed,
+        id: newId("seed"),
+        createdAt: Date.now() - (SEED_ITEMS.length - i) * 1000,
+        source: "type",
+      });
+    });
+  };
+
+  // Sync expanded with initialCategories whenever the sheet opens
+  // (so clicking a different compartment expands the correct category).
+  useEffect(() => {
+    if (open) setExpanded(new Set(initialCategories));
+  }, [open, initialCategories]);
 
   const toggle = (cat: ClothingCategory) =>
     setExpanded((prev) => {
@@ -87,16 +107,29 @@ export default function WardrobeSheet({
     <Sheet open={open} onClose={onClose} title="הארון שלי" height="full">
       <div dir="rtl" className="pb-4">
         {items.length === 0 ? (
-          <div className="py-12 text-center">
+          <div className="py-10 text-center">
             <p className="font-editorial italic text-xl text-walnut-400 mb-2">הארון ריק</p>
-            <p className="text-sm text-walnut-300 mb-6">הוסיפי את הפריט הראשון שלך</p>
-            <button
-              type="button"
-              onClick={() => { onClose(); onAddClick(); }}
-              className="brass-plate rounded-sm px-8 py-3 text-sm font-medium"
-            >
-              הוסיפי פריט
-            </button>
+            <p className="text-sm text-walnut-300 mb-6">
+              הוסיפי את הפריט הראשון שלך,<br />
+              או ייבאי את הפריטים שכבר יש לך
+            </p>
+            <div className="flex flex-col gap-2.5 max-w-[260px] mx-auto">
+              <button
+                type="button"
+                onClick={importSeed}
+                className="brass-plate rounded-sm px-6 py-3 text-sm font-medium flex items-center justify-center gap-2"
+              >
+                <Sparkles className="h-4 w-4" />
+                ייבאי {SEED_ITEMS.length} פריטים מה-PDF
+              </button>
+              <button
+                type="button"
+                onClick={() => { onClose(); onAddClick(); }}
+                className="rounded-sm border border-walnut-200 px-6 py-2.5 text-sm text-walnut-500 hover:border-walnut-300 transition"
+              >
+                הוסיפי פריט חדש
+              </button>
+            </div>
           </div>
         ) : (
           <div className="space-y-1">
