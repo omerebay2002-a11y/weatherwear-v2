@@ -15,7 +15,7 @@ const COMPARTMENT_TO_CATEGORIES: Record<Compartment, ClothingCategory[]> = {
   shirts: ["top", "dress"],
   coats: ["outerwear"],
   folded: ["bottom", "shoes"],
-  drawers: ["accessory", "bag"],
+  drawers: ["underwear", "socks", "accessory", "bag"],
 };
 
 export default function Wardrobe() {

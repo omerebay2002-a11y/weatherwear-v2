@@ -9,7 +9,7 @@ export const SEED_ITEMS: Seed[] = [
   // ─── Accessories ──────────────────────────────────────
   { name: "Oakley Frogskins", category: "accessory", brand: "Oakley", model: "Frogskins", color: "שחור", colorHex: "#1a1a1a", season: "all", formality: "casual", material: "synthetic" },
   { name: "Garmin fenix 6 Pro Solar", category: "accessory", brand: "Garmin", model: "fenix 6 Pro Solar", color: "שחור", colorHex: "#2a2a2a", season: "all", formality: "sport", material: "synthetic" },
-  { name: "Smartwool Full Cushion", category: "accessory", brand: "Smartwool", model: "Full Cushion", color: "אפור", colorHex: "#7a7a7a", season: "winter", formality: "casual", material: "wool" },
+  { name: "Smartwool Full Cushion", category: "socks", brand: "Smartwool", model: "Full Cushion", color: "אפור", colorHex: "#7a7a7a", season: "winter", formality: "casual", material: "wool" },
 
   // ─── Bag ──────────────────────────────────────
   { name: "Patagonia Black Hole Pack 25L", category: "bag", brand: "Patagonia", model: "Black Hole 25L", color: "שחור", colorHex: "#1c1c1c", season: "all", formality: "casual", material: "synthetic" },

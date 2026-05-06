@@ -36,11 +36,13 @@ export function temperatureFeel(c: number): "cold" | "cool" | "mild" | "warm" | 
 }
 
 export const CATEGORY_LABEL: Record<string, string> = {
-  top: "חולצה",
+  top: "חולצות",
   bottom: "מכנסיים",
-  dress: "שמלה",
-  outerwear: "מעיל",
+  dress: "שמלות",
+  outerwear: "מעילים",
+  underwear: "תחתונים",
+  socks: "גרביים",
   shoes: "נעליים",
-  bag: "תיק",
-  accessory: "אקססוריז",
+  bag: "תיקים",
+  accessory: "תכשיטים",
 };

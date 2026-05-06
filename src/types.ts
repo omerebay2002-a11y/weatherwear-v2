@@ -7,9 +7,11 @@ export type ClothingCategory =
   | "bottom"     // מכנסיים
   | "dress"      // שמלות
   | "outerwear"  // מעילים
+  | "underwear"  // תחתונים
+  | "socks"      // גרביים
   | "shoes"      // נעליים
   | "bag"        // תיקים
-  | "accessory"; // אקססוריז
+  | "accessory"; // תכשיטים
 
 export type Material =
   | "cotton"   // כותנה

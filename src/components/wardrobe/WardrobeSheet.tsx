@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { ChevronDown, Plus, Sparkles } from "lucide-react";
+import { ChevronDown, Plus, Sparkles, ExternalLink, LogOut } from "lucide-react";
 import Sheet from "../ui/Sheet";
 import ItemCard from "./ItemCard";
 import type { ClothingItem, ClothingCategory } from "../../types";
 import { CATEGORY_LABEL, newId } from "../../lib/utils";
 import { SEED_ITEMS } from "../../lib/seed-wardrobe";
 import { useWardrobe } from "../../contexts/WardrobeContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 const CATEGORY_ORDER: ClothingCategory[] = [
-  "top", "bottom", "dress", "outerwear", "shoes", "bag", "accessory",
+  "outerwear", "top", "dress", "bottom", "underwear", "socks", "shoes", "bag", "accessory",
 ];
 
 const CATEGORY_EMOJI: Record<ClothingCategory, string> = {
@@ -17,6 +18,8 @@ const CATEGORY_EMOJI: Record<ClothingCategory, string> = {
   bottom: "👖",
   dress: "👗",
   outerwear: "🧥",
+  underwear: "🩲",
+  socks: "🧦",
   shoes: "👟",
   bag: "👜",
   accessory: "💍",
@@ -28,8 +31,8 @@ function titleFor(initialCategories: ClothingCategory[]): string {
   const set = new Set(initialCategories);
   if (set.has("outerwear") && set.size === 1) return "🧥 מעילים";
   if (set.has("top") && set.has("dress")) return "👚 חולצות ושמלות";
-  if (set.has("bottom") && set.has("shoes")) return "👖 מקופלים ונעליים";
-  if (set.has("accessory") && set.has("bag")) return "👜 אקססוריז ותיקים";
+  if (set.has("bottom") && set.has("shoes")) return "👖 מכנסיים ונעליים";
+  if (set.has("underwear") && set.has("socks")) return "🧦 תחתונים, גרביים ותכשיטים";
   return "הארון שלי";
 }
 
@@ -74,6 +77,11 @@ export default function WardrobeSheet({
 }: Props) {
   const reduced = useReducedMotion();
   const { add } = useWardrobe();
+  const { configured, userId, user, signOut } = useAuth();
+  const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID as string | undefined;
+  const cloudUrl = projectId
+    ? `https://console.firebase.google.com/project/${projectId}/firestore/data/~2Fusers~2F${userId}~2Fwardrobe`
+    : null;
   const [expanded, setExpanded] = useState<Set<ClothingCategory>>(
     () => new Set(initialCategories)
   );
@@ -255,6 +263,34 @@ export default function WardrobeSheet({
               <Plus className="h-4 w-4" />
               הוסיפי פריט נוסף
             </motion.button>
+          </div>
+        )}
+
+        {/* Cloud + account footer */}
+        {configured && userId && (
+          <div className="mt-6 pt-4 border-t border-walnut-100/60 space-y-2">
+            {user?.email && (
+              <p className="text-[11px] text-walnut-400 text-center">{user.email}</p>
+            )}
+            {cloudUrl && (
+              <a
+                href={cloudUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 text-xs text-walnut-500 hover:text-ebony transition py-2"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                צפי בכל הפריטים בענן
+              </a>
+            )}
+            <button
+              type="button"
+              onClick={() => { signOut(); onClose(); }}
+              className="w-full flex items-center justify-center gap-2 text-xs text-walnut-400 hover:text-ebony transition py-2"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              התנתקי
+            </button>
           </div>
         )}
       </div>

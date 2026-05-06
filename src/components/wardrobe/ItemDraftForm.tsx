@@ -25,13 +25,15 @@ interface Props {
 }
 
 const CATEGORIES: { v: ClothingCategory; label: string }[] = [
-  { v: "top", label: "חולצה" },
-  { v: "bottom", label: "מכנסיים" },
-  { v: "dress", label: "שמלה" },
   { v: "outerwear", label: "מעיל" },
+  { v: "top", label: "חולצה" },
+  { v: "dress", label: "שמלה" },
+  { v: "bottom", label: "מכנסיים" },
+  { v: "underwear", label: "תחתונים" },
+  { v: "socks", label: "גרביים" },
   { v: "shoes", label: "נעליים" },
   { v: "bag", label: "תיק" },
-  { v: "accessory", label: "אקססוריז" },
+  { v: "accessory", label: "תכשיטים" },
 ];
 
 const MATERIALS: { v: Material; label: string }[] = [

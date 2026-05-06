@@ -11,7 +11,7 @@ const SYSTEM_PROMPT = `אתה עוזר זיהוי בגדים שכותב בעבר
 
 {
   "name": "תיאור קצר ומדויק בעברית, לדוגמה: ג׳ינס Levi's 501 כחול כהה",
-  "category": "top" | "bottom" | "dress" | "outerwear" | "shoes" | "bag" | "accessory",
+  "category": "top" | "bottom" | "dress" | "outerwear" | "underwear" | "socks" | "shoes" | "bag" | "accessory",
   "color": "שם הצבע בעברית, לדוגמה: שחור, כחול ג׳ינס, ורוד עתיק",
   "colorHex": "#RRGGBB — קוד הקסדצימלי מדויק של הצבע הראשי",
   "material": "cotton" | "denim" | "wool" | "linen" | "silk" | "leather" | "synthetic" | "other" | null,
@@ -24,7 +24,7 @@ const SYSTEM_PROMPT = `אתה עוזר זיהוי בגדים שכותב בעבר
 הנחיות:
 - אם בתמונה יש כמה פריטים, התמקד בפריט המרכזי (הגדול ביותר / החזיתי).
 - אם השדה לא מזוהה — החזר null, לא ניחוש.
-- אם זה פריט עליון: category=top. ז'קט/מעיל: outerwear. שמלה: dress. נעליים: shoes. תיק: bag. תכשיט/חגורה/כובע: accessory.
+- חולצה/טישרט/סוודר/הודי: top. מכנסיים/ג'ינס/שורט: bottom. שמלה: dress. ז'קט/מעיל: outerwear. תחתון/בוקסר/חזייה: underwear. גרביים/גרביונים: socks. נעליים/סנדלים: shoes. תיק/תרמיל: bag. תכשיט/שעון/משקפיים/חגורה/כובע: accessory.
 - מותג: רק אם וודאי. ספק -> null.
 - החזר JSON תקני בלי backticks ובלי json wrapper.`;
 
