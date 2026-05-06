@@ -1,0 +1,484 @@
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; direction: rtl; }
+
+  .question-header {
+    text-align: center;
+    padding: 24px 20px 16px;
+  }
+  .question-header h2 { font-size: 1.25rem; font-weight: 700; color: #1A1410; }
+  .question-header p { color: #4A3829; font-size: 0.875rem; margin-top: 6px; }
+
+  .phone-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: 0 20px 32px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .phone-option {
+    cursor: pointer;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    transition: border-color 0.2s, transform 0.15s;
+    overflow: hidden;
+    background: #FAF6EE;
+  }
+  .phone-option:hover { border-color: #B8956A; transform: translateY(-3px); }
+  .phone-option.selected { border-color: #5C3E22; box-shadow: 0 0 0 1px #5C3E22; }
+
+  .phone-label {
+    padding: 10px 14px;
+    background: #1A1410;
+    color: #F5EFE6;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .phone-label .badge {
+    background: #B8956A;
+    color: #1A1410;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  /* Phone screen mockups */
+  .phone-screen {
+    width: 100%;
+    aspect-ratio: 9/16;
+    overflow: hidden;
+    position: relative;
+    font-family: 'Heebo', system-ui, sans-serif;
+    direction: rtl;
+    background: #F5EFE6;
+  }
+
+  /* ---- OPTION A: Editorial Outfit Dashboard ---- */
+  .screen-a { background: #F5EFE6; }
+  .screen-a .weather-hero {
+    background: linear-gradient(160deg, #2C2218 0%, #4A3829 100%);
+    padding: 18px 14px 14px;
+    color: #F5EFE6;
+    position: relative;
+  }
+  .screen-a .city { font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.6; }
+  .screen-a .temp-row { display: flex; align-items: flex-end; gap: 6px; margin-top: 4px; }
+  .screen-a .temp-big { font-size: 2.4rem; font-weight: 300; line-height: 1; }
+  .screen-a .temp-meta { font-size: 0.55rem; opacity: 0.7; padding-bottom: 4px; }
+  .screen-a .condition-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(184,149,106,0.25);
+    border: 1px solid rgba(184,149,106,0.4);
+    border-radius: 20px; padding: 3px 8px;
+    font-size: 0.55rem; margin-top: 6px; color: #D9B47C;
+  }
+  .screen-a .outfit-section { padding: 10px 12px; }
+  .screen-a .outfit-title { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: #8C6B42; margin-bottom: 8px; }
+  .screen-a .outfit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+  .screen-a .outfit-item {
+    background: #FAF6EE; border-radius: 4px;
+    border: 1px solid rgba(184,149,106,0.2);
+    padding: 8px 6px;
+    display: flex; flex-direction: column; gap: 3px;
+    align-items: flex-start;
+  }
+  .screen-a .item-color {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 1.5px solid rgba(0,0,0,0.1);
+  }
+  .screen-a .item-name { font-size: 0.5rem; font-weight: 600; color: #1A1410; line-height: 1.2; }
+  .screen-a .item-cat { font-size: 0.42rem; color: #4A3829; text-transform: uppercase; letter-spacing: 0.1em; }
+  .screen-a .ai-explanation {
+    margin: 8px 12px; background: #FAF6EE;
+    border: 1px solid rgba(184,149,106,0.2);
+    border-radius: 4px; padding: 8px;
+    font-size: 0.5rem; color: #4A3829; font-style: italic; line-height: 1.4;
+  }
+  .screen-a .ai-explanation .stylist-tag {
+    font-size: 0.42rem; text-transform: uppercase; letter-spacing: 0.1em;
+    color: #B8956A; font-style: normal; margin-bottom: 3px; display: block;
+  }
+  .screen-a .occasion-strip {
+    display: flex; gap: 4px; padding: 0 12px; flex-wrap: wrap;
+  }
+  .screen-a .occ-chip {
+    font-size: 0.42rem; padding: 3px 7px;
+    border: 1px solid #E8DDC9; border-radius: 4px;
+    color: #4A3829; letter-spacing: 0.1em; text-transform: uppercase;
+    background: #FAF6EE;
+  }
+  .screen-a .occ-chip.active {
+    border-color: #B8956A; color: #5C3E22; background: #F5EFE6;
+  }
+  .screen-a .chat-btn {
+    margin: 10px 12px 0; width: calc(100% - 24px);
+    background: linear-gradient(135deg, #E8C896, #B8956A);
+    border: none; border-radius: 4px; padding: 8px;
+    font-size: 0.55rem; font-weight: 700; color: #1A1410;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+  }
+
+  /* ---- OPTION B: Story-Style Immersive ---- */
+  .screen-b { background: #1A1410; }
+  .screen-b .top-bg {
+    background: linear-gradient(180deg, #3D2A1A 0%, #1A1410 100%);
+    padding: 16px 12px 20px; position: relative;
+  }
+  .screen-b .weather-compact {
+    display: flex; align-items: center; justify-content: space-between;
+    color: #E8DDC9;
+  }
+  .screen-b .w-temp { font-size: 2rem; font-weight: 200; color: #F5EFE6; }
+  .screen-b .w-right { text-align: left; }
+  .screen-b .w-city { font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.5; }
+  .screen-b .w-cond { font-size: 0.55rem; color: #B8956A; margin-top: 2px; }
+  .screen-b .w-icon { font-size: 2rem; opacity: 0.8; }
+
+  .screen-b .outfit-hero {
+    background: #2C2218; border-radius: 8px 8px 0 0;
+    padding: 14px 12px; margin: 0; position: relative;
+  }
+  .screen-b .outfit-hero-title {
+    font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: #B8956A; margin-bottom: 10px;
+  }
+  .screen-b .outfit-items-row {
+    display: flex; gap: 6px; overflow: hidden;
+  }
+  .screen-b .outfit-item-v {
+    flex: 1; background: #3D2A1A; border-radius: 4px;
+    padding: 8px 5px; display: flex; flex-direction: column;
+    align-items: center; gap: 4px;
+    border: 1px solid rgba(184,149,106,0.15);
+  }
+  .screen-b .item-dot { width: 20px; height: 20px; border-radius: 50%; }
+  .screen-b .item-lbl { font-size: 0.42rem; color: #D9B47C; text-align: center; line-height: 1.3; }
+
+  .screen-b .explanation-area {
+    background: #2C2218; padding: 10px 12px;
+    border-top: 1px solid rgba(184,149,106,0.15);
+  }
+  .screen-b .exp-label { font-size: 0.42rem; letter-spacing: 0.15em; text-transform: uppercase; color: #8C6B42; margin-bottom: 4px; }
+  .screen-b .exp-text { font-size: 0.5rem; color: #D9B47C; font-style: italic; line-height: 1.5; }
+
+  .screen-b .bottom-controls {
+    background: #1A1410; padding: 10px 12px; display: flex; gap: 6px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+  .screen-b .ctrl-chip {
+    flex: 1; background: #2C2218; border-radius: 4px; padding: 6px 4px;
+    text-align: center; font-size: 0.42rem; color: #B8956A;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    border: 1px solid rgba(184,149,106,0.2);
+  }
+  .screen-b .ctrl-chip.main {
+    background: linear-gradient(135deg, #E8C896, #B8956A);
+    color: #1A1410; font-weight: 700;
+  }
+
+  /* ---- OPTION C: Bridge / Hub ---- */
+  .screen-c { background: #F5EFE6; }
+  .screen-c .top-bar {
+    background: #F5EFE6; padding: 10px 12px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid #E8DDC9;
+  }
+  .screen-c .mini-weather {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.55rem; color: #1A1410;
+  }
+  .screen-c .mini-temp { font-size: 1rem; font-weight: 300; }
+  .screen-c .mini-city { font-size: 0.42rem; color: #4A3829; }
+  .screen-c .mini-occasion {
+    font-size: 0.42rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: #B8956A; background: rgba(184,149,106,0.1);
+    border: 1px solid rgba(184,149,106,0.3);
+    padding: 3px 7px; border-radius: 4px;
+  }
+  .screen-c .bridge-visual {
+    background: linear-gradient(135deg, #2C2218, #4A3829);
+    margin: 8px 12px; border-radius: 6px; padding: 12px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px;
+  }
+  .screen-c .mini-cabinet {
+    width: 40px; height: 50px; background: #5C3E22; border-radius: 3px;
+    display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0;
+    border: 1px solid #8C6B42;
+  }
+  .screen-c .cab-top { flex: 1.2; border-bottom: 1px solid #8C6B42; display: flex; gap: 1px; }
+  .screen-c .cab-door { flex: 1; background: #4A2C18; }
+  .screen-c .cab-bot { flex: 1; display: flex; gap: 1px; }
+  .screen-c .cab-drawer { flex: 1; background: #3D2214; border-radius: 1px; }
+  .screen-c .bridge-arrow { color: #B8956A; font-size: 1.2rem; opacity: 0.8; }
+  .screen-c .outfit-preview {
+    flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 3px;
+  }
+  .screen-c .prev-item {
+    background: rgba(245,239,230,0.1); border-radius: 3px;
+    border: 1px solid rgba(184,149,106,0.25);
+    height: 22px; display: flex; align-items: center; justify-content: center;
+  }
+  .screen-c .prev-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  .screen-c .result-card {
+    background: #FAF6EE; border: 1px solid rgba(184,149,106,0.2);
+    border-radius: 6px; margin: 0 12px 8px;
+    overflow: hidden;
+  }
+  .screen-c .result-header {
+    padding: 8px 10px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid rgba(184,149,106,0.15);
+  }
+  .screen-c .result-title {
+    font-size: 0.55rem; font-weight: 700; color: #1A1410;
+  }
+  .screen-c .result-sub {
+    font-size: 0.42rem; color: #8C6B42; text-transform: uppercase; letter-spacing: 0.1em;
+  }
+  .screen-c .result-items {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+    border-bottom: 1px solid rgba(184,149,106,0.15);
+  }
+  .screen-c .ri {
+    padding: 8px 4px; border-left: 1px solid rgba(184,149,106,0.1);
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+  }
+  .screen-c .ri:last-child { border-left: none; }
+  .screen-c .ri-dot { width: 16px; height: 16px; border-radius: 50%; }
+  .screen-c .ri-name { font-size: 0.38rem; color: #1A1410; text-align: center; line-height: 1.2; }
+  .screen-c .result-exp {
+    padding: 7px 10px; font-size: 0.48rem; font-style: italic;
+    color: #4A3829; line-height: 1.5;
+  }
+
+  .screen-c .filter-row {
+    display: flex; gap: 5px; padding: 0 12px 8px; overflow: hidden;
+  }
+  .screen-c .f-chip {
+    flex-shrink: 0; font-size: 0.42rem; padding: 4px 8px;
+    border: 1px solid #E8DDC9; border-radius: 20px;
+    color: #4A3829; text-transform: uppercase; letter-spacing: 0.1em;
+    background: transparent;
+  }
+  .screen-c .f-chip.on { border-color: #B8956A; color: #5C3E22; }
+
+  .screen-c .action-row {
+    display: flex; gap: 6px; padding: 0 12px;
+  }
+  .screen-c .act-btn {
+    flex: 1; padding: 8px; border-radius: 4px; font-size: 0.5rem; font-weight: 600;
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+  }
+  .screen-c .act-primary {
+    background: linear-gradient(135deg, #E8C896, #B8956A); color: #1A1410;
+  }
+  .screen-c .act-ghost {
+    background: transparent; border: 1px solid rgba(184,149,106,0.4);
+    color: #5C3E22;
+  }
+
+  /* Descriptions */
+  .option-desc {
+    padding: 10px 14px 14px; direction: rtl;
+  }
+  .option-desc h3 { font-size: 0.85rem; font-weight: 700; color: #1A1410; margin-bottom: 4px; }
+  .option-desc p { font-size: 0.72rem; color: #4A3829; line-height: 1.4; }
+</style>
+
+<div class="question-header">
+  <h2>איזה כיוון עיצובי מרגיש נכון?</h2>
+  <p>בחרי את הגישה לדף החדש — זה ישפיע על כל השאר</p>
+</div>
+
+<div class="phone-grid">
+
+  <!-- OPTION A -->
+  <div class="phone-option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="phone-label">
+      <span class="badge">A</span>
+      לוח בוקר עריכתי
+    </div>
+    <div class="phone-screen screen-a">
+      <div class="weather-hero">
+        <div class="city">תל אביב · עכשיו</div>
+        <div class="temp-row">
+          <div class="temp-big">23°</div>
+          <div class="temp-meta">מרגיש 21° · יום יפה</div>
+        </div>
+        <div class="condition-pill">☀️ בהיר חלקית</div>
+      </div>
+      <div class="occasion-strip" style="padding: 8px 12px 4px; gap: 5px;">
+        <div class="occ-chip active">יום יום</div>
+        <div class="occ-chip">עבודה</div>
+        <div class="occ-chip">ערב</div>
+        <div class="occ-chip">ספורט</div>
+      </div>
+      <div class="outfit-section">
+        <div class="outfit-title">הלוק להיום</div>
+        <div class="outfit-grid">
+          <div class="outfit-item">
+            <div class="item-color" style="background:#E8C4A0;"></div>
+            <div class="item-name">חולצת פשתן בז׳</div>
+            <div class="item-cat">חולצה</div>
+          </div>
+          <div class="outfit-item">
+            <div class="item-color" style="background:#2D3A4A;"></div>
+            <div class="item-name">ג׳ינס כחול כהה</div>
+            <div class="item-cat">מכנסיים</div>
+          </div>
+          <div class="outfit-item">
+            <div class="item-color" style="background:#C4B5A0;"></div>
+            <div class="item-name">סניקרס קרם</div>
+            <div class="item-cat">נעליים</div>
+          </div>
+          <div class="outfit-item">
+            <div class="item-color" style="background:#8B6F47;"></div>
+            <div class="item-name">תיק עור חום</div>
+            <div class="item-cat">תיק</div>
+          </div>
+        </div>
+      </div>
+      <div class="ai-explanation">
+        <span class="stylist-tag">הסטייליסטית אומרת</span>
+        פשתן בבוקר חמים כזה — תחושה קלה ונכונה לאוויר של ת״א.
+      </div>
+      <div class="chat-btn">💬 שאלי אותי משהו</div>
+    </div>
+    <div class="option-desc">
+      <h3>לוח עריכתי</h3>
+      <p>מזג אוויר + לוק + הסבר AI — הכל בדף אחד נקי. כרטיסיות הזדמנות בחלק העליון.</p>
+    </div>
+  </div>
+
+  <!-- OPTION B -->
+  <div class="phone-option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="phone-label">
+      <span class="badge">B</span>
+      אימרסיבי כהה
+    </div>
+    <div class="phone-screen screen-b">
+      <div class="top-bg">
+        <div class="weather-compact">
+          <div>
+            <div class="w-temp">23°</div>
+            <div class="w-city">תל אביב</div>
+          </div>
+          <div class="w-right">
+            <div class="w-icon">☀️</div>
+            <div class="w-cond" style="text-align:left">בהיר חלקית</div>
+          </div>
+        </div>
+      </div>
+      <div class="outfit-hero">
+        <div class="outfit-hero-title">הלוק שלי להיום · יום יום</div>
+        <div class="outfit-items-row">
+          <div class="outfit-item-v">
+            <div class="item-dot" style="background:#E8C4A0;"></div>
+            <div class="item-lbl">חולצת פשתן</div>
+          </div>
+          <div class="outfit-item-v">
+            <div class="item-dot" style="background:#2D3A4A;"></div>
+            <div class="item-lbl">ג׳ינס כהה</div>
+          </div>
+          <div class="outfit-item-v">
+            <div class="item-dot" style="background:#C4B5A0;"></div>
+            <div class="item-lbl">סניקרס</div>
+          </div>
+          <div class="outfit-item-v">
+            <div class="item-dot" style="background:#8B6F47;"></div>
+            <div class="item-lbl">תיק עור</div>
+          </div>
+        </div>
+      </div>
+      <div class="explanation-area">
+        <div class="exp-label">הסטייליסטית</div>
+        <div class="exp-text">פשתן בבוקר חמים כזה — תחושה קלה ונכונה לאוויר של ת״א.</div>
+      </div>
+      <div class="bottom-controls">
+        <div class="ctrl-chip">⟳ שנה</div>
+        <div class="ctrl-chip main">💬 שוחח</div>
+        <div class="ctrl-chip">ערב ›</div>
+      </div>
+    </div>
+    <div class="option-desc">
+      <h3>אימרסיבי כהה</h3>
+      <p>רקע כהה (walnut) שמדגיש את הבגדים. תחושת לוקר-רום, יוקרתי ודרמטי.</p>
+    </div>
+  </div>
+
+  <!-- OPTION C -->
+  <div class="phone-option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="phone-label">
+      <span class="badge">C</span>
+      ״הגשר״ — ארון + היום
+    </div>
+    <div class="phone-screen screen-c">
+      <div class="top-bar">
+        <div class="mini-weather">
+          <span>☀️</span>
+          <div>
+            <div class="mini-temp">23°</div>
+            <div class="mini-city">תל אביב</div>
+          </div>
+        </div>
+        <div class="mini-occasion">יום יום ▾</div>
+      </div>
+      <div class="bridge-visual">
+        <div class="mini-cabinet">
+          <div class="cab-top">
+            <div class="cab-door"></div>
+            <div class="cab-door"></div>
+          </div>
+          <div class="cab-bot">
+            <div class="cab-drawer"></div>
+            <div class="cab-drawer"></div>
+          </div>
+        </div>
+        <div class="bridge-arrow">→</div>
+        <div class="outfit-preview">
+          <div class="prev-item"><div class="prev-dot" style="background:#E8C4A0;"></div></div>
+          <div class="prev-item"><div class="prev-dot" style="background:#2D3A4A;"></div></div>
+          <div class="prev-item"><div class="prev-dot" style="background:#C4B5A0;"></div></div>
+          <div class="prev-item"><div class="prev-dot" style="background:#8B6F47;"></div></div>
+        </div>
+      </div>
+      <div class="filter-row">
+        <div class="f-chip on">עכשיו</div>
+        <div class="f-chip">בוקר מחר</div>
+        <div class="f-chip">ערב מחר</div>
+      </div>
+      <div class="result-card">
+        <div class="result-header">
+          <div class="result-title">הלוק המומלץ</div>
+          <div class="result-sub">AI · 4 פריטים</div>
+        </div>
+        <div class="result-items">
+          <div class="ri"><div class="ri-dot" style="background:#E8C4A0;"></div><div class="ri-name">חולצת פשתן</div></div>
+          <div class="ri"><div class="ri-dot" style="background:#2D3A4A;"></div><div class="ri-name">ג׳ינס כהה</div></div>
+          <div class="ri"><div class="ri-dot" style="background:#C4B5A0;"></div><div class="ri-name">סניקרס</div></div>
+          <div class="ri"><div class="ri-dot" style="background:#8B6F47;"></div><div class="ri-name">תיק עור</div></div>
+        </div>
+        <div class="result-exp">פשתן בבוקר חמים כזה — תחושה קלה ונכונה לאוויר של ת״א.</div>
+      </div>
+      <div class="action-row">
+        <div class="act-btn act-ghost">⟳ לוק אחר</div>
+        <div class="act-btn act-primary">💬 שוחח עם סטייליסטית</div>
+      </div>
+    </div>
+    <div class="option-desc">
+      <h3>הגשר</h3>
+      <p>מראה ויזואלית את החיבור בין הארון לתוצאה. ״מהארון שלך ← לזה תלביש היום״.</p>
+    </div>
+  </div>
+
+</div>

@@ -1,29 +1,42 @@
-import { useState, useMemo, lazy, Suspense } from "react";
+import { useState, lazy, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, X } from "lucide-react";
 import { useWardrobe } from "../contexts/WardrobeContext";
 import ItemDetailDialog from "../components/wardrobe/ItemDetailDialog";
 import AddItemSheet from "../components/wardrobe/AddItemSheet";
-import CompartmentSheet from "../components/wardrobe/CompartmentSheet";
-import type { ClothingItem } from "../types";
+import WardrobeSheet from "../components/wardrobe/WardrobeSheet";
+import type { ClothingItem, ClothingCategory } from "../types";
 import type { Compartment } from "../components/room/Cabinet";
 
-// Code-split the 3D scene — keeps Today page bundle small
+// Code-split the 3D scene
 const Room3D = lazy(() => import("../components/room/Room3D"));
+
+const COMPARTMENT_TO_CATEGORIES: Record<Compartment, ClothingCategory[]> = {
+  shirts: ["top", "dress"],
+  coats: ["outerwear"],
+  folded: ["bottom", "shoes"],
+  drawers: ["accessory", "bag"],
+};
 
 export default function Wardrobe() {
   const { items, remove } = useWardrobe();
-  const [open, setOpen] = useState(false);
+  const [cabinetOpen, setCabinetOpen] = useState(false);
   const [adding, setAdding] = useState(false);
   const [selected, setSelected] = useState<ClothingItem | null>(null);
-  const [compartment, setCompartment] = useState<Compartment | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [initialCategories, setInitialCategories] = useState<ClothingCategory[]>([]);
 
   const itemCount = items.length;
-  const hint = useMemo(() => {
-    if (open) return "הקליקי על מדור בארון לראות פריטים";
-    if (itemCount === 0) return "הקליקי על הארון לפתיחה";
-    return `${itemCount} פריטים · הקליקי על הארון לפתיחה`;
-  }, [open, itemCount]);
+  const hint = cabinetOpen
+    ? "הקליקי על מדור בארון לראות פריטים"
+    : itemCount === 0
+    ? "הקליקי על הארון לפתיחה"
+    : `${itemCount} פריטים · הקליקי על הארון לפתיחה`;
+
+  const handleCompartmentClick = (compartment: Compartment) => {
+    setInitialCategories(COMPARTMENT_TO_CATEGORIES[compartment]);
+    setSheetOpen(true);
+  };
 
   return (
     <motion.div
@@ -43,23 +56,22 @@ export default function Wardrobe() {
           }
         >
           <Room3D
-            open={open}
-            onToggle={() => setOpen((o) => !o)}
-            onCompartmentClick={setCompartment}
+            open={cabinetOpen}
+            onToggle={() => setCabinetOpen((o) => !o)}
+            onCompartmentClick={handleCompartmentClick}
           />
         </Suspense>
       </div>
 
-      {/* Hint — only when cabinet is closed */}
+      {/* Hint */}
       <AnimatePresence>
-        {!open && (
+        {!cabinetOpen && (
           <motion.div
             key="hint"
             className="absolute top-4 inset-x-0 z-20 pointer-events-none safe-top text-center"
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.25 }}
           >
             <p className="font-editorial italic text-sm text-walnut-500">{hint}</p>
           </motion.div>
@@ -79,17 +91,16 @@ export default function Wardrobe() {
         <Plus className="h-7 w-7" strokeWidth={2.2} />
       </motion.button>
 
-      {/* Close cabinet — top-right corner, appears only when open */}
+      {/* Close cabinet */}
       <AnimatePresence>
-        {open && (
+        {cabinetOpen && (
           <motion.button
-            key="close-cabinet"
+            key="close"
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            transition={{ type: "spring", damping: 24, stiffness: 300 }}
             whileTap={{ scale: 0.88 }}
-            onClick={() => setOpen(false)}
+            onClick={() => setCabinetOpen(false)}
             className="absolute top-4 right-4 z-30 safe-top frost-dark rounded-full h-11 w-11 flex items-center justify-center shadow-soft-lg"
             aria-label="סגרי ארון"
           >
@@ -99,12 +110,13 @@ export default function Wardrobe() {
       </AnimatePresence>
 
       {/* Modals */}
-      <CompartmentSheet
-        compartment={compartment}
+      <WardrobeSheet
+        open={sheetOpen}
+        initialCategories={initialCategories}
         items={items}
-        onClose={() => setCompartment(null)}
+        onClose={() => setSheetOpen(false)}
         onItemClick={(item) => {
-          setCompartment(null);
+          setSheetOpen(false);
           setSelected(item);
         }}
         onAddClick={() => setAdding(true)}
