@@ -1,4 +1,5 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
+import { useAnimate } from "framer-motion";
 import { Loader2, Sparkles, ImagePlus } from "lucide-react";
 import ItemDraftForm, { type ItemDraft } from "./ItemDraftForm";
 import { analyzeClothing } from "../../lib/claude";
@@ -15,7 +16,7 @@ export default function TypeCapture({ onSave, onCancel }: Props) {
   const [analyzing, setAnalyzing] = useState(false);
   const [draft, setDraft] = useState<ItemDraft | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [inputScope, animateInput] = useAnimate();
 
   const handleAnalyze = async () => {
     const trimmed = text.trim();
@@ -37,6 +38,7 @@ export default function TypeCapture({ onSave, onCancel }: Props) {
       });
     } catch {
       setError("לא הצלחתי לזהות — נסי שוב או ערכי ידנית");
+      animateInput(inputScope.current, { x: [0, -8, 8, -8, 8, 0] }, { duration: 0.4 });
       setDraft({});
     } finally {
       setAnalyzing(false);
@@ -67,9 +69,8 @@ export default function TypeCapture({ onSave, onCancel }: Props) {
       {/* AI text input */}
       <div className="space-y-2">
         <p className="text-xs tracking-widest uppercase text-walnut-400">תארי את הפריט</p>
-        <div className="relative">
+        <div className="relative" ref={inputScope}>
           <input
-            ref={inputRef}
             type="text"
             value={text}
             onChange={(e) => setText(e.target.value)}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ChevronDown, Plus } from "lucide-react";
 import Sheet from "../ui/Sheet";
 import ItemCard from "./ItemCard";
@@ -20,6 +20,28 @@ const CATEGORY_EMOJI: Record<ClothingCategory, string> = {
   accessory: "💍",
 };
 
+// ─── Variants ────────────────────────────────────────────────────────────────
+
+const gridVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.05, delayChildren: 0.05 },
+  },
+  exit: {
+    opacity: 0,
+    transition: { staggerChildren: 0.03, staggerDirection: -1 as const },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.22 } },
+  exit: { opacity: 0, y: 4, transition: { duration: 0.15 } },
+};
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
 interface Props {
   open: boolean;
   initialCategories?: ClothingCategory[];
@@ -37,19 +59,18 @@ export default function WardrobeSheet({
   onItemClick,
   onAddClick,
 }: Props) {
+  const reduced = useReducedMotion();
   const [expanded, setExpanded] = useState<Set<ClothingCategory>>(
     () => new Set(initialCategories)
   );
 
-  // Re-init expanded when initialCategories changes (compartment click)
-  const toggle = (cat: ClothingCategory) => {
+  const toggle = (cat: ClothingCategory) =>
     setExpanded((prev) => {
       const next = new Set(prev);
       if (next.has(cat)) next.delete(cat);
       else next.add(cat);
       return next;
     });
-  };
 
   const grouped = CATEGORY_ORDER.reduce<Record<string, ClothingItem[]>>(
     (acc, cat) => {
@@ -85,10 +106,13 @@ export default function WardrobeSheet({
 
               return (
                 <div key={cat} className="border border-brass/10 rounded-sm overflow-hidden bg-parchment-light">
+
                   {/* Accordion header */}
-                  <button
+                  <motion.button
                     type="button"
                     onClick={() => toggle(cat)}
+                    whileTap={reduced ? {} : { scale: 0.98, backgroundColor: "rgba(184,149,106,0.06)" }}
+                    transition={{ duration: 0.1 }}
                     className="w-full flex items-center gap-3 px-4 py-3.5 text-right"
                   >
                     <span className="text-lg">{CATEGORY_EMOJI[cat]}</span>
@@ -100,9 +124,10 @@ export default function WardrobeSheet({
                     <AnimatePresence>
                       {!isOpen && (
                         <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
+                          initial={{ opacity: 0, x: 4 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -4 }}
+                          transition={{ duration: 0.18 }}
                           className="flex items-center gap-1"
                         >
                           {catItems.slice(0, 5).map((item) => (
@@ -126,38 +151,39 @@ export default function WardrobeSheet({
                       </span>
                       <motion.div
                         animate={{ rotate: isOpen ? 180 : 0 }}
-                        transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                        transition={reduced ? { duration: 0 } : { duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
                       >
                         <ChevronDown className="h-4 w-4 text-walnut-400" />
                       </motion.div>
                     </div>
-                  </button>
+                  </motion.button>
 
-                  {/* Expandable content */}
+                  {/* Expandable content — staggered via variants */}
                   <AnimatePresence initial={false}>
                     {isOpen && (
                       <motion.div
                         key="content"
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
+                        initial={reduced ? { opacity: 0 } : { height: 0, opacity: 0 }}
+                        animate={reduced ? { opacity: 1 } : { height: "auto", opacity: 1 }}
+                        exit={reduced ? { opacity: 0 } : { height: 0, opacity: 0 }}
+                        transition={{ duration: reduced ? 0.15 : 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
                         className="overflow-hidden"
                       >
-                        <div className="px-3 pb-3 pt-1">
+                        <motion.div
+                          className="px-3 pb-3 pt-1"
+                          variants={gridVariants}
+                          initial="hidden"
+                          animate="visible"
+                          exit="exit"
+                        >
                           <div className="grid grid-cols-2 gap-2.5">
-                            {catItems.map((item, i) => (
-                              <motion.div
-                                key={item.id}
-                                initial={{ opacity: 0, y: 8 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: i * 0.05, duration: 0.25 }}
-                              >
+                            {catItems.map((item) => (
+                              <motion.div key={item.id} variants={cardVariants}>
                                 <ItemCard item={item} onClick={() => onItemClick(item)} />
                               </motion.div>
                             ))}
                           </div>
-                        </div>
+                        </motion.div>
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -166,14 +192,15 @@ export default function WardrobeSheet({
             })}
 
             {/* Add more */}
-            <button
+            <motion.button
               type="button"
               onClick={() => { onClose(); onAddClick(); }}
+              whileTap={reduced ? {} : { scale: 0.97 }}
               className="w-full flex items-center justify-center gap-2 py-4 text-sm text-walnut-400 hover:text-walnut-600 transition"
             >
               <Plus className="h-4 w-4" />
               הוסיפי פריט נוסף
-            </button>
+            </motion.button>
           </div>
         )}
       </div>
