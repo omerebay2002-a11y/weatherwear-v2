@@ -22,6 +22,17 @@ const CATEGORY_EMOJI: Record<ClothingCategory, string> = {
   accessory: "💍",
 };
 
+// Title shown on the sheet based on which categories are filtered.
+// Mirrors the labels from the legacy CompartmentSheet.
+function titleFor(initialCategories: ClothingCategory[]): string {
+  const set = new Set(initialCategories);
+  if (set.has("outerwear") && set.size === 1) return "🧥 מעילים";
+  if (set.has("top") && set.has("dress")) return "👚 חולצות ושמלות";
+  if (set.has("bottom") && set.has("shoes")) return "👖 מקופלים ונעליים";
+  if (set.has("accessory") && set.has("bag")) return "👜 אקססוריז ותיקים";
+  return "הארון שלי";
+}
+
 // ─── Variants ────────────────────────────────────────────────────────────────
 
 const gridVariants = {
@@ -92,9 +103,14 @@ export default function WardrobeSheet({
       return next;
     });
 
+  // Filter to only the categories from the clicked compartment.
+  // Empty initialCategories means "show all" (used when no compartment context).
+  const filterSet = initialCategories.length > 0 ? new Set(initialCategories) : null;
+  const visibleItems = filterSet ? items.filter((i) => filterSet.has(i.category)) : items;
+
   const grouped = CATEGORY_ORDER.reduce<Record<string, ClothingItem[]>>(
     (acc, cat) => {
-      const catItems = items.filter((i) => i.category === cat);
+      const catItems = visibleItems.filter((i) => i.category === cat);
       if (catItems.length) acc[cat] = catItems;
       return acc;
     },
@@ -104,24 +120,29 @@ export default function WardrobeSheet({
   const populated = CATEGORY_ORDER.filter((cat) => grouped[cat]?.length);
 
   return (
-    <Sheet open={open} onClose={onClose} title="הארון שלי" height="full">
+    <Sheet open={open} onClose={onClose} title={titleFor(initialCategories)} height="full">
       <div dir="rtl" className="pb-4">
-        {items.length === 0 ? (
+        {visibleItems.length === 0 ? (
           <div className="py-10 text-center">
-            <p className="font-editorial italic text-xl text-walnut-400 mb-2">הארון ריק</p>
+            <p className="font-editorial italic text-xl text-walnut-400 mb-2">
+              {items.length === 0 ? "הארון ריק" : "אין פריטים במדור הזה"}
+            </p>
             <p className="text-sm text-walnut-300 mb-6">
-              הוסיפי את הפריט הראשון שלך,<br />
-              או ייבאי את הפריטים שכבר יש לך
+              {items.length === 0
+                ? <>הוסיפי את הפריט הראשון שלך,<br />או ייבאי את הפריטים שכבר יש לך</>
+                : "הוסיפי פריט חדש לקטגוריה הזאת"}
             </p>
             <div className="flex flex-col gap-2.5 max-w-[260px] mx-auto">
-              <button
-                type="button"
-                onClick={importSeed}
-                className="brass-plate rounded-sm px-6 py-3 text-sm font-medium flex items-center justify-center gap-2"
-              >
-                <Sparkles className="h-4 w-4" />
-                ייבאי {SEED_ITEMS.length} פריטים מה-PDF
-              </button>
+              {items.length === 0 && (
+                <button
+                  type="button"
+                  onClick={importSeed}
+                  className="brass-plate rounded-sm px-6 py-3 text-sm font-medium flex items-center justify-center gap-2"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  ייבאי {SEED_ITEMS.length} פריטים מה-PDF
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => { onClose(); onAddClick(); }}
