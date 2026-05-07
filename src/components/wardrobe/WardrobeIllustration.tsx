@@ -129,7 +129,11 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
             top: `${CABINET.outerTop}%`,
             width: `${CABINET.outerRight - CABINET.outerLeft}%`,
             height: `${CABINET.outerBottom - CABINET.outerTop}%`,
-            objectFit: "cover",
+            // fill (not cover): the new transparent-PNG interior has a different aspect than
+            // the cabinet area, and we need full coverage. Slight horizontal stretch is invisible
+            // in this 2D illustration. The transparent bottom-right lets the closed image's
+            // drawers show through unchanged.
+            objectFit: "fill",
             zIndex: 10,
           }}
         />
