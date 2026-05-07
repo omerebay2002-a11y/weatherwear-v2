@@ -3,9 +3,8 @@ import { motion } from "framer-motion";
 import { Archive } from "lucide-react";
 import type { Compartment } from "../room/Cabinet";
 
-// Hotspots positioned as % of the wardrobe.png frame so they scale on any screen.
-// Starting values measured against the Stitch reference (cabinet roughly fills
-// 76% of viewport vertically and 88% horizontally).
+// Hotspots positioned as % of the image (which has fixed aspect-ratio so the
+// percentages map 1:1). Values measured directly against wardrobe.png.
 const HOTSPOTS: Array<{
   id: Compartment;
   label: string;
@@ -14,10 +13,14 @@ const HOTSPOTS: Array<{
   width: string;
   height: string;
 }> = [
-  { id: "shirts",  label: "חולצות ושמלות",            top: "26%", left: "8%",  width: "40%", height: "18%" },
-  { id: "coats",   label: "מעילים",                     top: "26%", left: "52%", width: "40%", height: "18%" },
-  { id: "folded",  label: "מכנסיים ונעליים",           top: "47%", left: "8%",  width: "40%", height: "30%" },
-  { id: "drawers", label: "תחתונים גרביים תכשיטים",    top: "55%", left: "52%", width: "40%", height: "22%" },
+  // Top-left rod with hangers — shirts + dresses
+  { id: "shirts",  label: "חולצות ושמלות",            top: "26%", left: "11%", width: "39%", height: "14%" },
+  // Top-right rod with hangers — outerwear
+  { id: "coats",   label: "מעילים",                     top: "26%", left: "50%", width: "40%", height: "14%" },
+  // Bottom-left two shelves with folded clothes — bottoms + shoes
+  { id: "folded",  label: "מכנסיים ונעליים",           top: "44%", left: "11%", width: "39%", height: "32%" },
+  // Bottom-right three drawers — underwear + socks + accessory + bag
+  { id: "drawers", label: "תחתונים גרביים תכשיטים",    top: "57%", left: "50%", width: "40%", height: "20%" },
 ];
 
 interface Props {
@@ -30,15 +33,8 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
   const [state, setState] = useState<State>("loading");
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center bg-parchment overflow-hidden">
-      {/* Brand wordmark */}
-      <h1 className="absolute top-4 inset-x-0 z-20 text-center font-display text-3xl tracking-tight pointer-events-none safe-top">
-        <span className="text-ebony">Weather</span>
-        <span className="text-brass">Wear</span>
-      </h1>
-
-      {/* Designed fallback — visible while loading or if image fails.
-          NOT the cabinet itself, just a deliberate empty-state. */}
+    <div className="relative w-full h-full flex items-center justify-center bg-parchment overflow-hidden">
+      {/* Designed loading/error fallback — visible until image is ready */}
       {state !== "ready" && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -56,19 +52,21 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
               <Archive className="h-12 w-12 mx-auto text-walnut-300" strokeWidth={1.2} />
               <p className="font-display text-base text-ebony">ארון לא נטען</p>
               <p className="text-sm text-walnut-400 font-editorial italic leading-relaxed">
-                שמרי את התמונה מ-Stitch בנתיב{" "}
+                שמרי תמונה כ-{" "}
                 <code className="text-brass not-italic font-mono text-xs bg-parchment-light px-1.5 py-0.5 rounded">
                   public/wardrobe.png
-                </code>{" "}
-                והדף ירענן אוטומטית
+                </code>
               </p>
             </div>
           )}
         </motion.div>
       )}
 
-      {/* Image + hotspots */}
-      <div className="relative w-full max-w-md h-full">
+      {/* Image + hotspots — wrapper has the image's aspect ratio so % hotspots align */}
+      <div
+        className="relative w-full max-w-md mx-auto"
+        style={{ aspectRatio: "768 / 1364" }}
+      >
         <motion.img
           src="/wardrobe.png"
           alt="ארון בגדים"
@@ -78,7 +76,7 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
           initial={{ opacity: 0 }}
           animate={{ opacity: state === "ready" ? 1 : 0 }}
           transition={{ duration: 0.4, ease: [0.2, 0.8, 0.2, 1] }}
-          className="absolute inset-0 w-full h-full object-contain select-none pointer-events-none"
+          className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
         />
 
         {state === "ready" &&
