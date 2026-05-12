@@ -1,36 +1,76 @@
 import type { CoreMessage } from "ai";
-import { route } from "@/lib/router";
-import { runAgent } from "@/lib/agents/run";
+import { orchestrate, type TraceEvent } from "@/lib/orchestrator";
 
-export const runtime = "edge";
-export const maxDuration = 60;
+export const runtime = "nodejs";
+export const maxDuration = 120;
+
+type IncomingPart =
+  | { type: "text"; text: string }
+  | { type: "image"; image: string };
+
+type IncomingMessage = {
+  role: "user" | "assistant" | "system";
+  content: string | IncomingPart[];
+};
+
+function toCoreMessage(m: IncomingMessage): CoreMessage {
+  if (typeof m.content === "string") {
+    return { role: m.role, content: m.content } as CoreMessage;
+  }
+  if (m.role === "user") {
+    return {
+      role: "user",
+      content: m.content.map((p) =>
+        p.type === "image" ? { type: "image" as const, image: p.image } : { type: "text" as const, text: p.text },
+      ),
+    };
+  }
+  // Assistant/system: collapse to text.
+  const text = m.content.filter((p) => p.type === "text").map((p) => (p as { text: string }).text).join("\n");
+  return { role: m.role, content: text } as CoreMessage;
+}
+
+function extractText(content: string | IncomingPart[]): string {
+  if (typeof content === "string") return content;
+  return content
+    .filter((p): p is { type: "text"; text: string } => p.type === "text")
+    .map((p) => p.text)
+    .join("\n");
+}
 
 export async function POST(req: Request) {
-  const body = (await req.json()) as { messages: CoreMessage[] };
-  const messages = body.messages ?? [];
-  const lastUser = [...messages].reverse().find((m) => m.role === "user");
-  const userText =
-    typeof lastUser?.content === "string"
-      ? lastUser.content
-      : (lastUser?.content ?? [])
-          .filter((p: { type: string }) => p.type === "text")
-          .map((p: { text?: string }) => p.text ?? "")
-          .join("\n");
+  const body = (await req.json()) as { messages: IncomingMessage[] };
+  const incoming = body.messages ?? [];
+  const lastUser = [...incoming].reverse().find((m) => m.role === "user");
+  if (!lastUser) return new Response("Missing user message", { status: 400 });
 
-  if (!userText) {
-    return new Response("Missing user message", { status: 400 });
+  const userText = extractText(lastUser.content);
+  const allMessages = incoming.map(toCoreMessage);
+
+  if (!userText && (typeof lastUser.content === "string" || !lastUser.content.some((p) => p.type === "image"))) {
+    return new Response("Missing user message content", { status: 400 });
   }
 
-  const decision = await route(userText);
-  const { stream, modelLabel } = runAgent({ agent: decision.agent, messages });
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    async start(controller) {
+      const emit = (event: TraceEvent) => {
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
+      };
+      await orchestrate({
+        userText: userText || "(image only)",
+        allMessages,
+        emit,
+      });
+      controller.close();
+    },
+  });
 
-  return stream.toDataStreamResponse({
+  return new Response(stream, {
     headers: {
-      "x-agent": decision.agent,
-      "x-agent-reason": encodeURIComponent(decision.reason),
-      "x-agent-confidence": decision.confidence.toFixed(2),
-      "x-agent-model": modelLabel,
-      "x-router-model": decision.routerLabel,
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache, no-transform",
+      Connection: "keep-alive",
     },
   });
 }
