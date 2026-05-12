@@ -79,6 +79,9 @@ export default async function handler(req: Request): Promise<Response> {
     if (!body.text || !body.text.trim()) {
       return jsonError(400, "Empty text input");
     }
+    if (body.text.length > 2000) {
+      return jsonError(400, "Text input too long");
+    }
     userContent = [
       {
         type: "text",
@@ -123,10 +126,8 @@ export default async function handler(req: Request): Promise<Response> {
       headers: { "Content-Type": "application/json" },
     });
   } catch (e) {
-    return jsonError(
-      500,
-      e instanceof Error ? e.message : "Unknown Anthropic API error"
-    );
+    console.error("API Error:", e);
+    return jsonError(500, "An error occurred during analysis");
   }
 }
 

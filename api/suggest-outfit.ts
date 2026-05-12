@@ -74,6 +74,10 @@ export default async function handler(req: Request): Promise<Response> {
     );
   }
 
+  if (body.wardrobe.length > 1000) {
+    return jsonError(400, "Wardrobe is too large");
+  }
+
   const tempForWhen =
     body.when === "now"
       ? body.weather.current.tempC
@@ -129,7 +133,8 @@ ${wardrobeText}
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (e) {
-    return jsonError(500, e instanceof Error ? e.message : "Anthropic error");
+    console.error("API Error:", e);
+    return jsonError(500, "An error occurred during outfit suggestion");
   }
 }
 

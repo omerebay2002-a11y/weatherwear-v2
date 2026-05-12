@@ -54,6 +54,10 @@ export default async function handler(req: Request): Promise<Response> {
     return new Response("Invalid JSON", { status: 400 });
   }
 
+  if (body.messages && body.messages.length > 100) {
+    return new Response("Too many messages", { status: 400 });
+  }
+
   // Build context block (sent in system as cacheable suffix)
   const wardrobeText = (body.context.wardrobe ?? [])
     .map((it) => `- ${it.name} (${it.category}, ${it.color}, ${it.season})`)
@@ -110,9 +114,7 @@ ${wardrobeText || "(ריק)"}`;
       },
     });
   } catch (e) {
-    return new Response(
-      `Anthropic error: ${e instanceof Error ? e.message : "unknown"}`,
-      { status: 500 }
-    );
+    console.error("API Error:", e);
+    return new Response("An error occurred during chat", { status: 500 });
   }
 }
