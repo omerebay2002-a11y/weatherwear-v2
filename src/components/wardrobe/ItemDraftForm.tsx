@@ -106,12 +106,13 @@ export default function ItemDraftForm({
         </div>
       )}
 
-      <Field label="שם הפריט">
+      <Field label="שם הפריט" htmlFor="item-name">
         <input
+          id="item-name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="לדוגמה: ג׳ינס Levi's 501 כחול"
-          className="w-full rounded-sm border border-walnut-200 bg-parchment-light px-3 py-2.5 text-sm focus:border-walnut-400 focus:outline-none"
+          className="w-full rounded-sm border border-walnut-200 bg-parchment-light px-3 py-2.5 text-sm focus:border-walnut-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-walnut-400"
         />
       </Field>
 
@@ -140,13 +141,14 @@ export default function ItemDraftForm({
                 setColorHex(c.hex);
               }}
               className={cn(
-                "relative aspect-square rounded-full border-2 transition",
+                "relative aspect-square rounded-full border-2 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-walnut-400",
                 colorName === c.name
                   ? "border-ebony scale-110"
                   : "border-walnut-100 hover:border-walnut-300"
               )}
               style={{ backgroundColor: c.hex }}
               aria-label={c.name}
+              aria-pressed={colorName === c.name}
             >
               {colorName === c.name && (
                 <Check
@@ -191,20 +193,22 @@ export default function ItemDraftForm({
       </Field>
 
       <div className="grid grid-cols-2 gap-3">
-        <Field label="מותג (לא חובה)">
+        <Field label="מותג (לא חובה)" htmlFor="item-brand">
           <input
+            id="item-brand"
             value={brand}
             onChange={(e) => setBrand(e.target.value)}
             placeholder="Levi's"
-            className="w-full rounded-sm border border-walnut-200 bg-parchment-light px-3 py-2 text-sm focus:border-walnut-400 focus:outline-none"
+            className="w-full rounded-sm border border-walnut-200 bg-parchment-light px-3 py-2 text-sm focus:border-walnut-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-walnut-400"
           />
         </Field>
-        <Field label="דגם (לא חובה)">
+        <Field label="דגם (לא חובה)" htmlFor="item-model">
           <input
+            id="item-model"
             value={model}
             onChange={(e) => setModel(e.target.value)}
             placeholder="501"
-            className="w-full rounded-sm border border-walnut-200 bg-parchment-light px-3 py-2 text-sm focus:border-walnut-400 focus:outline-none"
+            className="w-full rounded-sm border border-walnut-200 bg-parchment-light px-3 py-2 text-sm focus:border-walnut-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-walnut-400"
           />
         </Field>
       </div>
@@ -247,14 +251,24 @@ export default function ItemDraftForm({
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, htmlFor, children }: { label: string; htmlFor?: string; children: React.ReactNode }) {
+  if (htmlFor) {
+    return (
+      <div>
+        <label htmlFor={htmlFor} className="block text-xs label-tracked text-walnut-400 mb-2">
+          {label}
+        </label>
+        {children}
+      </div>
+    );
+  }
   return (
-    <div>
-      <label className="block text-xs label-tracked text-walnut-400 mb-2">
+    <fieldset>
+      <legend className="block text-xs label-tracked text-walnut-400 mb-2">
         {label}
-      </label>
+      </legend>
       {children}
-    </div>
+    </fieldset>
   );
 }
 
@@ -271,8 +285,9 @@ function Chip({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={cn(
-        "px-3 py-1.5 rounded-full text-sm transition border",
+        "px-3 py-1.5 rounded-full text-sm transition border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-walnut-400",
         active
           ? "bg-ebony text-parchment border-ebony"
           : "bg-parchment-light text-walnut-500 border-walnut-200 hover:border-walnut-300"
