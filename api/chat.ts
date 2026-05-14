@@ -94,8 +94,9 @@ ${wardrobeText || "(ריק)"}`;
           }
           controller.close();
         } catch (e) {
+          console.error("Stream processing error:", e);
           controller.enqueue(
-            encoder.encode(`\n[שגיאה: ${e instanceof Error ? e.message : "unknown"}]`)
+            encoder.encode(`\n[אירעה שגיאה פנימית. אנא נסה שוב מאוחר יותר.]`)
           );
           controller.close();
         }
@@ -110,8 +111,9 @@ ${wardrobeText || "(ריק)"}`;
       },
     });
   } catch (e) {
+    console.error("Anthropic Chat API Error:", e);
     return new Response(
-      `Anthropic error: ${e instanceof Error ? e.message : "unknown"}`,
+      "An internal server error occurred while processing the request.",
       { status: 500 }
     );
   }
