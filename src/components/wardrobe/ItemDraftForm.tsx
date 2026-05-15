@@ -140,13 +140,14 @@ export default function ItemDraftForm({
                 setColorHex(c.hex);
               }}
               className={cn(
-                "relative aspect-square rounded-full border-2 transition",
+                "relative aspect-square rounded-full border-2 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass focus-visible:ring-offset-2",
                 colorName === c.name
                   ? "border-ebony scale-110"
                   : "border-walnut-100 hover:border-walnut-300"
               )}
               style={{ backgroundColor: c.hex }}
               aria-label={c.name}
+              aria-pressed={colorName === c.name}
             >
               {colorName === c.name && (
                 <Check
@@ -271,8 +272,9 @@ function Chip({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={cn(
-        "px-3 py-1.5 rounded-full text-sm transition border",
+        "px-3 py-1.5 rounded-full text-sm transition border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass focus-visible:ring-offset-1",
         active
           ? "bg-ebony text-parchment border-ebony"
           : "bg-parchment-light text-walnut-500 border-walnut-200 hover:border-walnut-300"
