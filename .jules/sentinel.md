@@ -1,0 +1,4 @@
+## 2025-05-15 - Information Leakage in API Endpoints
+**Vulnerability:** Edge API endpoints (`api/analyze-clothing.ts`, `api/suggest-outfit.ts`, `api/chat.ts`) leaked detailed exception messages (e.g., `e.message`) directly to the client in their `catch` blocks.
+**Learning:** Returning `e.message` from `try/catch` blocks can expose internal backend logic, API keys issues, or proxy configurations to attackers. This is a common pitfall in Vercel Edge functions where developers try to send helpful error messages.
+**Prevention:** Always log the full error securely on the backend (e.g., `console.error`) and return a generic error message (like "An internal server error occurred") to the client.
