@@ -114,7 +114,10 @@ ${wardrobeText}
       .map((c) => c.text)
       .join("");
     const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return jsonError(502, `Bad model output: ${text.slice(0, 200)}`);
+    if (!jsonMatch) {
+      console.error(`Bad model output: ${text.slice(0, 200)}`);
+      return jsonError(502, "Invalid response format from model");
+    }
     const parsed = JSON.parse(jsonMatch[0]);
 
     // Validate item IDs exist in wardrobe
@@ -129,7 +132,8 @@ ${wardrobeText}
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (e) {
-    return jsonError(500, e instanceof Error ? e.message : "Anthropic error");
+    console.error("Suggest outfit error:", e);
+    return jsonError(500, "Internal server error");
   }
 }
 

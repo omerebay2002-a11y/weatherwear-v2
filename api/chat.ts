@@ -94,8 +94,9 @@ ${wardrobeText || "(ריק)"}`;
           }
           controller.close();
         } catch (e) {
+          console.error("Chat stream error:", e);
           controller.enqueue(
-            encoder.encode(`\n[שגיאה: ${e instanceof Error ? e.message : "unknown"}]`)
+            encoder.encode(`\n[שגיאה פנימית התרחשה.]`)
           );
           controller.close();
         }
@@ -110,9 +111,7 @@ ${wardrobeText || "(ריק)"}`;
       },
     });
   } catch (e) {
-    return new Response(
-      `Anthropic error: ${e instanceof Error ? e.message : "unknown"}`,
-      { status: 500 }
-    );
+    console.error("Chat endpoint error:", e);
+    return new Response("Internal server error", { status: 500 });
   }
 }
