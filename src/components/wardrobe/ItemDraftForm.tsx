@@ -116,7 +116,7 @@ export default function ItemDraftForm({
       </Field>
 
       <Field label="קטגוריה">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2" role="group" aria-label="קטגוריה">
           {CATEGORIES.map((c) => (
             <Chip
               key={c.v}
@@ -167,7 +167,7 @@ export default function ItemDraftForm({
       </Field>
 
       <Field label="עונה">
-        <div className="flex gap-2">
+        <div className="flex gap-2" role="group" aria-label="עונה">
           {SEASONS.map((s) => (
             <Chip key={s.v} active={season === s.v} onClick={() => setSeason(s.v)}>
               {s.label}
@@ -177,7 +177,7 @@ export default function ItemDraftForm({
       </Field>
 
       <Field label="בד (לא חובה)">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2" role="group" aria-label="בד">
           {MATERIALS.map((m) => (
             <Chip
               key={m.v}
@@ -271,8 +271,9 @@ function Chip({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={cn(
-        "px-3 py-1.5 rounded-full text-sm transition border",
+        "px-3 py-1.5 rounded-full text-sm transition border focus-visible:ring-2 focus-visible:ring-brass focus-visible:outline-none",
         active
           ? "bg-ebony text-parchment border-ebony"
           : "bg-parchment-light text-walnut-500 border-walnut-200 hover:border-walnut-300"
