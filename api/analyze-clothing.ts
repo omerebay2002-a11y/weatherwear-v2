@@ -103,14 +103,16 @@ export default async function handler(req: Request): Promise<Response> {
 
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      return jsonError(502, `Could not parse JSON. Raw: ${text.slice(0, 200)}`);
+      console.error(`[Security] LLM returned invalid output format. Raw text: ${text.slice(0, 200)}`);
+      return jsonError(502, "Could not parse AI response.");
     }
 
     let parsed: unknown;
     try {
       parsed = JSON.parse(jsonMatch[0]);
     } catch {
-      return jsonError(502, `Malformed JSON from model: ${jsonMatch[0].slice(0, 200)}`);
+      console.error(`[Security] Malformed JSON from model: ${jsonMatch[0].slice(0, 200)}`);
+      return jsonError(502, "Malformed AI response.");
     }
 
     const obj = parsed as Record<string, unknown>;
@@ -123,10 +125,8 @@ export default async function handler(req: Request): Promise<Response> {
       headers: { "Content-Type": "application/json" },
     });
   } catch (e) {
-    return jsonError(
-      500,
-      e instanceof Error ? e.message : "Unknown Anthropic API error"
-    );
+    console.error("[Security] Unknown Anthropic API error", e);
+    return jsonError(500, "Internal Server Error");
   }
 }
 
