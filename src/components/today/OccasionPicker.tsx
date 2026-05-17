@@ -15,14 +15,20 @@ const CHOICES: { v: Occasion; label: string }[] = [
 
 export default function OccasionPicker({ value, onChange }: Props) {
   return (
-    <div className="flex gap-2 px-4 overflow-x-auto no-scrollbar" dir="rtl">
+    <div
+      className="flex gap-2 px-4 overflow-x-auto no-scrollbar"
+      dir="rtl"
+      role="group"
+      aria-label="אירוע"
+    >
       {CHOICES.map(({ v, label }) => (
         <button
           key={v}
           onClick={() => onChange(v)}
           type="button"
+          aria-pressed={value === v}
           className={cn(
-            "flex-shrink-0 px-4 py-2 rounded-sm text-[0.75rem] font-medium tracking-widest uppercase transition",
+            "flex-shrink-0 px-4 py-2 rounded-sm text-[0.75rem] font-medium tracking-widest uppercase transition focus-visible:ring-2 focus-visible:ring-brass focus-visible:outline-none",
             value === v
               ? "bg-parchment-light border border-brass text-walnut-500"
               : "bg-parchment-dark border border-transparent text-ebony-muted hover:border-walnut-200"
