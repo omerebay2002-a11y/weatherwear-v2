@@ -114,7 +114,11 @@ ${wardrobeText}
       .map((c) => c.text)
       .join("");
     const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return jsonError(502, `Bad model output: ${text.slice(0, 200)}`);
+    if (!jsonMatch) {
+      // 🛡️ Sentinel: Don't leak raw model response to client
+      console.error(`Bad model output: ${text.slice(0, 200)}`);
+      return jsonError(502, "Invalid response format from AI service");
+    }
     const parsed = JSON.parse(jsonMatch[0]);
 
     // Validate item IDs exist in wardrobe
@@ -129,7 +133,9 @@ ${wardrobeText}
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (e) {
-    return jsonError(500, e instanceof Error ? e.message : "Anthropic error");
+    // 🛡️ Sentinel: Don't leak internal API errors to client
+    console.error("Anthropic API error:", e);
+    return jsonError(500, "Internal server error occurred while processing request");
   }
 }
 

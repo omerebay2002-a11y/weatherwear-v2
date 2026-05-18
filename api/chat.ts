@@ -94,8 +94,10 @@ ${wardrobeText || "(ריק)"}`;
           }
           controller.close();
         } catch (e) {
+          // 🛡️ Sentinel: Don't leak internal API errors in stream
+          console.error("Stream processing error:", e);
           controller.enqueue(
-            encoder.encode(`\n[שגיאה: ${e instanceof Error ? e.message : "unknown"}]`)
+            encoder.encode(`\n[שגיאה: אירעה שגיאה בעיבוד הבקשה]`)
           );
           controller.close();
         }
@@ -110,9 +112,8 @@ ${wardrobeText || "(ריק)"}`;
       },
     });
   } catch (e) {
-    return new Response(
-      `Anthropic error: ${e instanceof Error ? e.message : "unknown"}`,
-      { status: 500 }
-    );
+    // 🛡️ Sentinel: Don't leak internal API errors to client
+    console.error("Anthropic API error:", e);
+    return new Response("Internal server error occurred", { status: 500 });
   }
 }
