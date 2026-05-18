@@ -1,0 +1,3 @@
+## 2024-05-18 - Missing ARIA Labels in Chat Inputs
+**Learning:** Found that custom chat inputs without explicit visible labels rely heavily on placeholders, which can be insufficient for screen readers without a dedicated aria-label.
+**Action:** Always verify custom input fields, especially in chat/messaging interfaces, have an explicit `aria-label` or are associated with a descriptive `<label>` via `htmlFor`.
