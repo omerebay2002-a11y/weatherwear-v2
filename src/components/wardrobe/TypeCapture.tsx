@@ -76,6 +76,7 @@ export default function TypeCapture({ onSave, onCancel }: Props) {
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAnalyze()}
             placeholder="Levi's 501 כחול, Nike Air Max לבן, שמלה שחורה קצרה…"
+            aria-label="תארי את הפריט"
             className="w-full rounded-sm border border-walnut-200 bg-parchment px-4 py-3 text-sm text-ebony placeholder-walnut-300 focus:border-brass focus:outline-none focus:ring-1 focus:ring-brass/30 transition"
             dir="rtl"
             autoFocus
