@@ -120,6 +120,7 @@ export default function StylistChat({ open, onClose, weather, wardrobe }: Props)
             onKeyDown={(e) => e.key === "Enter" && send(input)}
             disabled={streaming}
             placeholder="כתבי לי…"
+            aria-label="הודעה"
             className="flex-1 rounded-full border border-walnut-200 bg-parchment-light px-4 py-2.5 text-sm focus:border-walnut-400 focus:outline-none disabled:opacity-50"
           />
           <button
