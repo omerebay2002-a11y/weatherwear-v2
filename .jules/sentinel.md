@@ -1,0 +1,4 @@
+## 2024-05-26 - Information Disclosure in API Edge Functions
+**Vulnerability:** Raw exception details (`e.message` from `Anthropic error`) were being returned directly to the client in error responses (HTTP 500) and streaming endpoints in Vercel Edge functions.
+**Learning:** Returning exception details can leak sensitive internal information, API configuration details, or internal logic directly to users or attackers.
+**Prevention:** Catch blocks must log errors server-side using `console.error(e)` for debugging, and return a generic, non-informative error message (like "Internal server error" or equivalent localized string) to the client.
