@@ -94,8 +94,10 @@ ${wardrobeText || "(ריק)"}`;
           }
           controller.close();
         } catch (e) {
+          // SEC: Log actual error server-side, return generic message to client to prevent info disclosure
+          console.error("Stream error in chat API:", e);
           controller.enqueue(
-            encoder.encode(`\n[שגיאה: ${e instanceof Error ? e.message : "unknown"}]`)
+            encoder.encode(`\n[שגיאה: אירעה שגיאה פנימית בשרת]`)
           );
           controller.close();
         }
@@ -110,8 +112,10 @@ ${wardrobeText || "(ריק)"}`;
       },
     });
   } catch (e) {
+    // SEC: Log actual error server-side, return generic message to client to prevent info disclosure
+    console.error("Anthropic API error in chat API:", e);
     return new Response(
-      `Anthropic error: ${e instanceof Error ? e.message : "unknown"}`,
+      "Internal server error",
       { status: 500 }
     );
   }

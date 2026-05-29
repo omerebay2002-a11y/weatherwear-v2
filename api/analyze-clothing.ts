@@ -123,9 +123,11 @@ export default async function handler(req: Request): Promise<Response> {
       headers: { "Content-Type": "application/json" },
     });
   } catch (e) {
+    // SEC: Log actual error server-side, return generic message to client to prevent info disclosure
+    console.error("Anthropic API error in analyze-clothing API:", e);
     return jsonError(
       500,
-      e instanceof Error ? e.message : "Unknown Anthropic API error"
+      "Internal server error"
     );
   }
 }
