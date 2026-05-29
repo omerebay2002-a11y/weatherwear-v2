@@ -68,9 +68,10 @@ export default function TypeCapture({ onSave, onCancel }: Props) {
     <div className="space-y-4" dir="rtl">
       {/* AI text input */}
       <div className="space-y-2">
-        <p className="text-xs tracking-widest uppercase text-walnut-400">תארי את הפריט</p>
+        <label htmlFor="item-description-input" className="block text-xs tracking-widest uppercase text-walnut-400">תארי את הפריט</label>
         <div className="relative" ref={inputScope}>
           <input
+            id="item-description-input"
             type="text"
             value={text}
             onChange={(e) => setText(e.target.value)}
