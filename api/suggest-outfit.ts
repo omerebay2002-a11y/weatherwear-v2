@@ -129,7 +129,9 @@ ${wardrobeText}
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (e) {
-    return jsonError(500, e instanceof Error ? e.message : "Anthropic error");
+    // Security: Log the detailed error internally but return a generic response
+    console.error("Outfit suggestion error:", e);
+    return jsonError(500, "שגיאת שרת פנימית");
   }
 }
 
