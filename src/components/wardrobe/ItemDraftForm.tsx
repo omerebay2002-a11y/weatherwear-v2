@@ -106,8 +106,9 @@ export default function ItemDraftForm({
         </div>
       )}
 
-      <Field label="שם הפריט">
+      <Field label="שם הפריט" htmlFor="item-name">
         <input
+          id="item-name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="לדוגמה: ג׳ינס Levi's 501 כחול"
@@ -191,16 +192,18 @@ export default function ItemDraftForm({
       </Field>
 
       <div className="grid grid-cols-2 gap-3">
-        <Field label="מותג (לא חובה)">
+        <Field label="מותג (לא חובה)" htmlFor="item-brand">
           <input
+            id="item-brand"
             value={brand}
             onChange={(e) => setBrand(e.target.value)}
             placeholder="Levi's"
             className="w-full rounded-sm border border-walnut-200 bg-parchment-light px-3 py-2 text-sm focus:border-walnut-400 focus:outline-none"
           />
         </Field>
-        <Field label="דגם (לא חובה)">
+        <Field label="דגם (לא חובה)" htmlFor="item-model">
           <input
+            id="item-model"
             value={model}
             onChange={(e) => setModel(e.target.value)}
             placeholder="501"
@@ -247,10 +250,10 @@ export default function ItemDraftForm({
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, htmlFor, children }: { label: string; htmlFor?: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-xs label-tracked text-walnut-400 mb-2">
+      <label htmlFor={htmlFor} className="block text-xs label-tracked text-walnut-400 mb-2">
         {label}
       </label>
       {children}
