@@ -115,6 +115,7 @@ export default function StylistChat({ open, onClose, weather, wardrobe }: Props)
         {/* Input */}
         <div className="flex gap-2 border-t border-walnut-100 pt-3">
           <input
+            aria-label="הודעה לסטייליסטית"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && send(input)}
