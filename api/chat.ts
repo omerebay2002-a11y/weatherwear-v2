@@ -94,8 +94,10 @@ ${wardrobeText || "(ריק)"}`;
           }
           controller.close();
         } catch (e) {
+          // Security: Do not expose raw error details to the client
+          console.error("Streaming error:", e);
           controller.enqueue(
-            encoder.encode(`\n[שגיאה: ${e instanceof Error ? e.message : "unknown"}]`)
+            encoder.encode(`\n[שגיאה: שגיאת שרת פנימית]`) // Generic localized error
           );
           controller.close();
         }
@@ -110,9 +112,8 @@ ${wardrobeText || "(ריק)"}`;
       },
     });
   } catch (e) {
-    return new Response(
-      `Anthropic error: ${e instanceof Error ? e.message : "unknown"}`,
-      { status: 500 }
-    );
+    // Security: Do not expose raw error details to the client
+    console.error("Anthropic API error:", e);
+    return new Response("שגיאת שרת פנימית", { status: 500 }); // Generic localized error
   }
 }
