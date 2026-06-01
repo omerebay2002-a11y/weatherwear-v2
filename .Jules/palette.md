@@ -1,0 +1,3 @@
+## 2026-06-01 - Input Labels and Wrappers
+**Learning:** Custom form wrapper components and standalone inputs relying on placeholders often lack inherent associations to labels. Screen readers require explicit linking (e.g. `htmlFor` matching input `id`s, or `aria-label` attributes) to correctly identify the purpose of the input fields.
+**Action:** Always ensure wrapper components are designed to accept and forward `htmlFor` props to their internal `<label>` elements, and standalone inputs have `aria-label` attributes when visible labels are missing.
