@@ -123,9 +123,11 @@ export default async function handler(req: Request): Promise<Response> {
       headers: { "Content-Type": "application/json" },
     });
   } catch (e) {
+    // 🛡️ Sentinel: Prevent information disclosure by logging server-side and returning a generic error
+    console.error("Anthropic API error:", e);
     return jsonError(
       500,
-      e instanceof Error ? e.message : "Unknown Anthropic API error"
+      "שגיאת שרת פנימית"
     );
   }
 }

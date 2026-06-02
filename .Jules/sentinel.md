@@ -1,0 +1,4 @@
+## 2025-02-12 - Prevent Information Leakage in API Endpoints
+**Vulnerability:** API endpoints (`analyze-clothing.ts`, `chat.ts`, `suggest-outfit.ts`) in the edge functions were catching errors and returning `e.message` directly to the client in HTTP 500 responses.
+**Learning:** Returning raw exception messages to the client exposes internal implementation details, dependency specifics (e.g. Anthropic API internals), and potential stack traces or keys that might be embedded in the error string. This is an information disclosure vulnerability pattern across multiple files.
+**Prevention:** Always log detailed error objects server-side using `console.error(e)` for debugging and operational visibility, and return generic, localized error messages (e.g. "שגיאת שרת פנימית") to the client.

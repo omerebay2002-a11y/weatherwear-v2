@@ -94,8 +94,10 @@ ${wardrobeText || "(ריק)"}`;
           }
           controller.close();
         } catch (e) {
+          // 🛡️ Sentinel: Prevent information disclosure by logging server-side and returning a generic error
+          console.error("Anthropic streaming error:", e);
           controller.enqueue(
-            encoder.encode(`\n[שגיאה: ${e instanceof Error ? e.message : "unknown"}]`)
+            encoder.encode(`\n[שגיאת שרת פנימית]`)
           );
           controller.close();
         }
@@ -110,8 +112,10 @@ ${wardrobeText || "(ריק)"}`;
       },
     });
   } catch (e) {
+    // 🛡️ Sentinel: Prevent information disclosure by logging server-side and returning a generic error
+    console.error("Anthropic API error:", e);
     return new Response(
-      `Anthropic error: ${e instanceof Error ? e.message : "unknown"}`,
+      `שגיאת שרת פנימית`,
       { status: 500 }
     );
   }
