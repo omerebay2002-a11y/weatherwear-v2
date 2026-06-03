@@ -1,6 +1,6 @@
 import { Trash2 } from "lucide-react";
 import type { ClothingItem } from "../../types";
-import { CATEGORY_LABEL } from "../../lib/utils";
+import { CATEGORY_LABEL, SEASON_LABEL, MATERIAL_LABEL } from "../../lib/constants";
 import Sheet from "../ui/Sheet";
 
 interface Props {
@@ -8,23 +8,6 @@ interface Props {
   onClose: () => void;
   onDelete: (id: string) => void;
 }
-
-const SEASON_LABEL: Record<ClothingItem["season"], string> = {
-  summer: "קיץ",
-  winter: "חורף",
-  all: "כל השנה",
-};
-
-const MATERIAL_LABEL: Record<NonNullable<ClothingItem["material"]>, string> = {
-  cotton: "כותנה",
-  denim: "ג׳ינס",
-  wool: "צמר",
-  linen: "פשתן",
-  silk: "משי",
-  leather: "עור",
-  synthetic: "סינתטי",
-  other: "אחר",
-};
 
 export default function ItemDetailDialog({ item, onClose, onDelete }: Props) {
   return (

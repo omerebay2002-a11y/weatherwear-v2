@@ -54,8 +54,9 @@ function rowToItem(d: Record<string, unknown>): ClothingItem {
 async function uploadImage(uid: string, itemId: string, dataUrl: string): Promise<string> {
   if (!storage) return dataUrl;
   const blob = dataUrlToBlob(dataUrl);
+  if (blob.size > 5 * 1024 * 1024) throw new Error("Image too large (max 5 MB)");
   const imgRef = ref(storage, `wardrobe/${uid}/${itemId}.jpg`);
-  await uploadBytes(imgRef, blob, { contentType: "image/jpeg" });
+  await uploadBytes(imgRef, blob, { contentType: blob.type });
   return getDownloadURL(imgRef);
 }
 
@@ -65,19 +66,16 @@ export function WardrobeProvider({ children }: { children: React.ReactNode }) {
   const { userId } = useAuth();
   const useCloud = !!(userId && db);
 
-  // Initial state: load from localStorage when not in cloud mode
   const [items, setItems] = useState<ClothingItem[]>(() => useCloud ? [] : loadItems());
   const [loading, setLoading] = useState(useCloud);
   const [localItemsToMigrate, setLocalItemsToMigrate] = useState<ClothingItem[]>(
     () => useCloud ? loadItems() : []
   );
 
-  // Save to localStorage continuously when in local mode
   useEffect(() => {
     if (!useCloud) saveItems(items);
   }, [items, useCloud]);
 
-  // Load from Firestore when in cloud mode
   useEffect(() => {
     if (!useCloud || !db || !userId) return;
     setLoading(true);
@@ -132,7 +130,6 @@ export function WardrobeProvider({ children }: { children: React.ReactNode }) {
     });
   }, [useCloud, userId]);
 
-  // Migrate localStorage items to Firestore
   const migrate = useCallback(async () => {
     if (!useCloud || !localItemsToMigrate.length) return;
     for (const item of localItemsToMigrate) add(item);
