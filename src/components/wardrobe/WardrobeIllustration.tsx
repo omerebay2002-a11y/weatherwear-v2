@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Archive } from "lucide-react";
 import type { Compartment } from "../room/Cabinet";
 
-// All measurements are in % of the wardrobe-closed.png frame (937×1678).
+// All measurements are in % of the wardrobe-closed.svg frame (937×1678).
 // Tweak in 0.5–1% increments if anything is misaligned.
 const CABINET = {
   outerLeft: 20,
@@ -54,6 +54,7 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
   const [closedLoaded, setClosedLoaded] = useState(false);
   const [interiorLoaded, setInteriorLoaded] = useState(false);
   const [errored, setErrored] = useState(false);
+  const CLOSED_SRC = "/wardrobe-closed.svg";
   const ready = closedLoaded && interiorLoaded;
 
   const leftDoorClip = `polygon(${LEFT_DOOR.left}% ${LEFT_DOOR.top}%, ${LEFT_DOOR.right}% ${LEFT_DOOR.top}%, ${LEFT_DOOR.right}% ${LEFT_DOOR.bottom}%, ${LEFT_DOOR.left}% ${LEFT_DOOR.bottom}%)`;
@@ -83,7 +84,7 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
               <p className="text-sm text-walnut-400 font-editorial italic leading-relaxed">
                 ודאי ש-{" "}
                 <code className="text-brass not-italic font-mono text-xs bg-parchment-light px-1.5 py-0.5 rounded">
-                  public/wardrobe-closed.png
+                  public/wardrobe-closed.svg
                 </code>
                 {" "}ו-{" "}
                 <code className="text-brass not-italic font-mono text-xs bg-parchment-light px-1.5 py-0.5 rounded">
@@ -106,7 +107,7 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
       >
         {/* L1: closed image — always visible, full frame (room + closed cabinet) */}
         <img
-          src="/wardrobe-closed.png"
+          src={CLOSED_SRC}
           alt="חדר עם ארון"
           draggable={false}
           onLoad={() => setClosedLoaded(true)}
@@ -129,10 +130,8 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
             top: `${CABINET.outerTop}%`,
             width: `${CABINET.outerRight - CABINET.outerLeft}%`,
             height: `${CABINET.outerBottom - CABINET.outerTop}%`,
-            // fill (not cover): the new transparent-PNG interior has a different aspect than
-            // the cabinet area, and we need full coverage. Slight horizontal stretch is invisible
-            // in this 2D illustration. The transparent bottom-right lets the closed image's
-            // drawers show through unchanged.
+            // fill (not cover): the transparent-PNG interior has a different aspect than
+            // the cabinet area, and we need full coverage.
             objectFit: "fill",
             zIndex: 10,
           }}
@@ -142,7 +141,7 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
         <motion.div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: "url(/wardrobe-closed.png)",
+            backgroundImage: `url(${CLOSED_SRC})`,
             backgroundSize: "100% 100%",
             backgroundRepeat: "no-repeat",
             clipPath: leftDoorClip,
@@ -160,7 +159,7 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
         <motion.div
           className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: "url(/wardrobe-closed.png)",
+            backgroundImage: `url(${CLOSED_SRC})`,
             backgroundSize: "100% 100%",
             backgroundRepeat: "no-repeat",
             clipPath: rightDoorClip,
