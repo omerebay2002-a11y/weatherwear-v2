@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { RefreshCw, MessageCircle, Loader2 } from "lucide-react";
 import type { ClothingItem, Outfit } from "../../types";
-import { CATEGORY_LABEL } from "../../lib/utils";
+import { CATEGORY_LABEL } from "../../lib/constants";
 
 interface Props {
   outfit: Outfit | null;
