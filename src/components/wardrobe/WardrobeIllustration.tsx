@@ -114,28 +114,17 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
           className="absolute inset-0 w-full h-full object-contain select-none pointer-events-none"
         />
 
-        {/* L2: interior image — positioned at cabinet area, fades in when open */}
+        {/* L2: open-room image — full frame, fades in when doors open */}
         <motion.img
           src="/wardrobe-interior.png"
-          alt="פנים הארון"
+          alt="ארון פתוח"
           draggable={false}
           onLoad={() => setInteriorLoaded(true)}
           onError={() => setErrored(true)}
           animate={{ opacity: ready && cabinetOpen ? 1 : 0 }}
-          transition={{ ...INTERIOR_FADE, delay: cabinetOpen ? 0.15 : 0 }}
-          className="absolute select-none pointer-events-none"
-          style={{
-            left: `${CABINET.outerLeft}%`,
-            top: `${CABINET.outerTop}%`,
-            width: `${CABINET.outerRight - CABINET.outerLeft}%`,
-            height: `${CABINET.outerBottom - CABINET.outerTop}%`,
-            // fill (not cover): the new transparent-PNG interior has a different aspect than
-            // the cabinet area, and we need full coverage. Slight horizontal stretch is invisible
-            // in this 2D illustration. The transparent bottom-right lets the closed image's
-            // drawers show through unchanged.
-            objectFit: "fill",
-            zIndex: 10,
-          }}
+          transition={{ ...INTERIOR_FADE, delay: cabinetOpen ? 0.25 : 0 }}
+          className="absolute inset-0 w-full h-full select-none pointer-events-none"
+          style={{ objectFit: "contain", zIndex: 10 }}
         />
 
         {/* L3a: LEFT DOOR — clipped from closed image, hinged on outer-left edge */}
