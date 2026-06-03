@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import type { ClothingItem } from "../../types";
-import { CATEGORY_LABEL } from "../../lib/utils";
+import { CATEGORY_LABEL } from "../../lib/constants";
 
 interface Props {
   item: ClothingItem;
