@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import type { ClothingItem, ClothingCategory } from "../../types";
 import ItemCard from "./ItemCard";
-import { CATEGORY_LABEL } from "../../lib/utils";
+import { CATEGORY_LABEL } from "../../lib/constants";
 
 interface Props {
   items: ClothingItem[];
