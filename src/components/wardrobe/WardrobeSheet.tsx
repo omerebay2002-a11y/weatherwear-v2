@@ -110,32 +110,38 @@ export default function WardrobeSheet({
     <Sheet open={open} onClose={onClose} title={titleFor(initialCategories)} height="full">
       <div dir="rtl" className="pb-4">
         {visibleItems.length === 0 ? (
-          <div className="py-10 text-center">
-            <p className="font-editorial italic text-xl text-walnut-400 mb-2">
-              {items.length === 0 ? "הארון ריק" : "אין פריטים במדור הזה"}
+          <div className="py-8 text-center flex flex-col items-center">
+            {/* hanger illustration */}
+            <svg width="64" height="56" viewBox="0 0 64 56" fill="none" className="mb-5 text-walnut-200">
+              <path d="M32 10a6 6 0 1 1 6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              <path d="M32 16c0 0-12 8-20 16h40C44 24 32 16 32 16z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <line x1="8" y1="32" x2="56" y2="32" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            <p className="font-display text-lg text-ebony mb-1">
+              {items.length === 0 ? "הארון עוד ריק" : "אין פריטים כאן"}
             </p>
-            <p className="text-sm text-walnut-300 mb-6">
+            <p className="text-sm text-walnut-400 leading-relaxed mb-8 max-w-[220px]">
               {items.length === 0
-                ? <>הוסיפי את הפריט הראשון שלך,<br />או ייבאי את הפריטים שכבר יש לך</>
+                ? "הוסיפי את הבגד הראשון שלך, או ייבאי את כל הארון בלחיצה"
                 : "הוסיפי פריט חדש לקטגוריה הזאת"}
             </p>
-            <div className="flex flex-col gap-2.5 max-w-[260px] mx-auto">
+            <div className="flex flex-col gap-3 w-full max-w-[260px]">
               {items.length === 0 && (
                 <button
                   type="button"
                   onClick={importSeed}
-                  className="brass-plate rounded-sm px-6 py-3 text-sm font-medium flex items-center justify-center gap-2"
+                  className="brass-plate rounded-xl px-6 py-3.5 text-sm font-semibold flex items-center justify-center gap-2 shadow-sm"
                 >
                   <Sparkles className="h-4 w-4" />
-                  ייבאי {SEED_ITEMS.length} פריטים מה-PDF
+                  ייבאי {SEED_ITEMS.length} פריטים בלחיצה
                 </button>
               )}
               <button
                 type="button"
                 onClick={() => { onClose(); onAddClick(); }}
-                className="rounded-sm border border-walnut-200 px-6 py-2.5 text-sm text-walnut-500 hover:border-walnut-300 transition"
+                className="rounded-xl border border-walnut-200 px-6 py-3 text-sm font-medium text-walnut-500 hover:border-brass/50 hover:text-walnut-600 transition-colors"
               >
-                הוסיפי פריט חדש
+                + הוסיפי פריט חדש
               </button>
             </div>
           </div>

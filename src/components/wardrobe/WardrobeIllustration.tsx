@@ -174,9 +174,9 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
           transition={{ ...SWING, delay: cabinetOpen ? 0.06 : 0 }}
         />
 
-        {/* Hotspots — only when cabinet open */}
+        {/* Hotspots — labeled zones visible when cabinet open */}
         {ready && cabinetOpen &&
-          HOTSPOTS.map((spot) => (
+          HOTSPOTS.map((spot, i) => (
             <motion.button
               key={spot.id}
               type="button"
@@ -184,21 +184,36 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
                 e.stopPropagation();
                 onCompartmentClick(spot.id);
               }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3, delay: 0.5 }}
-              whileTap={{ scale: 0.97 }}
-              whileHover={{ backgroundColor: "rgba(184, 149, 106, 0.10)" }}
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.5 + i * 0.07 }}
+              whileTap={{ scale: 0.95 }}
               aria-label={spot.label}
-              className="absolute rounded-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-brass/40"
+              className="absolute rounded-lg cursor-pointer focus:outline-none group"
               style={{
                 top: spot.top,
                 left: spot.left,
                 width: spot.width,
                 height: spot.height,
                 zIndex: 30,
+                background: "rgba(250, 246, 238, 0.08)",
+                border: "1px solid rgba(184, 149, 106, 0.18)",
+                backdropFilter: "blur(1px)",
               }}
-            />
+            >
+              {/* label chip at bottom of zone */}
+              <span
+                className="absolute bottom-1.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-medium leading-none transition-all duration-200"
+                style={{
+                  background: "rgba(26,20,16,0.52)",
+                  color: "#F2EAE0",
+                  backdropFilter: "blur(6px)",
+                  border: "1px solid rgba(184,149,106,0.25)",
+                }}
+              >
+                {spot.label.split(" ")[0]}
+              </span>
+            </motion.button>
           ))}
       </div>
 
@@ -210,12 +225,18 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.4, delay: 0.15 }}
-            className="absolute bottom-32 inset-x-0 text-center pointer-events-none z-20"
+            transition={{ duration: 0.4, delay: 0.6 }}
+            className="absolute bottom-28 inset-x-0 flex flex-col items-center gap-2 pointer-events-none z-20"
             dir="rtl"
           >
-            <p className="font-editorial italic text-walnut-400 text-base">
-              הקליקי לפתיחה
+            {/* pulsing dot */}
+            <motion.span
+              animate={{ scale: [1, 1.35, 1], opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              className="block h-2 w-2 rounded-full bg-brass"
+            />
+            <p className="font-editorial italic text-white/80 text-sm tracking-wide drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
+              הקליקי לפתיחת הארון
             </p>
           </motion.div>
         )}
