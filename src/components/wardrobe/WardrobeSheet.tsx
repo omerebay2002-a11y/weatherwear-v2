@@ -4,7 +4,8 @@ import { ChevronDown, Plus, Sparkles, ExternalLink, LogOut } from "lucide-react"
 import Sheet from "../ui/Sheet";
 import ItemCard from "./ItemCard";
 import type { ClothingItem, ClothingCategory } from "../../types";
-import { CATEGORY_LABEL, newId } from "../../lib/utils";
+import { newId } from "../../lib/utils";
+import { CATEGORY_LABEL, CATEGORY_EMOJI } from "../../lib/constants";
 import { SEED_ITEMS } from "../../lib/seed-wardrobe";
 import { useWardrobe } from "../../contexts/WardrobeContext";
 import { useAuth } from "../../contexts/AuthContext";
@@ -13,20 +14,6 @@ const CATEGORY_ORDER: ClothingCategory[] = [
   "outerwear", "top", "dress", "bottom", "underwear", "socks", "shoes", "bag", "accessory",
 ];
 
-const CATEGORY_EMOJI: Record<ClothingCategory, string> = {
-  top: "👚",
-  bottom: "👖",
-  dress: "👗",
-  outerwear: "🧥",
-  underwear: "🩲",
-  socks: "🧦",
-  shoes: "👟",
-  bag: "👜",
-  accessory: "💍",
-};
-
-// Title shown on the sheet based on which categories are filtered.
-// Mirrors the labels from the legacy CompartmentSheet.
 function titleFor(initialCategories: ClothingCategory[]): string {
   const set = new Set(initialCategories);
   if (set.has("outerwear") && set.size === 1) return "🧥 מעילים";
@@ -35,8 +22,6 @@ function titleFor(initialCategories: ClothingCategory[]): string {
   if (set.has("underwear") && set.has("socks")) return "🧦 תחתונים, גרביים ותכשיטים";
   return "הארון שלי";
 }
-
-// ─── Variants ────────────────────────────────────────────────────────────────
 
 const gridVariants = {
   hidden: { opacity: 0 },
@@ -55,8 +40,6 @@ const cardVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.22 } },
   exit: { opacity: 0, y: 4, transition: { duration: 0.15 } },
 };
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 interface Props {
   open: boolean;
@@ -97,8 +80,6 @@ export default function WardrobeSheet({
     });
   };
 
-  // Sync expanded with initialCategories whenever the sheet opens
-  // (so clicking a different compartment expands the correct category).
   useEffect(() => {
     if (open) setExpanded(new Set(initialCategories));
   }, [open, initialCategories]);
@@ -111,8 +92,6 @@ export default function WardrobeSheet({
       return next;
     });
 
-  // Filter to only the categories from the clicked compartment.
-  // Empty initialCategories means "show all" (used when no compartment context).
   const filterSet = initialCategories.length > 0 ? new Set(initialCategories) : null;
   const visibleItems = filterSet ? items.filter((i) => filterSet.has(i.category)) : items;
 
@@ -168,8 +147,6 @@ export default function WardrobeSheet({
 
               return (
                 <div key={cat} className="border border-brass/10 rounded-sm overflow-hidden bg-parchment-light">
-
-                  {/* Accordion header */}
                   <motion.button
                     type="button"
                     onClick={() => toggle(cat)}
@@ -181,8 +158,6 @@ export default function WardrobeSheet({
                     <span className="font-display text-base text-ebony flex-1">
                       {CATEGORY_LABEL[cat]}
                     </span>
-
-                    {/* Color swatches — collapsed preview */}
                     <AnimatePresence>
                       {!isOpen && (
                         <motion.div
@@ -205,8 +180,6 @@ export default function WardrobeSheet({
                         </motion.div>
                       )}
                     </AnimatePresence>
-
-                    {/* Count + chevron */}
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <span className="bg-brass/15 text-walnut-600 text-[11px] font-semibold rounded-full px-2 py-0.5">
                         {catItems.length}
@@ -219,8 +192,6 @@ export default function WardrobeSheet({
                       </motion.div>
                     </div>
                   </motion.button>
-
-                  {/* Expandable content — staggered via variants */}
                   <AnimatePresence initial={false}>
                     {isOpen && (
                       <motion.div
@@ -252,8 +223,6 @@ export default function WardrobeSheet({
                 </div>
               );
             })}
-
-            {/* Add more */}
             <motion.button
               type="button"
               onClick={() => { onClose(); onAddClick(); }}
@@ -265,8 +234,6 @@ export default function WardrobeSheet({
             </motion.button>
           </div>
         )}
-
-        {/* Cloud + account footer */}
         {configured && userId && (
           <div className="mt-6 pt-4 border-t border-walnut-100/60 space-y-2">
             {user?.email && (

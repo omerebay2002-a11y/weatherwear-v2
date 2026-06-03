@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Check } from "lucide-react";
 import type { ClothingItem, ClothingCategory, Material, Season } from "../../types";
 import { cn } from "../../lib/utils";
+import { CATEGORIES, MATERIALS, SEASONS, COLORS } from "../../lib/constants";
 
 export interface ItemDraft {
   name?: string;
@@ -23,49 +24,6 @@ interface Props {
   onSave: (item: Omit<ClothingItem, "id" | "createdAt" | "source">) => void;
   saveLabel?: string;
 }
-
-const CATEGORIES: { v: ClothingCategory; label: string }[] = [
-  { v: "outerwear", label: "מעיל" },
-  { v: "top", label: "חולצה" },
-  { v: "dress", label: "שמלה" },
-  { v: "bottom", label: "מכנסיים" },
-  { v: "underwear", label: "תחתונים" },
-  { v: "socks", label: "גרביים" },
-  { v: "shoes", label: "נעליים" },
-  { v: "bag", label: "תיק" },
-  { v: "accessory", label: "תכשיטים" },
-];
-
-const MATERIALS: { v: Material; label: string }[] = [
-  { v: "cotton", label: "כותנה" },
-  { v: "denim", label: "ג׳ינס" },
-  { v: "wool", label: "צמר" },
-  { v: "linen", label: "פשתן" },
-  { v: "silk", label: "משי" },
-  { v: "leather", label: "עור" },
-  { v: "synthetic", label: "סינתטי" },
-];
-
-const SEASONS: { v: Season; label: string }[] = [
-  { v: "summer", label: "קיץ" },
-  { v: "all", label: "כל השנה" },
-  { v: "winter", label: "חורף" },
-];
-
-const COLORS: { name: string; hex: string }[] = [
-  { name: "שחור", hex: "#1A1410" },
-  { name: "לבן", hex: "#FAF6EE" },
-  { name: "אפור", hex: "#6B6B6B" },
-  { name: "חום", hex: "#5C3E22" },
-  { name: "חאקי", hex: "#948169" },
-  { name: "בז׳", hex: "#C9B898" },
-  { name: "ורוד עתיק", hex: "#D9B0B0" },
-  { name: "כחול ג׳ינס", hex: "#3F5878" },
-  { name: "ירוק זית", hex: "#6B7553" },
-  { name: "ירוק מנטה", hex: "#9BAE94" },
-  { name: "אדום יין", hex: "#6F2A2A" },
-  { name: "צהוב חרדל", hex: "#B89742" },
-];
 
 export default function ItemDraftForm({
   initial,

@@ -34,15 +34,3 @@ export function temperatureFeel(c: number): "cold" | "cool" | "mild" | "warm" | 
   if (c < 28) return "warm";
   return "hot";
 }
-
-export const CATEGORY_LABEL: Record<string, string> = {
-  top: "חולצות",
-  bottom: "מכנסיים",
-  dress: "שמלות",
-  outerwear: "מעילים",
-  underwear: "תחתונים",
-  socks: "גרביים",
-  shoes: "נעליים",
-  bag: "תיקים",
-  accessory: "תכשיטים",
-};

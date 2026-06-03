@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Video, ScanLine, Check, X, Loader2 } from "lucide-react";
 import { analyzeClothing } from "../../lib/claude";
 import { newId } from "../../lib/utils";
-import { CATEGORY_LABEL } from "../../lib/utils";
+import { CATEGORY_LABEL } from "../../lib/constants";
 import type { ClothingItem, ClothingCategory, Season } from "../../types";
 
 interface StagedItem {
@@ -48,7 +48,6 @@ export default function VideoScan({ onSave, onDone }: Props) {
   const [scanning, setScanning] = useState(false);
   const [staged, setStaged] = useState<StagedItem[]>([]);
 
-  // Start camera
   useEffect(() => {
     navigator.mediaDevices
       .getUserMedia({ video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 1280 } } })
@@ -73,7 +72,6 @@ export default function VideoScan({ onSave, onDone }: Props) {
     canvas.height = size;
     const ctx = canvas.getContext("2d");
     if (!ctx) return null;
-    // Crop center square
     const vw = video.videoWidth;
     const vh = video.videoHeight;
     const side = Math.min(vw, vh);
@@ -92,7 +90,6 @@ export default function VideoScan({ onSave, onDone }: Props) {
     setScanning(true);
     try {
       const result = await analyzeClothing({ mode: "image", imageBase64: frame });
-      // Deduplicate: skip if same category+similar color already staged
       const isDuplicate = staged.some(
         (s) => s.category === result.category && hexDist(s.colorHex, result.colorHex) < 40
       );
@@ -123,7 +120,6 @@ export default function VideoScan({ onSave, onDone }: Props) {
     }
   }, [captureFrame, staged]);
 
-  // Auto-scan every 5 seconds
   useEffect(() => {
     const id = setInterval(scanNow, 5000);
     return () => clearInterval(id);
@@ -162,7 +158,6 @@ export default function VideoScan({ onSave, onDone }: Props) {
 
   return (
     <div className="flex flex-col gap-4" dir="rtl">
-      {/* Camera preview */}
       <div className="relative aspect-square w-full overflow-hidden rounded-sm bg-ebony">
         <video
           ref={videoRef}
@@ -172,8 +167,6 @@ export default function VideoScan({ onSave, onDone }: Props) {
           muted
         />
         <canvas ref={canvasRef} className="hidden" />
-
-        {/* Scan frame overlay */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="w-2/3 h-2/3 border-2 border-brass/60 rounded-md relative">
             <div className="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-brass rounded-tr" />
@@ -182,8 +175,6 @@ export default function VideoScan({ onSave, onDone }: Props) {
             <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-brass rounded-bl" />
           </div>
         </div>
-
-        {/* Scanning indicator */}
         <div className="absolute top-3 left-3">
           {scanning ? (
             <div className="frost-dark rounded-full px-3 py-1.5 flex items-center gap-2">
@@ -197,16 +188,12 @@ export default function VideoScan({ onSave, onDone }: Props) {
             </div>
           )}
         </div>
-
-        {/* Item count badge */}
         {staged.length > 0 && (
           <div className="absolute top-3 right-3 bg-brass text-ebony rounded-full h-7 w-7 flex items-center justify-center text-xs font-bold">
             {staged.length}
           </div>
         )}
       </div>
-
-      {/* Manual scan button */}
       <button
         type="button"
         onClick={scanNow}
@@ -219,8 +206,6 @@ export default function VideoScan({ onSave, onDone }: Props) {
           <><ScanLine className="h-4 w-4" />סרקי פריט עכשיו</>
         )}
       </button>
-
-      {/* Staged items */}
       <AnimatePresence>
         {staged.length > 0 && (
           <motion.div
@@ -240,9 +225,7 @@ export default function VideoScan({ onSave, onDone }: Props) {
                 exit={{ opacity: 0, x: -20 }}
                 className="flex items-center gap-3 bg-parchment-light border border-brass/20 rounded-sm p-3"
               >
-                <div
-                  className="w-10 h-10 rounded-sm flex-shrink-0 overflow-hidden border border-black/10"
-                >
+                <div className="w-10 h-10 rounded-sm flex-shrink-0 overflow-hidden border border-black/10">
                   <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -262,7 +245,6 @@ export default function VideoScan({ onSave, onDone }: Props) {
                 </button>
               </motion.div>
             ))}
-
             <button
               type="button"
               onClick={saveAll}
@@ -274,7 +256,6 @@ export default function VideoScan({ onSave, onDone }: Props) {
           </motion.div>
         )}
       </AnimatePresence>
-
       {staged.length === 0 && !scanning && (
         <p className="text-center font-editorial italic text-sm text-walnut-400 py-2" dir="rtl">
           כווני את המצלמה לפריט בגד — יזוהה אוטומטית כל 5 שניות
