@@ -114,8 +114,20 @@ ${wardrobeText}
       .map((c) => c.text)
       .join("");
     const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return jsonError(502, `Bad model output: ${text.slice(0, 200)}`);
-    const parsed = JSON.parse(jsonMatch[0]);
+    if (!jsonMatch) {
+      // SEC: Log detailed error server-side, do not leak to client
+      console.error("Bad model output in suggest-outfit:", text.slice(0, 200));
+      return jsonError(502, "שגיאת שרת פנימית (Invalid model output)");
+    }
+
+    let parsed: any;
+    try {
+      parsed = JSON.parse(jsonMatch[0]);
+    } catch (e) {
+      // SEC: Log detailed error server-side, do not leak to client
+      console.error("Malformed JSON in suggest-outfit:", jsonMatch[0].slice(0, 200), e);
+      return jsonError(502, "שגיאת שרת פנימית (Malformed model output)");
+    }
 
     // Validate item IDs exist in wardrobe
     const validIds = new Set(body.wardrobe.map((it) => it.id));
@@ -129,7 +141,9 @@ ${wardrobeText}
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (e) {
-    return jsonError(500, e instanceof Error ? e.message : "Anthropic error");
+    // SEC: Log detailed error server-side, do not leak to client
+    console.error("Anthropic error in suggest-outfit:", e);
+    return jsonError(500, "שגיאת שרת פנימית");
   }
 }
 

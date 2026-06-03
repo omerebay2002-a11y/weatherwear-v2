@@ -1,0 +1,4 @@
+## 2024-06-03 - API Error Information Disclosure
+**Vulnerability:** Edge API functions (`api/chat.ts`, `api/analyze-clothing.ts`, `api/suggest-outfit.ts`) were exposing raw error details (e.g. `e.message` from `Anthropic` errors, malformed JSON snippets) to the client. This information disclosure can reveal sensitive internal system details or model outputs to end users or attackers.
+**Learning:** Returning `e.message` directly in HTTP responses is a common anti-pattern that violates the principle of least privilege regarding system internals. Serverless functions and Edge runtimes must handle error masking explicitly.
+**Prevention:** Always log detailed errors server-side (using `console.error()`) for debugging, and return a generic error message (like "שגיאת שרת פנימית" / "Internal server error") in the actual client response.
