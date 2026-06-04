@@ -5,12 +5,6 @@ import type { Compartment } from "../room/Cabinet";
 
 // All measurements are in % of the wardrobe-closed.png frame (937×1678).
 // Tweak in 0.5–1% increments if anything is misaligned.
-const CABINET = {
-  outerLeft: 20,
-  outerRight: 79,
-  outerTop: 29,
-  outerBottom: 78,
-};
 
 const LEFT_DOOR = {
   left: 20,

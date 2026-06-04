@@ -94,8 +94,9 @@ ${wardrobeText || "(ריק)"}`;
           }
           controller.close();
         } catch (e) {
+          console.error("Stream generation error:", e);
           controller.enqueue(
-            encoder.encode(`\n[שגיאה: ${e instanceof Error ? e.message : "unknown"}]`)
+            encoder.encode(`\n[שגיאה: אירעה שגיאה בשרת. אנא נסה שוב מאוחר יותר.]`)
           );
           controller.close();
         }
@@ -110,8 +111,9 @@ ${wardrobeText || "(ריק)"}`;
       },
     });
   } catch (e) {
+    console.error("Anthropic error:", e);
     return new Response(
-      `Anthropic error: ${e instanceof Error ? e.message : "unknown"}`,
+      "Internal server error",
       { status: 500 }
     );
   }

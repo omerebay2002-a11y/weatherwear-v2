@@ -123,9 +123,10 @@ export default async function handler(req: Request): Promise<Response> {
       headers: { "Content-Type": "application/json" },
     });
   } catch (e) {
+    console.error("Anthropic error:", e);
     return jsonError(
       500,
-      e instanceof Error ? e.message : "Unknown Anthropic API error"
+      "Internal server error"
     );
   }
 }
