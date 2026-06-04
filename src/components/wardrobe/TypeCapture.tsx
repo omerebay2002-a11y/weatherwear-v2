@@ -78,6 +78,7 @@ export default function TypeCapture({ onSave, onCancel }: Props) {
             placeholder="Levi's 501 כחול, Nike Air Max לבן, שמלה שחורה קצרה…"
             className="w-full rounded-sm border border-walnut-200 bg-parchment px-4 py-3 text-sm text-ebony placeholder-walnut-300 focus:border-brass focus:outline-none focus:ring-1 focus:ring-brass/30 transition"
             dir="rtl"
+            aria-label="תיאור הפריט"
             autoFocus
           />
         </div>
