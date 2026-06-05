@@ -4,31 +4,24 @@ import { Archive } from "lucide-react";
 import type { Compartment } from "../room/Cabinet";
 
 // All measurements are in % of the wardrobe-closed.png frame (937×1678).
-// Tweak in 0.5–1% increments if anything is misaligned.
-const CABINET = {
-  outerLeft: 20,
-  outerRight: 79,
-  outerTop: 29,
-  outerBottom: 78,
-};
-
+// Calibrated to the dark-walnut wardrobe image.
 const LEFT_DOOR = {
-  left: 20,
+  left: 26,
   right: 49,
-  top: 29,
-  bottom: 78, // tall, full-height
+  top: 13,
+  bottom: 82,
 };
 
 const RIGHT_DOOR = {
-  left: 51,
-  right: 79,
-  top: 29,
-  bottom: 58, // shorter — drawers below
+  left: 50,
+  right: 73,
+  top: 13,
+  bottom: 82,
 };
 
-const SWING_ANGLE = 75;
-const SWING = { duration: 0.85, ease: [0.16, 1, 0.3, 1] as const };
-const INTERIOR_FADE = { duration: 0.35 };
+const SWING_ANGLE = 82;
+const SWING = { duration: 0.9, ease: [0.16, 1, 0.3, 1] as const };
+const INTERIOR_FADE = { duration: 0.5 };
 
 const HOTSPOTS: Array<{
   id: Compartment;
@@ -122,7 +115,7 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
           onLoad={() => setInteriorLoaded(true)}
           onError={() => setErrored(true)}
           animate={{ opacity: ready && cabinetOpen ? 1 : 0 }}
-          transition={{ ...INTERIOR_FADE, delay: cabinetOpen ? 0.25 : 0 }}
+          transition={{ ...INTERIOR_FADE, delay: cabinetOpen ? 0.4 : 0 }}
           className="absolute inset-0 w-full h-full select-none pointer-events-none"
           style={{ objectFit: "contain", zIndex: 10 }}
         />
