@@ -1,0 +1,3 @@
+## 2024-06-07 - Form Wrapper Components Accessibility
+**Learning:** Custom UI form wrappers (like `<Field>`) need to be explicitly designed to accept and forward an `htmlFor` property to their internal `<label>` elements so that screen readers correctly associate labels with their child inputs. Visually placeholder-only inputs must use explicit `aria-label` attributes for a11y support.
+**Action:** When creating wrapper form components, always include `htmlFor`/`id` linking capabilities, and apply `aria-label` directly to raw `<input>` elements that do not have visible labels or wrapper components.

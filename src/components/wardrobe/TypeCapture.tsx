@@ -71,6 +71,7 @@ export default function TypeCapture({ onSave, onCancel }: Props) {
         <p className="text-xs tracking-widest uppercase text-walnut-400">תארי את הפריט</p>
         <div className="relative" ref={inputScope}>
           <input
+            aria-label="תארי את הפריט"
             type="text"
             value={text}
             onChange={(e) => setText(e.target.value)}
