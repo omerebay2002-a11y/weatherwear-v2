@@ -123,10 +123,9 @@ export default async function handler(req: Request): Promise<Response> {
       headers: { "Content-Type": "application/json" },
     });
   } catch (e) {
-    return jsonError(
-      500,
-      e instanceof Error ? e.message : "Unknown Anthropic API error"
-    );
+    // SECURITY: Do not leak error details to the client
+    console.error("Error analyzing clothing:", e);
+    return jsonError(500, "שגיאה פנימית בשרת");
   }
 }
 
