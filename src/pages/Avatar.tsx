@@ -1,6 +1,6 @@
-import { Suspense, useState, useEffect, useRef } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
-import { useGLTF, Environment, CameraControls } from "@react-three/drei";
+import { useGLTF, Environment } from "@react-three/drei";
 import { motion, AnimatePresence } from "framer-motion";
 import { RefreshCw } from "lucide-react";
 import { useWardrobe } from "../contexts/WardrobeContext";
@@ -16,13 +16,11 @@ function pick(items: ClothingItem[], cat: ClothingCategory) {
   return items.find((i) => i.category === cat) ?? null;
 }
 
-// ─── 3D avatar model ──────────────────────────────────────────────────────────
 function RPMAvatarModel({ url }: { url: string }) {
   const { scene } = useGLTF(url);
   return <primitive object={scene} scale={2.3} position={[0, -1.15, 0]} />;
 }
 
-// ─── Scene ────────────────────────────────────────────────────────────────────
 function AvatarScene({ url }: { url: string }) {
   return (
     <Canvas
@@ -41,7 +39,6 @@ function AvatarScene({ url }: { url: string }) {
   );
 }
 
-// ─── Outfit chip ──────────────────────────────────────────────────────────────
 function OutfitChip({ item, cat }: { item: ClothingItem | null; cat: ClothingCategory }) {
   if (!item) return null;
   return (
@@ -58,7 +55,6 @@ function OutfitChip({ item, cat }: { item: ClothingItem | null; cat: ClothingCat
   );
 }
 
-// ─── Main page ────────────────────────────────────────────────────────────────
 export default function Avatar() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(
     () => localStorage.getItem(RPM_AVATAR_KEY)
@@ -66,11 +62,9 @@ export default function Avatar() {
   const [showCreator, setShowCreator] = useState(false);
   const { items } = useWardrobe();
 
-  // Listen for Ready Player Me iframe postMessage
   useEffect(() => {
     function onMessage(e: MessageEvent) {
       if (typeof e.data !== "string") return;
-      // RPM sends the GLB URL directly or inside JSON
       let url: string | null = null;
       if (e.data.endsWith(".glb")) {
         url = e.data;
@@ -103,7 +97,6 @@ export default function Avatar() {
       transition={{ duration: 0.3 }}
       className="relative h-[100dvh] w-full overflow-hidden"
     >
-      {/* ── Background: warm room wall + wood floor (LEFT) | wardrobe SVG (RIGHT) ── */}
       <div
         className="absolute top-0 bottom-0 left-0"
         style={{
@@ -123,7 +116,6 @@ export default function Avatar() {
           style={{ marginLeft: "-10%" }}
         />
       </div>
-      {/* Seam blend */}
       <div
         className="absolute top-0 bottom-0 pointer-events-none"
         style={{
@@ -133,7 +125,6 @@ export default function Avatar() {
         }}
       />
 
-      {/* ── RPM creator iframe (full-screen modal) ── */}
       <AnimatePresence>
         {showCreator && (
           <motion.div
@@ -161,7 +152,6 @@ export default function Avatar() {
         )}
       </AnimatePresence>
 
-      {/* ── Avatar canvas — left 58% of screen ── */}
       <div
         className="absolute top-0 bottom-0 left-0 z-10"
         style={{ width: "58%", paddingBottom: "160px" }}
@@ -187,7 +177,6 @@ export default function Avatar() {
         )}
       </div>
 
-      {/* ── Recreate button (top-left when avatar exists) ── */}
       {avatarUrl && (
         <motion.button
           initial={{ opacity: 0 }}
@@ -208,7 +197,6 @@ export default function Avatar() {
         </motion.button>
       )}
 
-      {/* ── Outfit panel ── */}
       <div
         className="absolute bottom-20 inset-x-0 z-20 px-3"
         dir="rtl"
