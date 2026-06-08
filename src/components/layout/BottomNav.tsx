@@ -1,8 +1,9 @@
 import { NavLink } from "react-router-dom";
-import { Cloud, Shirt } from "lucide-react";
+import { Cloud, Shirt, UserRound } from "lucide-react";
 import { cn } from "../../lib/utils";
 
 const TABS = [
+  { to: "/avatar", label: "הבובה", Icon: UserRound },
   { to: "/", label: "הארון", Icon: Shirt },
   { to: "/today", label: "היום", Icon: Cloud },
 ] as const;
