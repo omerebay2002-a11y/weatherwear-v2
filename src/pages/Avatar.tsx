@@ -1,6 +1,6 @@
-import { Suspense, useState, useEffect, useRef } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
-import { useGLTF, Environment, CameraControls } from "@react-three/drei";
+import { useGLTF, Environment } from "@react-three/drei";
 import { motion, AnimatePresence } from "framer-motion";
 import { RefreshCw } from "lucide-react";
 import { useWardrobe } from "../contexts/WardrobeContext";
