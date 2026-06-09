@@ -1,0 +1,4 @@
+## 2024-05-18 - Information Disclosure via Edge Functions Error Messages
+**Vulnerability:** Raw exception messages (`e.message`) from the Anthropic SDK were being exposed directly to the client in Edge Function HTTP responses. This leaked implementation details and potentially internal API infrastructure paths, creating an information disclosure vulnerability.
+**Learning:** Returning unhandled exception data in API responses is dangerous even for simple utility APIs or streaming responses. Error boundaries and explicit generic responses must be used for exceptions.
+**Prevention:** Always log detailed error information server-side using `console.error` and return localized or generic error messages (e.g., `jsonError(500, "Internal server error")`) to the client, especially inside `catch` blocks of edge functions handling sensitive integrations.
