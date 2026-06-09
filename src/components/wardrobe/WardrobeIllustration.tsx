@@ -3,33 +3,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Archive } from "lucide-react";
 import type { Compartment } from "../room/Cabinet";
 
-// All measurements are in % of the wardrobe-closed.svg frame (937×1678).
-// Tweak in 0.5–1% increments if anything is misaligned.
-const CABINET = {
-  outerLeft: 20,
-  outerRight: 79,
-  outerTop: 29,
-  outerBottom: 78,
-};
-
-const LEFT_DOOR = {
-  left: 20,
-  right: 49,
-  top: 29,
-  bottom: 78, // tall, full-height
-};
-
-const RIGHT_DOOR = {
-  left: 51,
-  right: 79,
-  top: 29,
-  bottom: 58, // shorter — drawers below
-};
-
-const SWING_ANGLE = 75;
-const SWING = { duration: 0.85, ease: [0.16, 1, 0.3, 1] as const };
-const INTERIOR_FADE = { duration: 0.35 };
-
+// Hotspot zones are % of the wardrobe-interior.png frame.
+// Calibrate against the open-wardrobe photo.
 const HOTSPOTS: Array<{
   id: Compartment;
   label: string;
@@ -38,11 +13,10 @@ const HOTSPOTS: Array<{
   width: string;
   height: string;
 }> = [
-  // Hotspots map to the cabinet interior layout (hangers top, folded clothes bottom-left, drawers bottom-right).
-  { id: "shirts",  label: "חולצות ושמלות",            top: "31%", left: "20%", width: "29%", height: "20%" },
-  { id: "coats",   label: "מעילים",                     top: "31%", left: "50%", width: "29%", height: "20%" },
-  { id: "folded",  label: "מכנסיים ונעליים",           top: "51%", left: "20%", width: "29%", height: "27%" },
-  { id: "drawers", label: "תחתונים גרביים תכשיטים",    top: "58%", left: "50%", width: "29%", height: "20%" },
+  { id: "shirts",  label: "חולצות ושמלות", top: "22%", left: "28%", width: "42%", height: "26%" },
+  { id: "folded",  label: "מקופל",          top: "52%", left: "28%", width: "42%", height: "14%" },
+  { id: "drawers", label: "מגירות",          top: "67%", left: "28%", width: "42%", height: "15%" },
+  { id: "coats",   label: "נעליים",          top: "83%", left: "28%", width: "42%", height: "8%"  },
 ];
 
 interface Props {
@@ -54,17 +28,12 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
   const [closedLoaded, setClosedLoaded] = useState(false);
   const [interiorLoaded, setInteriorLoaded] = useState(false);
   const [errored, setErrored] = useState(false);
-  const CLOSED_SRC = "/wardrobe-closed.svg";
   const ready = closedLoaded && interiorLoaded;
-
-  const leftDoorClip = `polygon(${LEFT_DOOR.left}% ${LEFT_DOOR.top}%, ${LEFT_DOOR.right}% ${LEFT_DOOR.top}%, ${LEFT_DOOR.right}% ${LEFT_DOOR.bottom}%, ${LEFT_DOOR.left}% ${LEFT_DOOR.bottom}%)`;
-  const rightDoorClip = `polygon(${RIGHT_DOOR.left}% ${RIGHT_DOOR.top}%, ${RIGHT_DOOR.right}% ${RIGHT_DOOR.top}%, ${RIGHT_DOOR.right}% ${RIGHT_DOOR.bottom}%, ${RIGHT_DOOR.left}% ${RIGHT_DOOR.bottom}%)`;
-  const leftDoorOrigin = `${LEFT_DOOR.left}% ${(LEFT_DOOR.top + LEFT_DOOR.bottom) / 2}%`;
-  const rightDoorOrigin = `${RIGHT_DOOR.right}% ${(RIGHT_DOOR.top + RIGHT_DOOR.bottom) / 2}%`;
 
   return (
     <div className="relative w-full h-full flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#F5EFE0] via-parchment to-[#E8DDC9]">
-      {/* Loading / error fallback */}
+
+      {/* Loading / error */}
       {(!ready || errored) && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -81,101 +50,48 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
             <div className="max-w-xs px-6 text-center space-y-3 pointer-events-auto">
               <Archive className="h-12 w-12 mx-auto text-walnut-300" strokeWidth={1.2} />
               <p className="font-display text-base text-ebony">ארון לא נטען</p>
-              <p className="text-sm text-walnut-400 font-editorial italic leading-relaxed">
-                ודאי ש-{" "}
-                <code className="text-brass not-italic font-mono text-xs bg-parchment-light px-1.5 py-0.5 rounded">
-                  public/wardrobe-closed.svg
-                </code>
-                {" "}ו-{" "}
-                <code className="text-brass not-italic font-mono text-xs bg-parchment-light px-1.5 py-0.5 rounded">
-                  public/wardrobe-interior.png
-                </code>
-                {" "}קיימים
-              </p>
             </div>
           )}
         </motion.div>
       )}
 
-      {/* Cabinet wrapper — perspective makes rotateY look 3D */}
+      {/* Image container */}
       <div
         onClick={() => ready && setCabinetOpen((v) => !v)}
         className="relative w-full max-w-md mx-auto cursor-pointer"
-        style={{ aspectRatio: "937 / 1678", perspective: "1800px" }}
+        style={{ aspectRatio: "937 / 1678" }}
         role="button"
         aria-label={cabinetOpen ? "סגרי את הארון" : "פתחי את הארון"}
       >
-        {/* L1: closed image — always visible, full frame (room + closed cabinet) */}
-        <img
-          src={CLOSED_SRC}
-          alt="חדר עם ארון"
+        {/* Closed photo — fades out when open */}
+        <motion.img
+          src="/wardrobe-closed.png"
+          alt="ארון סגור"
           draggable={false}
           onLoad={() => setClosedLoaded(true)}
           onError={() => setErrored(true)}
+          animate={{ opacity: cabinetOpen ? 0 : 1 }}
+          transition={{ duration: 0.65, ease: [0.4, 0, 0.2, 1] }}
           className="absolute inset-0 w-full h-full object-contain select-none pointer-events-none"
+          style={{ zIndex: 1 }}
         />
 
-        {/* L2: interior image — positioned at cabinet area, fades in when open */}
+        {/* Open photo — fades in when open */}
         <motion.img
           src="/wardrobe-interior.png"
-          alt="פנים הארון"
+          alt="ארון פתוח"
           draggable={false}
           onLoad={() => setInteriorLoaded(true)}
           onError={() => setErrored(true)}
-          animate={{ opacity: ready && cabinetOpen ? 1 : 0 }}
-          transition={{ ...INTERIOR_FADE, delay: cabinetOpen ? 0.15 : 0 }}
-          className="absolute select-none pointer-events-none"
-          style={{
-            left: `${CABINET.outerLeft}%`,
-            top: `${CABINET.outerTop}%`,
-            width: `${CABINET.outerRight - CABINET.outerLeft}%`,
-            height: `${CABINET.outerBottom - CABINET.outerTop}%`,
-            // fill (not cover): the transparent-PNG interior has a different aspect than
-            // the cabinet area, and we need full coverage.
-            objectFit: "fill",
-            zIndex: 10,
-          }}
+          animate={{ opacity: cabinetOpen ? 1 : 0 }}
+          transition={{ duration: 0.65, ease: [0.4, 0, 0.2, 1] }}
+          className="absolute inset-0 w-full h-full object-contain select-none pointer-events-none"
+          style={{ zIndex: 2 }}
         />
 
-        {/* L3a: LEFT DOOR — clipped from closed image, hinged on outer-left edge */}
-        <motion.div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: `url(${CLOSED_SRC})`,
-            backgroundSize: "100% 100%",
-            backgroundRepeat: "no-repeat",
-            clipPath: leftDoorClip,
-            transformOrigin: leftDoorOrigin,
-            zIndex: 20,
-          }}
-          animate={{
-            rotateY: cabinetOpen ? -SWING_ANGLE : 0,
-            filter: cabinetOpen ? "brightness(0.85)" : "brightness(1)",
-          }}
-          transition={SWING}
-        />
-
-        {/* L3b: RIGHT DOOR — same pattern, mirrored */}
-        <motion.div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: `url(${CLOSED_SRC})`,
-            backgroundSize: "100% 100%",
-            backgroundRepeat: "no-repeat",
-            clipPath: rightDoorClip,
-            transformOrigin: rightDoorOrigin,
-            zIndex: 20,
-          }}
-          animate={{
-            rotateY: cabinetOpen ? SWING_ANGLE : 0,
-            filter: cabinetOpen ? "brightness(0.85)" : "brightness(1)",
-          }}
-          transition={{ ...SWING, delay: cabinetOpen ? 0.06 : 0 }}
-        />
-
-        {/* Hotspots — only when cabinet open */}
+        {/* Hotspots — visible after open transition */}
         {ready && cabinetOpen &&
-          HOTSPOTS.map((spot) => (
+          HOTSPOTS.map((spot, i) => (
             <motion.button
               key={spot.id}
               type="button"
@@ -183,25 +99,38 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
                 e.stopPropagation();
                 onCompartmentClick(spot.id);
               }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3, delay: 0.5 }}
-              whileTap={{ scale: 0.97 }}
-              whileHover={{ backgroundColor: "rgba(184, 149, 106, 0.10)" }}
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25, delay: 0.55 + i * 0.06 }}
+              whileTap={{ scale: 0.95 }}
               aria-label={spot.label}
-              className="absolute rounded-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-brass/40"
+              className="absolute rounded-lg cursor-pointer focus:outline-none"
               style={{
                 top: spot.top,
                 left: spot.left,
                 width: spot.width,
                 height: spot.height,
-                zIndex: 30,
+                zIndex: 10,
+                background: "rgba(250,246,238,0.06)",
+                border: "1px solid rgba(184,149,106,0.2)",
               }}
-            />
+            >
+              <span
+                className="absolute bottom-1.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-medium"
+                style={{
+                  background: "rgba(26,20,16,0.55)",
+                  color: "#F2EAE0",
+                  backdropFilter: "blur(8px)",
+                  border: "1px solid rgba(184,149,106,0.3)",
+                }}
+              >
+                {spot.label}
+              </span>
+            </motion.button>
           ))}
       </div>
 
-      {/* Hint — only when ready and closed */}
+      {/* Hint when closed */}
       <AnimatePresence>
         {ready && !cabinetOpen && (
           <motion.div
@@ -209,12 +138,17 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.4, delay: 0.15 }}
-            className="absolute bottom-32 inset-x-0 text-center pointer-events-none z-20"
+            transition={{ duration: 0.4, delay: 0.5 }}
+            className="absolute bottom-28 inset-x-0 flex flex-col items-center gap-2 pointer-events-none z-20"
             dir="rtl"
           >
-            <p className="font-editorial italic text-walnut-400 text-base">
-              הקליקי לפתיחה
+            <motion.span
+              animate={{ scale: [1, 1.4, 1], opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+              className="block h-2 w-2 rounded-full bg-brass"
+            />
+            <p className="font-editorial italic text-white/80 text-sm tracking-wide drop-shadow-[0_1px_4px_rgba(0,0,0,0.7)]">
+              הקליקי לפתיחת הארון
             </p>
           </motion.div>
         )}
