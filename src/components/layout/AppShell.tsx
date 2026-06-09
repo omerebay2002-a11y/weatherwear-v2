@@ -4,7 +4,6 @@ import BottomNav from "./BottomNav";
 const ROUTE_TITLE: Record<string, string> = {
   "/": "הארון שלי",
   "/today": "היום שלי",
-  "/avatar": "הבובה שלי",
 };
 
 // The app is mobile-first. On wider screens we render it inside a centered

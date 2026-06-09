@@ -67,21 +67,26 @@ These are non-negotiable. Past sessions broke the project by violating them.
 - **NEVER** replace these images, generate a new wardrobe, swap in a "light oak" version,
   or create an SVG/cartoon illustration of the wardrobe. The cartoon SVG was deleted on
   purpose — do not bring it back.
-- Both the **Wardrobe page** and the **Avatar page** must use this same photo so the app
-  feels like one continuous room.
+### TWO pages only — the avatar is NOT a page
+- The app has exactly **two tabs / pages**: **הארון (Wardrobe, `/`)** and
+  **היום (My Day, `/today`)**. Do **NOT** add a third "avatar" tab or `/avatar` route.
+- The **avatar is part of the wardrobe interface** — it stands on the floor to the
+  **LEFT** of the wardrobe, in the same room (component: `RoomAvatar`, rendered inside
+  the Wardrobe page). It is never a separate page.
+- The avatar must **never overlap the wardrobe**, and there must be **no hard seam /
+  partition**. It is one room.
+- Avatar is created via Ready Player Me (selfie → `.glb`), stored in `localStorage`
+  under `rpm_avatar_url`.
 
 ### Wardrobe open/close
 - Open/close is a **smooth opacity cross-fade** between `wardrobe-closed.png` and
   `wardrobe-interior.png` (see `WardrobeIllustration.tsx`). **No CSS fake doors** — they
   never aligned and looked broken.
 
-### Avatar page layout
-- One cohesive room: the wardrobe photo is the background; the avatar stands on the floor
-  to the **LEFT** of the wardrobe (Ready Player Me 3D model).
-- The avatar must **never overlap the wardrobe**, and there must be **no hard seam /
-  partition** between avatar and wardrobe. It is one room, not two glued halves.
-- Avatar is created via Ready Player Me (selfie → `.glb`), stored in `localStorage`
-  under `rpm_avatar_url`.
+### Desktop layout
+- Mobile-first. On wide screens the whole app renders inside a centered
+  **phone-width frame** (`max-w-[440px]`) with a warm dark surround — never full-bleed
+  (that blew the room photo up huge and blurry).
 
 ### Before every push
 - **ALWAYS run `npm run build` and confirm it passes** before pushing. `tsc` fails the
