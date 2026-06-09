@@ -54,3 +54,41 @@ All AI-assisted work should be committed and pushed to this branch.
 - **Hebrew-first**, RTL layout
 - Mobile-first design
 - Voice input supported (Hebrew)
+
+---
+
+## 🔒 Hard rules — DO NOT repeat past mistakes
+
+These are non-negotiable. Past sessions broke the project by violating them.
+
+### The wardrobe image is FIXED
+- The **only** wardrobe is the **dark-walnut photo**: `public/wardrobe-closed.png` (closed)
+  and `public/wardrobe-interior.png` (open). Warm room, olive tree, curtain, brass handles.
+- **NEVER** replace these images, generate a new wardrobe, swap in a "light oak" version,
+  or create an SVG/cartoon illustration of the wardrobe. The cartoon SVG was deleted on
+  purpose — do not bring it back.
+- Both the **Wardrobe page** and the **Avatar page** must use this same photo so the app
+  feels like one continuous room.
+
+### Wardrobe open/close
+- Open/close is a **smooth opacity cross-fade** between `wardrobe-closed.png` and
+  `wardrobe-interior.png` (see `WardrobeIllustration.tsx`). **No CSS fake doors** — they
+  never aligned and looked broken.
+
+### Avatar page layout
+- One cohesive room: the wardrobe photo is the background; the avatar stands on the floor
+  to the **LEFT** of the wardrobe (Ready Player Me 3D model).
+- The avatar must **never overlap the wardrobe**, and there must be **no hard seam /
+  partition** between avatar and wardrobe. It is one room, not two glued halves.
+- Avatar is created via Ready Player Me (selfie → `.glb`), stored in `localStorage`
+  under `rpm_avatar_url`.
+
+### Before every push
+- **ALWAYS run `npm run build` and confirm it passes** before pushing. `tsc` fails the
+  Vercel build on unused imports / type errors — a green local build is the gate.
+- After pushing to `main`, **screenshot the page** (dev server + headless Chromium) and
+  actually look at it before declaring success. Don't assume.
+
+### Deploy
+- Vercel auto-deploys from **`main`**. Pushing to the feature branch alone does NOT update
+  the live site.
