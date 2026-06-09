@@ -83,6 +83,7 @@ export default function Avatar() {
           <button
             onClick={(e) => { e.stopPropagation(); fileRef.current?.click(); }}
             className="absolute bottom-3 left-3 bg-parchment/90 backdrop-blur-sm border border-brass/20 rounded-full p-2 shadow"
+            aria-label="העלי סלפי"
           >
             <Camera className="h-4 w-4 text-walnut-500" strokeWidth={1.6} />
           </button>
