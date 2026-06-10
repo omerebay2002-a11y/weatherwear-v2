@@ -41,17 +41,19 @@ export default async function handler(req: Request): Promise<Response> {
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
+    console.error("Security/Config Error: ANTHROPIC_API_KEY is missing.");
     return jsonError(
       503,
-      "ANTHROPIC_API_KEY not configured. Add it in Vercel -> Settings -> Environment Variables."
+      "Internal Server Error"
     );
   }
 
   let body: AnalyzeBody;
   try {
     body = (await req.json()) as AnalyzeBody;
-  } catch {
-    return jsonError(400, "Invalid JSON body");
+  } catch (e) {
+    console.error("Invalid JSON body received:", e);
+    return jsonError(400, "Invalid request format");
   }
 
   const client = new Anthropic({ apiKey });
@@ -103,14 +105,16 @@ export default async function handler(req: Request): Promise<Response> {
 
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      return jsonError(502, `Could not parse JSON. Raw: ${text.slice(0, 200)}`);
+      console.error(`Model output parsing error. Could not parse JSON. Raw: ${text.slice(0, 200)}`);
+      return jsonError(502, "Internal Server Error");
     }
 
     let parsed: unknown;
     try {
       parsed = JSON.parse(jsonMatch[0]);
-    } catch {
-      return jsonError(502, `Malformed JSON from model: ${jsonMatch[0].slice(0, 200)}`);
+    } catch (e) {
+      console.error(`Malformed JSON from model: ${jsonMatch[0].slice(0, 200)}`, e);
+      return jsonError(502, "Internal Server Error");
     }
 
     const obj = parsed as Record<string, unknown>;
@@ -123,9 +127,10 @@ export default async function handler(req: Request): Promise<Response> {
       headers: { "Content-Type": "application/json" },
     });
   } catch (e) {
+    console.error("Anthropic API error:", e);
     return jsonError(
       500,
-      e instanceof Error ? e.message : "Unknown Anthropic API error"
+      "Internal Server Error"
     );
   }
 }

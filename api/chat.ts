@@ -42,7 +42,8 @@ export default async function handler(req: Request): Promise<Response> {
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    return new Response("ANTHROPIC_API_KEY not configured. Add it in Vercel.", {
+    console.error("Security/Config Error: ANTHROPIC_API_KEY is missing.");
+    return new Response("Internal Server Error", {
       status: 503,
     });
   }
@@ -50,8 +51,9 @@ export default async function handler(req: Request): Promise<Response> {
   let body: ChatBody;
   try {
     body = (await req.json()) as ChatBody;
-  } catch {
-    return new Response("Invalid JSON", { status: 400 });
+  } catch (e) {
+    console.error("Invalid JSON body received:", e);
+    return new Response("Invalid request format", { status: 400 });
   }
 
   // Build context block (sent in system as cacheable suffix)
@@ -94,8 +96,9 @@ ${wardrobeText || "(ריק)"}`;
           }
           controller.close();
         } catch (e) {
+          console.error("Streaming error:", e);
           controller.enqueue(
-            encoder.encode(`\n[שגיאה: ${e instanceof Error ? e.message : "unknown"}]`)
+            encoder.encode(`\n[שגיאה: שגיאת שרת פנימית]`)
           );
           controller.close();
         }
@@ -110,8 +113,9 @@ ${wardrobeText || "(ריק)"}`;
       },
     });
   } catch (e) {
+    console.error("Anthropic API error:", e);
     return new Response(
-      `Anthropic error: ${e instanceof Error ? e.message : "unknown"}`,
+      "Internal Server Error",
       { status: 500 }
     );
   }

@@ -58,13 +58,17 @@ interface SuggestBody {
 export default async function handler(req: Request): Promise<Response> {
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return jsonError(503, "ANTHROPIC_API_KEY not configured");
+  if (!apiKey) {
+    console.error("Security/Config Error: ANTHROPIC_API_KEY is missing.");
+    return jsonError(503, "Internal Server Error");
+  }
 
   let body: SuggestBody;
   try {
     body = (await req.json()) as SuggestBody;
-  } catch {
-    return jsonError(400, "Invalid JSON");
+  } catch (e) {
+    console.error("Invalid JSON body received:", e);
+    return jsonError(400, "Invalid request format");
   }
 
   if (!body.wardrobe || body.wardrobe.length === 0) {
@@ -114,8 +118,18 @@ ${wardrobeText}
       .map((c) => c.text)
       .join("");
     const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return jsonError(502, `Bad model output: ${text.slice(0, 200)}`);
-    const parsed = JSON.parse(jsonMatch[0]);
+    if (!jsonMatch) {
+      console.error(`Model output parsing error. Bad model output: ${text.slice(0, 200)}`);
+      return jsonError(502, "Internal Server Error");
+    }
+
+    let parsed: any;
+    try {
+      parsed = JSON.parse(jsonMatch[0]);
+    } catch (e) {
+      console.error(`Malformed JSON from model: ${jsonMatch[0].slice(0, 200)}`, e);
+      return jsonError(502, "Internal Server Error");
+    }
 
     // Validate item IDs exist in wardrobe
     const validIds = new Set(body.wardrobe.map((it) => it.id));
@@ -129,7 +143,8 @@ ${wardrobeText}
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (e) {
-    return jsonError(500, e instanceof Error ? e.message : "Anthropic error");
+    console.error("Anthropic API error:", e);
+    return jsonError(500, "Internal Server Error");
   }
 }
 

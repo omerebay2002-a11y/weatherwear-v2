@@ -1,0 +1,4 @@
+## 2024-06-10 - Information Disclosure in API Error Handling
+**Vulnerability:** Edge functions returned raw exception messages (including parsing errors, configuration failures like missing API keys, and third-party API error details) directly to the client in HTTP responses.
+**Learning:** Returning detailed error messages exposes internal workings, configurations, and potential third-party API states to end-users, posing a security risk (Information Disclosure). It is crucial to separate server-side logging from client-side messaging.
+**Prevention:** Always log detailed error information (e.g. stack traces, missing config alerts, JSON parsing errors) server-side using `console.error()`, and return a generic error message (like "Internal Server Error" or "Invalid request format") with the appropriate HTTP status code to the client.
