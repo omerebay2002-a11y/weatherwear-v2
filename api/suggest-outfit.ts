@@ -129,7 +129,9 @@ ${wardrobeText}
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (e) {
-    return jsonError(500, e instanceof Error ? e.message : "Anthropic error");
+    // SECURITY: Log detailed errors server-side only to prevent information disclosure
+    console.error("Anthropic API Error:", e);
+    return jsonError(500, "Internal server error");
   }
 }
 
