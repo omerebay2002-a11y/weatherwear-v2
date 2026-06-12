@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import type { User } from "firebase/auth";
-import { onAuthStateChanged, signInWithPopup, signOut as fbSignOut } from "firebase/auth";
-import { auth, isFirebaseConfigured, googleProvider } from "../lib/firebase";
+import type { User } from "@supabase/supabase-js";
+import { supabase, isSupabaseConfigured } from "../lib/supabase";
 
 interface AuthContextValue {
   user: User | null;
@@ -19,34 +18,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!auth) {
+    if (!supabase) {
       setLoading(false);
       return;
     }
-    const unsubscribe = onAuthStateChanged(auth, (u) => {
-      setUser(u);
+
+    // Resolve initial session (handles OAuth redirect callback too)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
       setLoading(false);
     });
-    return unsubscribe;
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const signInWithGoogle = async () => {
-    if (!auth) return;
-    await signInWithPopup(auth, googleProvider);
+    if (!supabase) return;
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: window.location.origin },
+    });
   };
 
   const signOut = async () => {
-    if (!auth) return;
-    await fbSignOut(auth);
+    if (!supabase) return;
+    await supabase.auth.signOut();
   };
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        userId: user?.uid ?? null,
+        userId: user?.id ?? null,
         loading,
-        configured: isFirebaseConfigured,
+        configured: isSupabaseConfigured,
         signInWithGoogle,
         signOut,
       }}
