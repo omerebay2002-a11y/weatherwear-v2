@@ -70,13 +70,26 @@ These are non-negotiable. Past sessions broke the project by violating them.
 ### TWO pages only — the avatar is NOT a page
 - The app has exactly **two tabs / pages**: **הארון (Wardrobe, `/`)** and
   **היום (My Day, `/today`)**. Do **NOT** add a third "avatar" tab or `/avatar` route.
-- The **avatar is part of the wardrobe interface** — it stands on the floor to the
-  **LEFT** of the wardrobe, in the same room (component: `RoomAvatar`, rendered inside
-  the Wardrobe page). It is never a separate page.
+- The **avatar is part of the wardrobe interface** — it stands on the rug to the
+  **RIGHT** of the wardrobe, against the plain wall strip, in the same room
+  (component: `RoomAvatar`, rendered inside the Wardrobe page). It is never a
+  separate page. (It used to be on the left, but the left side of the photo is
+  occupied by the bed corner and olive tree — the figure looked like it floated
+  on the bed. The right strip has clean wall + rug floor. Decided 2026-06-12.)
 - The avatar must **never overlap the wardrobe**, and there must be **no hard seam /
   partition**. It is one room.
-- Avatar is created via Ready Player Me (selfie → `.glb`), stored in `localStorage`
-  under `rpm_avatar_url`.
+- Until the user creates a personal avatar, a built-in 3D **tailor's dress form**
+  (linen torso, brass pole, walnut base — `DressForm` in `RoomAvatar.tsx`) stands
+  in its place. Outfits will be dressed on this figure.
+- Personal avatar is created via Ready Player Me (selfie → `.glb`), stored in
+  `localStorage` under `rpm_avatar_url`, and replaces the dress form in place.
+
+### Room layout (Wardrobe page)
+- The room photo fills the **full screen height** (`object-cover`, wrapper keeps the
+  photo's 937/1678 aspect, anchored **right**): the far-left window strip gets
+  cropped on tall screens, the wardrobe sits left-of-center fully visible, and the
+  plain-wall strip on the right is the avatar's standing room.
+- The add-item FAB is **bottom-left** (per DESIGN.md), away from the avatar.
 
 ### Wardrobe open/close
 - Open/close is a **smooth opacity cross-fade** between `wardrobe-closed.png` and

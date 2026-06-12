@@ -50,7 +50,7 @@ export default function Wardrobe() {
         transition={{ delay: 0.3, type: "spring", damping: 18 }}
         whileTap={{ scale: 0.92 }}
         onClick={() => setAdding(true)}
-        className="absolute bottom-24 right-5 z-30 brass-plate rounded-full h-14 w-14 flex items-center justify-center shadow-soft-lg"
+        className="absolute bottom-24 left-5 z-30 brass-plate rounded-full h-14 w-14 flex items-center justify-center shadow-soft-lg"
         aria-label="הוסיפי פריט"
       >
         <Plus className="h-7 w-7" strokeWidth={2.2} />

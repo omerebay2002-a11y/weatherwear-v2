@@ -55,11 +55,16 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
         </motion.div>
       )}
 
-      {/* Image container */}
+      {/* Image container — fills the full screen height so the room feels big.
+          Anchored to the RIGHT: the photo is wider than the phone, the window
+          strip on the far left gets cropped, and the plain-wall strip with the
+          clean rug floor stays visible on the right as standing room for the
+          avatar. Hotspot percentages remain relative to this wrapper, which
+          always matches the photo's frame. */}
       <div
         onClick={() => ready && setCabinetOpen((v) => !v)}
-        className="relative w-full max-w-md mx-auto cursor-pointer"
-        style={{ aspectRatio: "937 / 1678" }}
+        className="absolute right-0 top-0 h-full cursor-pointer"
+        style={{ aspectRatio: "937 / 1678", minWidth: "100%" }}
         role="button"
         aria-label={cabinetOpen ? "סגרי את הארון" : "פתחי את הארון"}
       >
@@ -72,7 +77,7 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
           onError={() => setErrored(true)}
           animate={{ opacity: cabinetOpen ? 0 : 1 }}
           transition={{ duration: 0.65, ease: [0.4, 0, 0.2, 1] }}
-          className="absolute inset-0 w-full h-full object-contain select-none pointer-events-none"
+          className="absolute inset-0 w-full h-full object-cover object-right select-none pointer-events-none"
           style={{ zIndex: 1 }}
         />
 
@@ -85,7 +90,7 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
           onError={() => setErrored(true)}
           animate={{ opacity: cabinetOpen ? 1 : 0 }}
           transition={{ duration: 0.65, ease: [0.4, 0, 0.2, 1] }}
-          className="absolute inset-0 w-full h-full object-contain select-none pointer-events-none"
+          className="absolute inset-0 w-full h-full object-cover object-right select-none pointer-events-none"
           style={{ zIndex: 2 }}
         />
 
