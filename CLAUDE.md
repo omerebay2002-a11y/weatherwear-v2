@@ -11,6 +11,11 @@
 
 ## What this app is
 
+**Core essence (the user's words): a smart digital wardrobe — ארון דיגיטלי חכם.**
+Manage everything you own in one place, see it on your avatar, and get told what
+to wear. The single biggest retention risk is the empty-wardrobe cold start: if
+adding clothes is hard, users leave.
+
 A smart virtual wardrobe with three connected panels:
 
 | Panel | Description |
@@ -20,6 +25,30 @@ A smart virtual wardrobe with three connected panels:
 | **My Day** | Daily planner + calendar integration, suggests outfits by schedule + weather + events |
 
 The three panels work together: **My Day drives the decision → Wardrobe supplies the outfit → Avatar wears it.**
+
+---
+
+## Onboarding — the first-run game (cold-start solution)
+
+First run is a questionnaire that plays like a game (`OnboardingFlow.tsx`),
+shown after sign-in and before the two pages. The spec, in the user's words:
+
+1. **Sign-in** (existing SignInScreen; offline mode skips it).
+2. **Quick questions**, one per screen, auto-advance on tap:
+   name → who the wardrobe is for (woman/man/mixed) → age range →
+   location permission (geolocation, skippable) → style multi-select.
+3. **Outfit photo upload** — party, wedding, everyday; as many as possible.
+   The AI analyzes the person's basic style from them (`api/analyze-style.ts`).
+4. **The guess**: build ~70 candidate items the user likely owns —
+   AI-detected items first, then universal basics (white/black tees etc.),
+   then profile/style-matched items (`src/lib/onboarding-catalog.ts`).
+5. **One-tap confirmation** ("סמני מה יש לך") with a live counter.
+   **Retention goal: hit 5–7 real items in the first minute** — then the
+   wardrobe is alive and the user stays. Manual add flows continue after.
+
+Profile is stored in localStorage (`ww2.profile.v1`, flag `ww2.onboarded.v1`,
+see `src/lib/profile.ts`). Users with existing items skip onboarding.
+Seeded items get `source: "onboarding"`.
 
 ---
 

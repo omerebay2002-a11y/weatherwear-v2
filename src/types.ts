@@ -41,7 +41,33 @@ export interface ClothingItem {
   imageUrl?: string;       // data URL (camera) or remote
   createdAt: number;
   // Source — how was it added
-  source: "photo" | "voice" | "type";
+  source: "photo" | "voice" | "type" | "onboarding";
+}
+
+// ─────────────────────────────────────────────────────────
+// User profile (onboarding questionnaire)
+// ─────────────────────────────────────────────────────────
+
+export type StylePref =
+  | "casual"     // קז׳ואל
+  | "elegant"    // אלגנטי
+  | "sporty"     // ספורטיבי
+  | "minimal"    // מינימליסטי
+  | "romantic"   // רומנטי
+  | "street";    // אורבני
+
+export type WardrobeFor = "woman" | "man" | "mixed";
+
+export type AgeRange = "under20" | "20s" | "30s" | "40plus";
+
+export interface UserProfile {
+  name?: string;
+  wardrobeFor: WardrobeFor;
+  ageRange: AgeRange;
+  styles: StylePref[];
+  city?: string;
+  outfitPhotoCount: number; // how many style photos were analyzed
+  createdAt: number;
 }
 
 // ─────────────────────────────────────────────────────────

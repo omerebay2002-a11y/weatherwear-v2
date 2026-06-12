@@ -38,6 +38,28 @@ export async function analyzeClothing(input: AnalyzeInput): Promise<AnalyzedClot
   return (await r.json()) as AnalyzedClothing;
 }
 
+export interface AnalyzeStyleInput {
+  wardrobeFor: string;
+  ageRange: string;
+  styles: string[];
+  images: string[]; // data URLs, already downscaled
+}
+
+/** Onboarding: analyze outfit photos → list of items the user likely owns. */
+export async function analyzeStyle(input: AnalyzeStyleInput): Promise<AnalyzedClothing[]> {
+  const r = await fetch("/api/analyze-style", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  if (!r.ok) {
+    const text = await r.text().catch(() => "");
+    throw new Error(`Style analysis failed (${r.status}): ${text}`);
+  }
+  const data = (await r.json()) as { items: AnalyzedClothing[] };
+  return data.items ?? [];
+}
+
 export interface SuggestOutfitInput {
   weather: WeatherSnapshot;
   occasion: Occasion;
