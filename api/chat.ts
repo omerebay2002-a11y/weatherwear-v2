@@ -94,8 +94,10 @@ ${wardrobeText || "(ריק)"}`;
           }
           controller.close();
         } catch (e) {
+          // SECURITY: Log detailed stream errors server-side to prevent information disclosure
+          console.error("Chat Stream Error:", e);
           controller.enqueue(
-            encoder.encode(`\n[שגיאה: ${e instanceof Error ? e.message : "unknown"}]`)
+            encoder.encode(`\n[שגיאה: שגיאת שרת פנימית]`)
           );
           controller.close();
         }
@@ -110,8 +112,10 @@ ${wardrobeText || "(ריק)"}`;
       },
     });
   } catch (e) {
+    // SECURITY: Log detailed errors server-side only to prevent information disclosure
+    console.error("Chat API Error:", e);
     return new Response(
-      `Anthropic error: ${e instanceof Error ? e.message : "unknown"}`,
+      "Internal server error",
       { status: 500 }
     );
   }
