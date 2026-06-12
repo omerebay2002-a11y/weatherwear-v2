@@ -1,11 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import {
-  collection, doc, getDocs, setDoc, deleteDoc, query, orderBy,
-} from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import type { ClothingItem } from "../types";
 import { loadItems, saveItems } from "../lib/storage";
-import { db, storage } from "../lib/firebase";
+import { supabase } from "../lib/supabase";
 import { useAuth } from "./AuthContext";
 
 interface WardrobeContextValue {
@@ -22,7 +18,63 @@ interface WardrobeContextValue {
 
 const WardrobeContext = createContext<WardrobeContextValue | null>(null);
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
+// ─── DB ↔ domain mapping ─────────────────────────────────────────────────────
+
+type DbRow = {
+  id: string;
+  user_id: string;
+  name: string;
+  category: string;
+  color: string;
+  color_hex: string;
+  material: string | null;
+  brand: string | null;
+  model: string | null;
+  season: string;
+  formality: string | null;
+  image_url: string | null;
+  created_at: number;
+  source: string;
+};
+
+function rowToItem(row: DbRow): ClothingItem {
+  return {
+    id: row.id,
+    name: row.name,
+    category: row.category as ClothingItem["category"],
+    color: row.color,
+    colorHex: row.color_hex,
+    material: (row.material ?? undefined) as ClothingItem["material"] | undefined,
+    brand: row.brand ?? undefined,
+    model: row.model ?? undefined,
+    season: row.season as ClothingItem["season"],
+    formality: (row.formality ?? undefined) as ClothingItem["formality"] | undefined,
+    imageUrl: row.image_url ?? undefined,
+    createdAt: row.created_at,
+    source: row.source as ClothingItem["source"],
+  };
+}
+
+function itemToRow(item: ClothingItem, userId: string, imageUrl?: string): DbRow {
+  return {
+    id: item.id,
+    user_id: userId,
+    name: item.name,
+    category: item.category,
+    color: item.color,
+    color_hex: item.colorHex,
+    material: item.material ?? null,
+    brand: item.brand ?? null,
+    model: item.model ?? null,
+    season: item.season,
+    formality: item.formality ?? null,
+    image_url: imageUrl ?? item.imageUrl ?? null,
+    created_at: item.createdAt,
+    source: item.source,
+  };
+}
+
+// ─── Storage helpers ──────────────────────────────────────────────────────────
 
 function dataUrlToBlob(dataUrl: string): Blob {
   const [header, b64] = dataUrl.split(",");
@@ -33,101 +85,111 @@ function dataUrlToBlob(dataUrl: string): Blob {
   return new Blob([arr], { type: mime });
 }
 
-function rowToItem(d: Record<string, unknown>): ClothingItem {
-  return {
-    id: d.id as string,
-    name: d.name as string,
-    category: d.category as ClothingItem["category"],
-    color: d.color as string,
-    colorHex: d.colorHex as string,
-    season: d.season as ClothingItem["season"],
-    material: d.material as ClothingItem["material"] | undefined,
-    brand: d.brand as string | undefined,
-    model: d.model as string | undefined,
-    formality: d.formality as ClothingItem["formality"] | undefined,
-    imageUrl: d.imageUrl as string | undefined,
-    createdAt: d.createdAt as number,
-    source: d.source as ClothingItem["source"],
-  };
-}
-
-async function uploadImage(uid: string, itemId: string, dataUrl: string): Promise<string> {
-  if (!storage) return dataUrl;
+async function uploadImage(userId: string, itemId: string, dataUrl: string): Promise<string> {
+  if (!supabase) return dataUrl;
   const blob = dataUrlToBlob(dataUrl);
   if (blob.size > 5 * 1024 * 1024) throw new Error("Image too large (max 5 MB)");
-  const imgRef = ref(storage, `wardrobe/${uid}/${itemId}.jpg`);
-  await uploadBytes(imgRef, blob, { contentType: blob.type });
-  return getDownloadURL(imgRef);
+  const path = `${userId}/${itemId}.jpg`;
+  const { error } = await supabase.storage
+    .from("wardrobe")
+    .upload(path, blob, { contentType: blob.type, upsert: true });
+  if (error) throw error;
+  const { data } = supabase.storage.from("wardrobe").getPublicUrl(path);
+  return data.publicUrl;
+}
+
+async function deleteImage(userId: string, itemId: string): Promise<void> {
+  if (!supabase) return;
+  await supabase.storage.from("wardrobe").remove([`${userId}/${itemId}.jpg`]);
 }
 
 // ─── Provider ────────────────────────────────────────────────────────────────
 
 export function WardrobeProvider({ children }: { children: React.ReactNode }) {
   const { userId } = useAuth();
-  const useCloud = !!(userId && db);
+  const useCloud = !!(userId && supabase);
 
-  const [items, setItems] = useState<ClothingItem[]>(() => useCloud ? [] : loadItems());
+  const [items, setItems] = useState<ClothingItem[]>(() => (useCloud ? [] : loadItems()));
   const [loading, setLoading] = useState(useCloud);
   const [localItemsToMigrate, setLocalItemsToMigrate] = useState<ClothingItem[]>(
-    () => useCloud ? loadItems() : []
+    () => (useCloud ? loadItems() : [])
   );
 
+  // Persist to localStorage when offline
   useEffect(() => {
     if (!useCloud) saveItems(items);
   }, [items, useCloud]);
 
+  // Fetch from Supabase when logged in
   useEffect(() => {
-    if (!useCloud || !db || !userId) return;
+    if (!useCloud || !supabase || !userId) return;
     setLoading(true);
-    const col = collection(db, "users", userId, "wardrobe");
-    getDocs(query(col, orderBy("createdAt", "desc")))
-      .then(({ docs }) => {
-        setItems(docs.map((d) => rowToItem(d.data() as Record<string, unknown>)));
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    supabase
+      .from("wardrobe")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .then(({ data, error }) => {
+        if (error) console.error(error);
+        else setItems((data as DbRow[]).map(rowToItem));
+        setLoading(false);
+      });
   }, [useCloud, userId]);
 
-  const add = useCallback((item: ClothingItem) => {
-    setItems((prev) => [item, ...prev]);
+  const add = useCallback(
+    (item: ClothingItem) => {
+      setItems((prev) => [item, ...prev]);
+      if (!useCloud || !userId || !supabase) return;
 
-    if (!useCloud || !userId || !db) return;
+      (async () => {
+        let imageUrl = item.imageUrl;
+        if (imageUrl?.startsWith("data:")) {
+          try {
+            imageUrl = await uploadImage(userId, item.id, imageUrl);
+            setItems((prev) =>
+              prev.map((i) => (i.id === item.id ? { ...i, imageUrl } : i))
+            );
+          } catch { /* keep base64 if upload fails */ }
+        }
+        const row = itemToRow(item, userId, imageUrl);
+        await supabase.from("wardrobe").insert(row);
+      })();
+    },
+    [useCloud, userId]
+  );
 
-    (async () => {
-      let imageUrl = item.imageUrl;
-      if (imageUrl?.startsWith("data:")) {
-        try {
-          imageUrl = await uploadImage(userId, item.id, imageUrl);
-          setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, imageUrl } : i)));
-        } catch { /* keep base64 if upload fails */ }
-      }
-      const data = { ...item, imageUrl: imageUrl ?? null };
-      await setDoc(doc(db!, "users", userId, "wardrobe", item.id), data);
-    })();
-  }, [useCloud, userId]);
+  const update = useCallback(
+    (item: ClothingItem) => {
+      setItems((prev) => prev.map((i) => (i.id === item.id ? item : i)));
+      if (!useCloud || !userId || !supabase) return;
+      const row = itemToRow(item, userId);
+      supabase.from("wardrobe").update(row).eq("id", item.id).then(({ error }) => {
+        if (error) console.error(error);
+      });
+    },
+    [useCloud, userId]
+  );
 
-  const update = useCallback((item: ClothingItem) => {
-    setItems((prev) => prev.map((i) => (i.id === item.id ? item : i)));
-    if (!useCloud || !userId || !db) return;
-    setDoc(doc(db, "users", userId, "wardrobe", item.id), item).catch(console.error);
-  }, [useCloud, userId]);
-
-  const remove = useCallback((id: string) => {
-    setItems((prev) => prev.filter((i) => i.id !== id));
-    if (!useCloud || !userId || !db) return;
-    deleteDoc(doc(db, "users", userId, "wardrobe", id)).catch(console.error);
-    if (storage) {
-      deleteObject(ref(storage, `wardrobe/${userId}/${id}.jpg`)).catch(() => {/* no file = OK */});
-    }
-  }, [useCloud, userId]);
+  const remove = useCallback(
+    (id: string) => {
+      setItems((prev) => prev.filter((i) => i.id !== id));
+      if (!useCloud || !userId || !supabase) return;
+      supabase.from("wardrobe").delete().eq("id", id).then(({ error }) => {
+        if (error) console.error(error);
+      });
+      deleteImage(userId, id).catch(() => {/* no file = OK */});
+    },
+    [useCloud, userId]
+  );
 
   const clear = useCallback(() => {
     setItems([]);
-    if (!useCloud || !userId || !db) return;
-    const col = collection(db, "users", userId, "wardrobe");
-    getDocs(col).then(({ docs }) => {
-      docs.forEach((d) => deleteDoc(d.ref).catch(console.error));
-    });
+    if (!useCloud || !userId || !supabase) return;
+    supabase
+      .from("wardrobe")
+      .delete()
+      .eq("user_id", userId)
+      .then(({ error }) => { if (error) console.error(error); });
   }, [useCloud, userId]);
 
   const migrate = useCallback(async () => {

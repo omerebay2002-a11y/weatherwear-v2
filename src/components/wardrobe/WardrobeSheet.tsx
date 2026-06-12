@@ -61,9 +61,10 @@ export default function WardrobeSheet({
   const reduced = useReducedMotion();
   const { add } = useWardrobe();
   const { configured, userId, user, signOut } = useAuth();
-  const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID as string | undefined;
-  const cloudUrl = projectId
-    ? `https://console.firebase.google.com/project/${projectId}/firestore/data/~2Fusers~2F${userId}~2Fwardrobe`
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+  const supabaseRef = supabaseUrl?.match(/https:\/\/([^.]+)\.supabase\.co/)?.[1];
+  const cloudUrl = supabaseRef && userId
+    ? `https://supabase.com/dashboard/project/${supabaseRef}/editor`
     : null;
   const [expanded, setExpanded] = useState<Set<ClothingCategory>>(
     () => new Set(initialCategories)
