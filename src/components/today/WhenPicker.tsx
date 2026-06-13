@@ -19,6 +19,7 @@ export default function WhenPicker({ value, onChange }: Props) {
         <button
           key={c.v}
           type="button"
+          aria-pressed={value === c.v}
           onClick={() => onChange(c.v)}
           className={cn(
             "flex-1 py-2.5 text-xs font-medium transition",
