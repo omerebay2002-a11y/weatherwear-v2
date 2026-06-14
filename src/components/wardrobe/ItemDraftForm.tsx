@@ -94,6 +94,7 @@ export default function ItemDraftForm({
             <button
               key={c.name}
               type="button"
+              aria-pressed={colorName === c.name}
               onClick={() => {
                 setColorName(c.name);
                 setColorHex(c.hex);
@@ -231,6 +232,7 @@ function Chip({
   return (
     <button
       type="button"
+      aria-pressed={active}
       onClick={onClick}
       className={cn(
         "px-3 py-1.5 rounded-full text-sm transition border",

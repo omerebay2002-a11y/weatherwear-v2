@@ -324,6 +324,7 @@ export default function OnboardingFlow({ onComplete }: { onComplete: () => void 
                     <button
                       key={o.value}
                       type="button"
+                      aria-pressed={active}
                       onClick={() =>
                         setStyles((prev) =>
                           active ? prev.filter((s) => s !== o.value) : [...prev, o.value]
@@ -454,6 +455,7 @@ export default function OnboardingFlow({ onComplete }: { onComplete: () => void 
                           <button
                             key={i}
                             type="button"
+                            aria-pressed={on}
                             onClick={() => toggleCandidate(i)}
                             className={`flex items-center gap-2 rounded-sm border px-3 py-2.5 text-sm transition active:scale-[0.96] ${
                               on
@@ -538,6 +540,7 @@ function ChoiceCard({
   return (
     <button
       type="button"
+      aria-pressed={active}
       onClick={onClick}
       className={`rounded-sm border px-4 py-4 text-right text-sm font-medium transition active:scale-[0.98] ${
         active
