@@ -1,6 +1,7 @@
 // Frontend client for /api/* serverless functions.
 // All Claude calls happen server-side; this just wraps fetch with typed JSON.
 
+import { supabase } from "./supabase";
 import type { ChatMessage, ClothingItem, Outfit, WeatherSnapshot, Occasion, WhenChoice } from "../types";
 
 interface AnalyzeFromImageInput {
@@ -12,6 +13,17 @@ interface AnalyzeFromTextInput {
   text: string;
 }
 type AnalyzeInput = AnalyzeFromImageInput | AnalyzeFromTextInput;
+
+async function getHeaders() {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (supabase) {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.access_token) {
+      headers["Authorization"] = `Bearer ${session.access_token}`;
+    }
+  }
+  return headers;
+}
 
 export interface AnalyzedClothing {
   name: string;
@@ -28,7 +40,7 @@ export interface AnalyzedClothing {
 export async function analyzeClothing(input: AnalyzeInput): Promise<AnalyzedClothing> {
   const r = await fetch("/api/analyze-clothing", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: await getHeaders(),
     body: JSON.stringify(input),
   });
   if (!r.ok) {
@@ -49,7 +61,7 @@ export interface AnalyzeStyleInput {
 export async function analyzeStyle(input: AnalyzeStyleInput): Promise<AnalyzedClothing[]> {
   const r = await fetch("/api/analyze-style", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: await getHeaders(),
     body: JSON.stringify(input),
   });
   if (!r.ok) {
@@ -70,7 +82,7 @@ export interface SuggestOutfitInput {
 export async function suggestOutfit(input: SuggestOutfitInput): Promise<Outfit> {
   const r = await fetch("/api/suggest-outfit", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: await getHeaders(),
     body: JSON.stringify(input),
   });
   if (!r.ok) {
@@ -87,7 +99,7 @@ export async function* chatStream(
 ): AsyncGenerator<string, void, unknown> {
   const r = await fetch("/api/chat", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: await getHeaders(),
     body: JSON.stringify({ messages, context }),
   });
   if (!r.ok || !r.body) {
