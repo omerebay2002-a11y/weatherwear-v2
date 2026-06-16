@@ -9,6 +9,7 @@ import { CATEGORY_LABEL, CATEGORY_EMOJI } from "../../lib/constants";
 import { SEED_ITEMS } from "../../lib/seed-wardrobe";
 import { useWardrobe } from "../../contexts/WardrobeContext";
 import { useAuth } from "../../contexts/AuthContext";
+import { supabaseProjectRef } from "../../lib/supabase";
 
 const CATEGORY_ORDER: ClothingCategory[] = [
   "outerwear", "top", "dress", "bottom", "underwear", "socks", "shoes", "bag", "accessory",
@@ -61,9 +62,8 @@ export default function WardrobeSheet({
   const reduced = useReducedMotion();
   const { add } = useWardrobe();
   const { configured, userId, user, signOut } = useAuth();
-  const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID as string | undefined;
-  const cloudUrl = projectId
-    ? `https://console.firebase.google.com/project/${projectId}/firestore/data/~2Fusers~2F${userId}~2Fwardrobe`
+  const cloudUrl = supabaseProjectRef
+    ? `https://supabase.com/dashboard/project/${supabaseProjectRef}/editor`
     : null;
   const [expanded, setExpanded] = useState<Set<ClothingCategory>>(
     () => new Set(initialCategories)

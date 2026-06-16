@@ -10,10 +10,10 @@ export default function SignInScreen() {
       <div className="min-h-[100dvh] flex items-center justify-center bg-parchment px-6" dir="rtl">
         <div className="text-center space-y-3 max-w-xs">
           <Shirt className="h-10 w-10 mx-auto text-walnut-300" strokeWidth={1.4} />
-          <p className="font-display text-lg text-ebony">Firebase לא מוגדר</p>
+          <p className="font-display text-lg text-ebony">Supabase לא מוגדר</p>
           <p className="text-sm text-walnut-400 leading-relaxed">
             הוסיפי את משתני הסביבה{" "}
-            <code className="text-brass text-xs">VITE_FIREBASE_*</code>{" "}
+            <code className="text-brass text-xs">VITE_SUPABASE_*</code>{" "}
             ב-Vercel ובקובץ <code className="text-brass text-xs">.env.local</code>
           </p>
         </div>

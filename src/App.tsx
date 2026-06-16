@@ -12,9 +12,9 @@ export default function App() {
   const location = useLocation();
   const { userId, loading, configured } = useAuth();
 
-  if (loading) return null; // brief flicker while Firebase resolves session
+  if (loading) return null; // brief flicker while Supabase resolves session
 
-  // Sign-in is required only when Firebase is configured.
+  // Sign-in is required only when Supabase is configured.
   // Without env vars, the app runs locally with localStorage (offline mode).
   if (configured && !userId) return <SignInScreen />;
 
