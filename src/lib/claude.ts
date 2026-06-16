@@ -80,6 +80,32 @@ export async function suggestOutfit(input: SuggestOutfitInput): Promise<Outfit> 
   return (await r.json()) as Outfit;
 }
 
+export interface GenerateAvatarItem {
+  name?: string;
+  category: ClothingItem["category"];
+  color?: string;
+  colorHex?: string;
+  material?: ClothingItem["material"];
+}
+
+/** Renders the user (from a selfie) wearing the given outfit. Returns an image URL. */
+export async function generateAvatar(
+  selfie: string,
+  items: GenerateAvatarItem[]
+): Promise<string> {
+  const r = await fetch("/api/generate-avatar", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ selfie, items }),
+  });
+  if (!r.ok) {
+    const text = await r.text().catch(() => "");
+    throw new Error(`Avatar failed (${r.status}): ${text}`);
+  }
+  const { imageUrl } = (await r.json()) as { imageUrl: string };
+  return imageUrl;
+}
+
 /** Streams a chat response. Yields text deltas. */
 export async function* chatStream(
   messages: ChatMessage[],
