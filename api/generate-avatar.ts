@@ -2,6 +2,8 @@
 // Input: {selfie (data URL or https), items[]} → Output: {imageUrl}
 // Engine: fal.ai → Nano Banana (Gemini Flash Image) "edit", identity-preserving.
 
+import { requireAuth } from "./_auth.js";
+
 export const config = { runtime: "edge" };
 
 // Overridable so we can A/B Nano Banana vs other fal models without a code change.
@@ -35,6 +37,9 @@ interface GenerateBody {
 
 export default async function handler(req: Request): Promise<Response> {
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
+
+  const authError = await requireAuth(req);
+  if (authError) return authError;
 
   const falKey = process.env.FAL_KEY;
   if (!falKey) return jsonError(503, "FAL_KEY not configured");
