@@ -112,29 +112,16 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
               transition={{ duration: 0.25, delay: 0.55 + i * 0.06 }}
               whileTap={{ scale: 0.95 }}
               aria-label={spot.label}
-              className="absolute rounded-lg cursor-pointer focus:outline-none"
+              className="absolute cursor-pointer focus:outline-none"
               style={{
                 top: spot.top,
                 left: spot.left,
                 width: spot.width,
                 height: spot.height,
                 zIndex: 10,
-                background: "rgba(250,246,238,0.06)",
-                border: "1px solid rgba(184,149,106,0.2)",
+                background: "transparent",
               }}
-            >
-              <span
-                className="absolute bottom-1.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-medium"
-                style={{
-                  background: "rgba(26,20,16,0.55)",
-                  color: "#F2EAE0",
-                  backdropFilter: "blur(8px)",
-                  border: "1px solid rgba(184,149,106,0.3)",
-                }}
-              >
-                {spot.label}
-              </span>
-            </motion.button>
+            />
           ))}
       </div>
 
