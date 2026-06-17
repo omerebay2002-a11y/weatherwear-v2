@@ -6,8 +6,7 @@ import ItemDetailDialog from "../components/wardrobe/ItemDetailDialog";
 import AddItemSheet from "../components/wardrobe/AddItemSheet";
 import WardrobeSheet from "../components/wardrobe/WardrobeSheet";
 import WardrobeIllustration from "../components/wardrobe/WardrobeIllustration";
-// RoomAvatar returns as a separate layer in Branch 2 (recomposed-room mannequin/avatar).
-// import RoomAvatar from "../components/wardrobe/RoomAvatar";
+import RoomAvatar from "../components/wardrobe/RoomAvatar";
 import type { ClothingItem, ClothingCategory } from "../types";
 import type { Compartment } from "../components/room/Cabinet";
 
@@ -41,10 +40,9 @@ export default function Wardrobe() {
       {/* Illustrated wardrobe — replaces the old 3D scene */}
       <WardrobeIllustration onCompartmentClick={handleCompartmentClick} />
 
-      {/* The avatar stands next to the wardrobe — part of the interface, not a page.
-          Temporarily hidden: Branch 1 establishes the recomposed empty room; the
-          mannequin/avatar returns as a separate layer in Branch 2. */}
-      {/* <RoomAvatar /> */}
+      {/* The avatar stands in the lane to the right of the wardrobe — a cutout
+          layer over the room (mannequin by profile now, realistic "you" later). */}
+      <RoomAvatar />
 
       {/* FAB — Add item */}
       <motion.button
