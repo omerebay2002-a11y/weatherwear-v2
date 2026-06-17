@@ -539,6 +539,7 @@ function ChoiceCard({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={`rounded-sm border px-4 py-4 text-right text-sm font-medium transition active:scale-[0.98] ${
         active
           ? "border-brass bg-parchment-light shadow-brass text-ebony"
