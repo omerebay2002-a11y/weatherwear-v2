@@ -70,6 +70,7 @@ export default function ItemDraftForm({
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="לדוגמה: ג׳ינס Levi's 501 כחול"
+          aria-label="שם הפריט"
           className="w-full rounded-sm border border-walnut-200 bg-parchment-light px-3 py-2.5 text-sm focus:border-walnut-400 focus:outline-none"
         />
       </Field>
@@ -156,6 +157,7 @@ export default function ItemDraftForm({
             value={brand}
             onChange={(e) => setBrand(e.target.value)}
             placeholder="Levi's"
+            aria-label="מותג"
             className="w-full rounded-sm border border-walnut-200 bg-parchment-light px-3 py-2 text-sm focus:border-walnut-400 focus:outline-none"
           />
         </Field>
@@ -165,6 +167,7 @@ export default function ItemDraftForm({
             value={model}
             onChange={(e) => setModel(e.target.value)}
             placeholder="501"
+            aria-label="דגם"
             className="w-full rounded-sm border border-walnut-200 bg-parchment-light px-3 py-2 text-sm focus:border-walnut-400 focus:outline-none"
           />
         </Field>
