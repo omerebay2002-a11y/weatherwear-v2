@@ -5,6 +5,9 @@ import type { Compartment } from "../room/Cabinet";
 
 // Hotspot zones are % of the wardrobe-interior.png frame.
 // Calibrate against the open-wardrobe photo.
+// Hotspot zones are % of the wardrobe-interior.png frame.
+// Recomposed room: the wardrobe sits on the LEFT, one door open ~x 8–40%.
+// (Calibrated by eye against the open photo — fine-tune visually on device.)
 const HOTSPOTS: Array<{
   id: Compartment;
   label: string;
@@ -13,10 +16,10 @@ const HOTSPOTS: Array<{
   width: string;
   height: string;
 }> = [
-  { id: "shirts",  label: "חולצות ושמלות", top: "22%", left: "28%", width: "42%", height: "26%" },
-  { id: "folded",  label: "מקופל",          top: "52%", left: "28%", width: "42%", height: "14%" },
-  { id: "drawers", label: "מגירות",          top: "67%", left: "28%", width: "42%", height: "15%" },
-  { id: "coats",   label: "נעליים",          top: "83%", left: "28%", width: "42%", height: "8%"  },
+  { id: "shirts",  label: "חולצות ושמלות", top: "20%", left: "9%",  width: "30%", height: "22%" },
+  { id: "folded",  label: "מקופל",          top: "43%", left: "9%",  width: "30%", height: "12%" },
+  { id: "drawers", label: "מגירות",          top: "56%", left: "16%", width: "24%", height: "12%" },
+  { id: "coats",   label: "נעליים",          top: "69%", left: "9%",  width: "30%", height: "9%"  },
 ];
 
 interface Props {
@@ -56,15 +59,15 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
       )}
 
       {/* Image container — fills the full screen height so the room feels big.
-          Anchored to the RIGHT: the photo is wider than the phone, the window
-          strip on the far left gets cropped, and the plain-wall strip with the
-          clean rug floor stays visible on the right as standing room for the
-          avatar. Hotspot percentages remain relative to this wrapper, which
-          always matches the photo's frame. */}
+          Recomposed portrait photo (9:16): the walnut wardrobe sits on the LEFT
+          and a clean standing lane opens on the RIGHT for the avatar. Centered
+          so a little is cropped off each edge on narrow phones while keeping
+          both the wardrobe and the standing lane in view. Hotspot percentages
+          are relative to this wrapper, which always matches the photo frame. */}
       <div
         onClick={() => ready && setCabinetOpen((v) => !v)}
-        className="absolute right-0 top-0 h-full cursor-pointer"
-        style={{ aspectRatio: "937 / 1678", minWidth: "100%" }}
+        className="absolute left-1/2 -translate-x-1/2 top-0 h-full cursor-pointer"
+        style={{ aspectRatio: "768 / 1376", minWidth: "100%" }}
         role="button"
         aria-label={cabinetOpen ? "סגרי את הארון" : "פתחי את הארון"}
       >
@@ -77,7 +80,7 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
           onError={() => setErrored(true)}
           animate={{ opacity: cabinetOpen ? 0 : 1 }}
           transition={{ duration: 0.65, ease: [0.4, 0, 0.2, 1] }}
-          className="absolute inset-0 w-full h-full object-cover object-right select-none pointer-events-none"
+          className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none"
           style={{ zIndex: 1 }}
         />
 
@@ -90,7 +93,7 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
           onError={() => setErrored(true)}
           animate={{ opacity: cabinetOpen ? 1 : 0 }}
           transition={{ duration: 0.65, ease: [0.4, 0, 0.2, 1] }}
-          className="absolute inset-0 w-full h-full object-cover object-right select-none pointer-events-none"
+          className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none"
           style={{ zIndex: 2 }}
         />
 
@@ -109,29 +112,16 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
               transition={{ duration: 0.25, delay: 0.55 + i * 0.06 }}
               whileTap={{ scale: 0.95 }}
               aria-label={spot.label}
-              className="absolute rounded-lg cursor-pointer focus:outline-none"
+              className="absolute cursor-pointer focus:outline-none"
               style={{
                 top: spot.top,
                 left: spot.left,
                 width: spot.width,
                 height: spot.height,
                 zIndex: 10,
-                background: "rgba(250,246,238,0.06)",
-                border: "1px solid rgba(184,149,106,0.2)",
+                background: "transparent",
               }}
-            >
-              <span
-                className="absolute bottom-1.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-medium"
-                style={{
-                  background: "rgba(26,20,16,0.55)",
-                  color: "#F2EAE0",
-                  backdropFilter: "blur(8px)",
-                  border: "1px solid rgba(184,149,106,0.3)",
-                }}
-              >
-                {spot.label}
-              </span>
-            </motion.button>
+            />
           ))}
       </div>
 
