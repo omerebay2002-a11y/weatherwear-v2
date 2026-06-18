@@ -96,9 +96,10 @@ export default function RoomAvatar() {
         className="absolute z-20 pointer-events-none"
         style={{ right: "-1%", bottom: "1%", width: "54%", height: "82%" }}
       >
+        {/* soft contact shadow on the rug, offset to match the room's upper-left light */}
         <div
-          className="absolute left-1/2 -translate-x-1/2"
-          style={{ bottom: "1%", width: "44%", height: "2.6%", background: "rgba(40,26,14,0.3)", filter: "blur(8px)", borderRadius: "50%" }}
+          className="absolute left-1/2"
+          style={{ bottom: "0.6%", width: "46%", height: "2.4%", transform: "translateX(-58%)", background: "rgba(40,26,14,0.34)", filter: "blur(9px)", borderRadius: "50%" }}
         />
         <AnimatePresence mode="wait">
           <motion.img
@@ -111,6 +112,13 @@ export default function RoomAvatar() {
             transition={{ duration: 0.6, ease: [0.2, 0.8, 0.2, 1] }}
             className="relative w-full h-full object-contain object-bottom select-none"
             draggable={false}
+            // Blend into the warm room: dim + warm the studio-lit cutout, and cast a
+            // soft directional shadow (light from the upper-left window) so it sits
+            // in the scene instead of looking pasted on.
+            style={{
+              filter:
+                "brightness(0.93) saturate(0.9) sepia(0.10) drop-shadow(-7px 12px 9px rgba(36,24,12,0.4))",
+            }}
           />
         </AnimatePresence>
 
