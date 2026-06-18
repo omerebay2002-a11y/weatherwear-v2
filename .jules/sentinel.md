@@ -1,4 +1,4 @@
-## 2024-06-11 - Information Disclosure in API Error Responses
-**Vulnerability:** Raw error messages and exceptions (e.g. `e.message` from the Anthropic SDK and potential internal application errors) were directly returned to clients in API responses within `api/analyze-clothing.ts`, `api/suggest-outfit.ts`, and `api/chat.ts`.
-**Learning:** Returning detailed error stack traces or raw library error messages can leak sensitive backend infrastructure details or third-party service internals to end users, potentially aiding attackers in finding additional vulnerabilities.
-**Prevention:** Catch errors and log them server-side using `console.error()`. Return only generic, non-revealing error messages (such as "Internal server error") to the client.
+## 2024-06-18 - Missing Authentication on Paid API Endpoints
+**Vulnerability:** The Vercel Edge API endpoints (`api/chat.ts`, `api/analyze-clothing.ts`, `api/analyze-style.ts`, `api/suggest-outfit.ts`, `api/generate-avatar.ts`) which make calls to paid AI services (Anthropic, fal.ai) were completely unauthenticated, allowing any external user to hit these endpoints and consume quota.
+**Learning:** Even if a frontend app uses offline or local mode primarily, if it exposes serverless functions that consume paid external APIs, these functions must enforce authorization when deployed to the cloud, or fall back securely if run locally without a backend.
+**Prevention:** Implement conditional authentication wrappers for API endpoints that check for a valid session token (e.g., via Supabase Auth) if cloud backend environment variables are configured, ensuring the endpoints cannot be abused by unauthenticated actors.

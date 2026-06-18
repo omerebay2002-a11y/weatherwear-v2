@@ -2,6 +2,7 @@
 // Returns structured JSON: {name, category, color, colorHex, material?, brand?, model?, season, formality?}
 
 import Anthropic from "@anthropic-ai/sdk";
+import { requireAuth } from "./_auth.js";
 
 export const config = { runtime: "edge" };
 
@@ -38,6 +39,9 @@ export default async function handler(req: Request): Promise<Response> {
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
   }
+
+  const authError = await requireAuth(req);
+  if (authError) return authError;
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
