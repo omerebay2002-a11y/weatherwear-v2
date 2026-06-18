@@ -2,6 +2,7 @@
 // Receives the user's profile + a few outfit photos, returns a JSON array of
 // wardrobe items the person likely owns (seen in the photos or strongly implied).
 
+import { checkAuth } from "./_auth.js";
 import Anthropic from "@anthropic-ai/sdk";
 
 export const config = { runtime: "edge" };
@@ -41,6 +42,9 @@ interface StyleBody {
 }
 
 export default async function handler(req: Request): Promise<Response> {
+  const authError = await checkAuth(req);
+  if (authError) return authError;
+
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
   }

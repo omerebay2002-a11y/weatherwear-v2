@@ -2,6 +2,7 @@
 // Input: {messages: ChatMessage[], context: {weather, wardrobe[]}}
 // Output: text stream of deltas (Content-Type: text/plain)
 
+import { checkAuth } from "./_auth.js";
 import Anthropic from "@anthropic-ai/sdk";
 
 export const config = { runtime: "edge" };
@@ -39,6 +40,9 @@ interface ChatBody {
 }
 
 export default async function handler(req: Request): Promise<Response> {
+  const authError = await checkAuth(req);
+  if (authError) return authError;
+
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {

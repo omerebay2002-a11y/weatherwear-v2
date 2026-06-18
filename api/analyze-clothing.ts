@@ -1,6 +1,7 @@
 // Vercel Edge Function — analyzes clothing from photo or Hebrew text description.
 // Returns structured JSON: {name, category, color, colorHex, material?, brand?, model?, season, formality?}
 
+import { checkAuth } from "./_auth.js";
 import Anthropic from "@anthropic-ai/sdk";
 
 export const config = { runtime: "edge" };
@@ -35,6 +36,9 @@ interface AnalyzeBody {
 }
 
 export default async function handler(req: Request): Promise<Response> {
+  const authError = await checkAuth(req);
+  if (authError) return authError;
+
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
   }

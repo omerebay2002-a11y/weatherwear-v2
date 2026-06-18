@@ -1,6 +1,7 @@
 // Vercel Edge Function — suggests an outfit from the user's wardrobe.
 // Input: {weather, occasion, when, wardrobe[]} → Output: {itemIds[], explanation}
 
+import { checkAuth } from "./_auth.js";
 import Anthropic from "@anthropic-ai/sdk";
 
 export const config = { runtime: "edge" };
@@ -56,6 +57,9 @@ interface SuggestBody {
 }
 
 export default async function handler(req: Request): Promise<Response> {
+  const authError = await checkAuth(req);
+  if (authError) return authError;
+
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return jsonError(503, "ANTHROPIC_API_KEY not configured");
