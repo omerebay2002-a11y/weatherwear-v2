@@ -231,6 +231,7 @@ function Chip({
   return (
     <button
       type="button"
+      aria-pressed={active}
       onClick={onClick}
       className={cn(
         "px-3 py-1.5 rounded-full text-sm transition border",
