@@ -22,7 +22,7 @@ const HOTSPOTS: Array<{ id: Compartment; label: string; top: string; left: strin
   { id: "coats",   label: "נעליים",          top: "69%", left: "9%",  width: "30%", height: "9%"  },
 ];
 
-const OPEN_RATE = 1.5; // play the door-swing a touch faster than real time
+const OPEN_RATE = 2.0; // play the door-swing a touch faster than real time
 
 export default function WardrobeIllustration({ onCompartmentClick }: { onCompartmentClick: (c: Compartment) => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
