@@ -88,15 +88,17 @@ export interface GenerateAvatarItem {
   material?: ClothingItem["material"];
 }
 
-/** Renders the user (from a selfie) wearing the given outfit. Returns an image URL. */
+/** Renders the user (from a selfie) standing in the room, returns a transparent
+ *  cutout image URL. Pass roomUrl to composite into the room (best blend). */
 export async function generateAvatar(
   selfie: string,
-  items: GenerateAvatarItem[]
+  items: GenerateAvatarItem[],
+  roomUrl?: string
 ): Promise<string> {
   const r = await fetch("/api/generate-avatar", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ selfie, items }),
+    body: JSON.stringify({ selfie, items, roomUrl }),
   });
   if (!r.ok) {
     const text = await r.text().catch(() => "");
