@@ -4,9 +4,9 @@ import { Archive } from "lucide-react";
 import type { Compartment } from "../room/Cabinet";
 import { loadProfile } from "../../lib/profile";
 
-// The avatar stands as a STABLE cutout layer over the room, so it never shifts
-// when the wardrobe opens. The wardrobe opens for real via a short video of the
-// doors swinging open (forward = open, reversed = close).
+// The avatar is a STABLE cutout layer over the room, so it never shifts when the
+// wardrobe opens. The wardrobe opens/closes for real via two short videos of the
+// doors swinging (both play forward natively → identical smooth speed).
 const AVATAR_SRC: Record<"woman" | "man" | "mixed", string> = {
   woman: "/avatar-woman.png",
   man: "/avatar-woman.png", // TODO: add /avatar-man.png cutout
@@ -24,53 +24,39 @@ const HOTSPOTS: Array<{ id: Compartment; label: string; top: string; left: strin
 
 const OPEN_RATE = 2.0; // play the door-swing a touch faster than real time
 
+type Active = "none" | "open" | "close";
+
 export default function WardrobeIllustration({ onCompartmentClick }: { onCompartmentClick: (c: Compartment) => void }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const rafRef = useRef<number>(0);
+  const openRef = useRef<HTMLVideoElement>(null);
+  const closeRef = useRef<HTMLVideoElement>(null);
   const [cabinetOpen, setCabinetOpen] = useState(false);
+  const [active, setActive] = useState<Active>("none"); // which clip is showing
   const [ready, setReady] = useState(false);
   const [errored, setErrored] = useState(false);
 
   const avatarSrc = AVATAR_SRC[loadProfile()?.wardrobeFor ?? "woman"];
 
-  const openWardrobe = () => {
-    const v = videoRef.current;
-    setCabinetOpen(true);
-    if (!v) return;
-    cancelAnimationFrame(rafRef.current);
-    v.playbackRate = OPEN_RATE;
-    v.play().catch(() => {/* if autoplay blocked, the static frames still read */});
-  };
-
-  // Close = play the clip in reverse by stepping currentTime down (reliable
-  // cross-browser, unlike negative playbackRate). Step by REAL elapsed time ×
-  // OPEN_RATE so the close runs at exactly the same speed as the open.
-  const closeWardrobe = () => {
-    const v = videoRef.current;
-    setCabinetOpen(false);
-    if (!v) return;
-    v.pause();
-    let last: number | null = null;
-    const step = (now: number) => {
-      if (last === null) last = now;
-      const dt = (now - last) / 1000;
-      last = now;
-      const next = v.currentTime - OPEN_RATE * dt;
-      if (next <= 0 || Number.isNaN(next)) {
-        v.currentTime = 0;
-        return;
-      }
-      v.currentTime = next;
-      rafRef.current = requestAnimationFrame(step);
-    };
-    rafRef.current = requestAnimationFrame(step);
+  const play = (el: HTMLVideoElement | null) => {
+    if (!el) return;
+    el.currentTime = 0;
+    el.playbackRate = OPEN_RATE;
+    el.play().catch(() => {/* if autoplay blocked the static frame still reads */});
   };
 
   const toggle = () => {
     if (!ready) return;
-    if (cabinetOpen) closeWardrobe();
-    else openWardrobe();
+    if (cabinetOpen) {
+      setCabinetOpen(false);
+      setActive("close");
+      play(closeRef.current);
+    } else {
+      setCabinetOpen(true);
+      setActive("open");
+      play(openRef.current);
+    }
   };
+
+  const baseVid = "absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none";
 
   return (
     <div className="relative w-full h-full flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#F5EFE0] via-parchment to-[#E8DDC9]">
@@ -105,27 +91,38 @@ export default function WardrobeIllustration({ onCompartmentClick }: { onCompart
         role="button"
         aria-label={cabinetOpen ? "סגרי את הארון" : "פתחי את הארון"}
       >
-        {/* Closed poster (under the video, shown until the video is ready) */}
+        {/* Closed poster — shown until any clip plays (z1). */}
         <img
           src="/wardrobe-closed.png"
           alt="ארון"
           draggable={false}
           onError={() => setErrored(true)}
-          className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none"
+          className={baseVid}
           style={{ zIndex: 1 }}
         />
 
-        {/* The wardrobe doors opening — real motion. First frame === closed room. */}
+        {/* Door-OPEN clip (closed → open). First frame === closed room. */}
         <video
-          ref={videoRef}
+          ref={openRef}
           src="/wardrobe-open.mp4"
           muted
           playsInline
           preload="auto"
           onLoadedData={() => setReady(true)}
           onError={() => setErrored(true)}
-          className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none"
-          style={{ zIndex: 2 }}
+          className={baseVid}
+          style={{ zIndex: 2, opacity: active === "open" ? 1 : 0 }}
+        />
+
+        {/* Door-CLOSE clip (open → closed). */}
+        <video
+          ref={closeRef}
+          src="/wardrobe-close.mp4"
+          muted
+          playsInline
+          preload="auto"
+          className={baseVid}
+          style={{ zIndex: 3, opacity: active === "close" ? 1 : 0 }}
         />
 
         {/* Avatar — stable cutout layer, same canvas so it aligns and never shifts. */}
@@ -133,8 +130,8 @@ export default function WardrobeIllustration({ onCompartmentClick }: { onCompart
           src={avatarSrc}
           alt="הדמות שלך"
           draggable={false}
-          className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none"
-          style={{ zIndex: 3 }}
+          className={baseVid}
+          style={{ zIndex: 4 }}
         />
 
         {/* Hotspots — visible once open */}
