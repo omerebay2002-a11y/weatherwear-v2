@@ -59,6 +59,7 @@ export default function AddItemSheet({ open, onClose }: Props) {
               key={v}
               type="button"
               onClick={() => setMode(v)}
+              aria-pressed={mode === v}
               className={cn(
                 "flex-1 flex flex-col items-center gap-1 py-2.5 rounded-sm border transition",
                 mode === v
