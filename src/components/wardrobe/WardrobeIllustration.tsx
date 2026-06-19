@@ -91,9 +91,9 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
           onLoad={() => setClosedLoaded(true)}
           onError={() => setErrored(true)}
           animate={{ opacity: cabinetOpen ? 0 : 1 }}
-          transition={{ duration: 0.9, ease: [0.33, 0, 0.2, 1] }}
+          transition={{ duration: 0.65, ease: [0.4, 0, 0.2, 1] }}
           className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none"
-          style={{ zIndex: 1, willChange: "opacity" }}
+          style={{ zIndex: 1 }}
         />
 
         {/* Open photo — fades in when open */}
@@ -103,13 +103,10 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
           draggable={false}
           onLoad={() => setInteriorLoaded(true)}
           onError={() => setErrored(true)}
-          animate={{ opacity: cabinetOpen ? 1 : 0, scale: cabinetOpen ? 1 : 1.012 }}
-          transition={{
-            opacity: { duration: 0.9, ease: [0.33, 0, 0.2, 1] },
-            scale: { duration: 1.1, ease: [0.2, 0.8, 0.2, 1] },
-          }}
+          animate={{ opacity: cabinetOpen ? 1 : 0 }}
+          transition={{ duration: 0.65, ease: [0.4, 0, 0.2, 1] }}
           className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none"
-          style={{ zIndex: 2, willChange: "opacity, transform", transformOrigin: "left center" }}
+          style={{ zIndex: 2 }}
         />
 
         {/* Avatar — stable cutout layer, same canvas as the room so it aligns
