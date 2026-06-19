@@ -2,6 +2,17 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Archive } from "lucide-react";
 import type { Compartment } from "../room/Cabinet";
+import { loadProfile } from "../../lib/profile";
+
+// The avatar stands as a STABLE cutout layer over the room. The room images
+// (closed/open) carry no figure, so opening only changes the wardrobe behind
+// her — she never shifts, so there's no "jump". The cutout is taken from the
+// blended composite, so her lighting already matches the room.
+const AVATAR_SRC: Record<"woman" | "man" | "mixed", string> = {
+  woman: "/avatar-woman.png",
+  man: "/avatar-woman.png", // TODO: add /avatar-man.png cutout
+  mixed: "/avatar-woman.png",
+};
 
 // Hotspot zones are % of the wardrobe-interior.png frame.
 // Calibrate against the open-wardrobe photo.
@@ -32,6 +43,7 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
   const [interiorLoaded, setInteriorLoaded] = useState(false);
   const [errored, setErrored] = useState(false);
   const ready = closedLoaded && interiorLoaded;
+  const avatarSrc = AVATAR_SRC[loadProfile()?.wardrobeFor ?? "woman"];
 
   return (
     <div className="relative w-full h-full flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#F5EFE0] via-parchment to-[#E8DDC9]">
@@ -98,6 +110,16 @@ export default function WardrobeIllustration({ onCompartmentClick }: Props) {
           }}
           className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none"
           style={{ zIndex: 2, willChange: "opacity, transform", transformOrigin: "left center" }}
+        />
+
+        {/* Avatar — stable cutout layer, same canvas as the room so it aligns
+            exactly. Stays put while the wardrobe opens/closes behind it. */}
+        <img
+          src={avatarSrc}
+          alt="הדמות שלך"
+          draggable={false}
+          className="absolute inset-0 w-full h-full object-cover object-center select-none pointer-events-none"
+          style={{ zIndex: 3 }}
         />
 
         {/* Hotspots — visible after open transition */}
