@@ -43,14 +43,19 @@ export default function WardrobeIllustration({ onCompartmentClick }: { onCompart
   };
 
   // Close = play the clip in reverse by stepping currentTime down (reliable
-  // cross-browser, unlike negative playbackRate).
+  // cross-browser, unlike negative playbackRate). Step by REAL elapsed time ×
+  // OPEN_RATE so the close runs at exactly the same speed as the open.
   const closeWardrobe = () => {
     const v = videoRef.current;
     setCabinetOpen(false);
     if (!v) return;
     v.pause();
-    const step = () => {
-      const next = v.currentTime - (1 / 30) * OPEN_RATE;
+    let last: number | null = null;
+    const step = (now: number) => {
+      if (last === null) last = now;
+      const dt = (now - last) / 1000;
+      last = now;
+      const next = v.currentTime - OPEN_RATE * dt;
       if (next <= 0 || Number.isNaN(next)) {
         v.currentTime = 0;
         return;
@@ -58,7 +63,7 @@ export default function WardrobeIllustration({ onCompartmentClick }: { onCompart
       v.currentTime = next;
       rafRef.current = requestAnimationFrame(step);
     };
-    step();
+    rafRef.current = requestAnimationFrame(step);
   };
 
   const toggle = () => {
