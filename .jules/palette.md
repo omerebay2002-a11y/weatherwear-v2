@@ -1,3 +1,5 @@
-## 2024-06-11 - Forwarding htmlFor and adding aria-labels to text inputs
-**Learning:** Custom wrapper components for inputs and inputs with visual placeholders but no visible label elements must be carefully managed to ensure screen readers can associate inputs with context. The custom `<Field>` wrapper lacked `htmlFor` forwarding, and the chat text input lacked an `aria-label`.
-**Action:** Next time designing custom form fields, ensure `<label>` tags receive an `htmlFor` prop bound to their nested input's `id`. Additionally, ensure isolated text inputs have descriptive `aria-label`s.
+## 2024-05-17 - Accessible Toggles and Accordions
+**Learning:** Found a common pattern of generic toggle buttons and custom accordion panels in the app's components (like OccasionPicker, ChoiceCard, and WardrobeSheet categories) missing ARIA selection and structural attributes. This makes their current state invisible to screen readers, treating them as basic action buttons instead of active selections or expandable sections.
+**Action:** When creating or reviewing custom interactive components that function as toggle buttons or single-select groups, always ensure `aria-pressed` is linked to their boolean state. For custom accordions or disclosure panels, ensure the trigger button has `aria-expanded` and an `id` that links to the content panel's `aria-labelledby`, while the panel itself uses `role="region"` and `id` for `aria-controls`.
+
+**Action Addendum:** Ensure you append to the journal rather than overwriting it, and safely sanitize dynamically generated IDs (e.g., using `.replace(/\s+/g, '-')`) if the string could contain spaces to maintain valid HTML.
