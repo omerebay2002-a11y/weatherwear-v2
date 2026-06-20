@@ -157,6 +157,9 @@ export default function WardrobeSheet({
                   <motion.button
                     type="button"
                     onClick={() => toggle(cat)}
+                    id={`category-trigger-${cat}`}
+                    aria-expanded={isOpen}
+                    aria-controls={`category-content-${cat}`}
                     whileTap={reduced ? {} : { scale: 0.98, backgroundColor: "rgba(184,149,106,0.06)" }}
                     transition={{ duration: 0.1 }}
                     className="w-full flex items-center gap-3 px-4 py-3.5 text-right"
@@ -203,6 +206,9 @@ export default function WardrobeSheet({
                     {isOpen && (
                       <motion.div
                         key="content"
+                        id={`category-content-${cat}`}
+                        role="region"
+                        aria-labelledby={`category-trigger-${cat}`}
                         initial={reduced ? { opacity: 0 } : { height: 0, opacity: 0 }}
                         animate={reduced ? { opacity: 1 } : { height: "auto", opacity: 1 }}
                         exit={reduced ? { opacity: 0 } : { height: 0, opacity: 0 }}
