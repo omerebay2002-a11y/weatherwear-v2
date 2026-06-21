@@ -27,6 +27,7 @@ export default function WhenPicker({ value, onChange }: Props) {
               ? "bg-ebony text-parchment"
               : "bg-transparent text-ebony-muted hover:bg-parchment-dark"
           )}
+          aria-pressed={value === c.v}
         >
           {c.label}
         </button>

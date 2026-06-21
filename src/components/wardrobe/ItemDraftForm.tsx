@@ -106,6 +106,7 @@ export default function ItemDraftForm({
               )}
               style={{ backgroundColor: c.hex }}
               aria-label={c.name}
+              aria-pressed={colorName === c.name}
             >
               {colorName === c.name && (
                 <Check
@@ -238,6 +239,7 @@ function Chip({
           ? "bg-ebony text-parchment border-ebony"
           : "bg-parchment-light text-walnut-500 border-walnut-200 hover:border-walnut-300"
       )}
+      aria-pressed={active}
     >
       {children}
     </button>
