@@ -27,6 +27,7 @@ export default function OccasionPicker({ value, onChange }: Props) {
               ? "bg-parchment-light border border-brass text-walnut-500"
               : "bg-parchment-dark border border-transparent text-ebony-muted hover:border-walnut-200"
           )}
+          aria-pressed={value === v}
         >
           {label}
         </button>
