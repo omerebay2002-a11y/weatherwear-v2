@@ -334,6 +334,7 @@ export default function OnboardingFlow({ onComplete }: { onComplete: () => void 
                           ? "border-brass bg-parchment-light shadow-brass"
                           : "border-parchment-dark bg-parchment-light"
                       }`}
+                      aria-pressed={active}
                     >
                       <span className="block text-sm font-semibold text-ebony mb-0.5">
                         {active ? "✓ " : ""}
@@ -460,6 +461,7 @@ export default function OnboardingFlow({ onComplete }: { onComplete: () => void 
                                 ? "border-brass bg-parchment-light shadow-brass text-ebony"
                                 : "border-parchment-dark bg-parchment-light text-ebony-muted"
                             }`}
+                            aria-pressed={on}
                           >
                             <span
                               className="h-3.5 w-3.5 rounded-full border border-black/10 shrink-0"
@@ -544,6 +546,7 @@ function ChoiceCard({
           ? "border-brass bg-parchment-light shadow-brass text-ebony"
           : "border-parchment-dark bg-parchment-light text-ebony"
       }`}
+      aria-pressed={active}
     >
       {active ? "✓ " : ""}
       {label}
