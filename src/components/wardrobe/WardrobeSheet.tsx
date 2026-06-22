@@ -160,6 +160,8 @@ export default function WardrobeSheet({
                     whileTap={reduced ? {} : { scale: 0.98, backgroundColor: "rgba(184,149,106,0.06)" }}
                     transition={{ duration: 0.1 }}
                     className="w-full flex items-center gap-3 px-4 py-3.5 text-right"
+                    aria-expanded={isOpen}
+                    aria-controls={"cat-" + cat}
                   >
                     <span className="text-lg">{CATEGORY_EMOJI[cat]}</span>
                     <span className="font-display text-base text-ebony flex-1">
@@ -202,6 +204,7 @@ export default function WardrobeSheet({
                   <AnimatePresence initial={false}>
                     {isOpen && (
                       <motion.div
+                        id={"cat-" + cat}
                         key="content"
                         initial={reduced ? { opacity: 0 } : { height: 0, opacity: 0 }}
                         animate={reduced ? { opacity: 1 } : { height: "auto", opacity: 1 }}
