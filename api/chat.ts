@@ -49,9 +49,17 @@ export default async function handler(req: Request): Promise<Response> {
 
   let body: ChatBody;
   try {
-    body = (await req.json()) as ChatBody;
+    const textBody = await req.text();
+    if (textBody.length > 1_048_576) {
+      return new Response("Payload too large", { status: 413 });
+    }
+    body = JSON.parse(textBody) as ChatBody;
   } catch {
     return new Response("Invalid JSON", { status: 400 });
+  }
+
+  if (Array.isArray(body.messages) && body.messages.length > 50) {
+    return new Response("Payload too large: too many messages", { status: 413 });
   }
 
   // Build context block (sent in system as cacheable suffix)
