@@ -1,13 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { ChevronDown, Plus, Sparkles, ExternalLink, LogOut } from "lucide-react";
+import { ChevronDown, Plus, ExternalLink, LogOut } from "lucide-react";
 import Sheet from "../ui/Sheet";
 import ItemCard from "./ItemCard";
 import type { ClothingItem, ClothingCategory } from "../../types";
-import { newId } from "../../lib/utils";
 import { CATEGORY_LABEL, CATEGORY_EMOJI } from "../../lib/constants";
-import { SEED_ITEMS } from "../../lib/seed-wardrobe";
-import { useWardrobe } from "../../contexts/WardrobeContext";
 import { useAuth } from "../../contexts/AuthContext";
 
 const CATEGORY_ORDER: ClothingCategory[] = [
@@ -59,7 +56,6 @@ export default function WardrobeSheet({
   onAddClick,
 }: Props) {
   const reduced = useReducedMotion();
-  const { add } = useWardrobe();
   const { configured, userId, user, signOut } = useAuth();
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
   const supabaseRef = supabaseUrl?.match(/https:\/\/([^.]+)\.supabase\.co/)?.[1];
@@ -69,17 +65,6 @@ export default function WardrobeSheet({
   const [expanded, setExpanded] = useState<Set<ClothingCategory>>(
     () => new Set(initialCategories)
   );
-
-  const importSeed = () => {
-    SEED_ITEMS.forEach((seed, i) => {
-      add({
-        ...seed,
-        id: newId("seed"),
-        createdAt: Date.now() - (SEED_ITEMS.length - i) * 1000,
-        source: "type",
-      });
-    });
-  };
 
   useEffect(() => {
     if (open) setExpanded(new Set(initialCategories));
@@ -123,26 +108,17 @@ export default function WardrobeSheet({
             </p>
             <p className="text-sm text-walnut-400 leading-relaxed mb-8 max-w-[220px]">
               {items.length === 0
-                ? "הוסיפי את הבגד הראשון שלך, או ייבאי את כל הארון בלחיצה"
+                ? "הוסיפי את הבגד הראשון שלך"
                 : "הוסיפי פריט חדש לקטגוריה הזאת"}
             </p>
             <div className="flex flex-col gap-3 w-full max-w-[260px]">
-              {items.length === 0 && (
-                <button
-                  type="button"
-                  onClick={importSeed}
-                  className="brass-plate rounded-xl px-6 py-3.5 text-sm font-semibold flex items-center justify-center gap-2 shadow-sm"
-                >
-                  <Sparkles className="h-4 w-4" />
-                  ייבאי {SEED_ITEMS.length} פריטים בלחיצה
-                </button>
-              )}
               <button
                 type="button"
                 onClick={() => { onClose(); onAddClick(); }}
-                className="rounded-xl border border-walnut-200 px-6 py-3 text-sm font-medium text-walnut-500 hover:border-brass/50 hover:text-walnut-600 transition-colors"
+                className="brass-plate rounded-xl px-6 py-3.5 text-sm font-semibold flex items-center justify-center gap-2 shadow-sm"
               >
-                + הוסיפי פריט חדש
+                <Plus className="h-4 w-4" />
+                הוסיפי פריט חדש
               </button>
             </div>
           </div>

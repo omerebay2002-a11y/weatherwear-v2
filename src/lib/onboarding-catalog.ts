@@ -22,6 +22,9 @@ export interface SeedCandidate {
   colorHex: string;
   season: Season;
   formality?: Formality;
+  /** real product image (pre-baked flat-lay in /public/catalog) so the seeded
+   *  wardrobe shows actual clothes, not just a color swatch. */
+  image?: string;
 }
 
 type Audience = "woman" | "man" | "all";
@@ -37,15 +40,15 @@ interface SeedDef extends SeedCandidate {
 
 const CATALOG: SeedDef[] = [
   // ── Tier 1 — the universal base almost everyone owns ──────────────
-  { name: "טישרט לבנה", category: "top", color: "לבן", colorHex: "#F5F5F0", season: "all", formality: "casual", audience: "all", tier: 1 },
-  { name: "טישרט שחורה", category: "top", color: "שחור", colorHex: "#1C1C1C", season: "all", formality: "casual", audience: "all", tier: 1 },
+  { name: "טישרט לבנה", category: "top", color: "לבן", colorHex: "#F5F5F0", season: "all", formality: "casual", audience: "all", tier: 1, image: "/catalog/white-tee.png" },
+  { name: "טישרט שחורה", category: "top", color: "שחור", colorHex: "#1C1C1C", season: "all", formality: "casual", audience: "all", tier: 1, image: "/catalog/black-tee.png" },
   { name: "טישרט אפורה", category: "top", color: "אפור", colorHex: "#9A9A9A", season: "all", formality: "casual", audience: "all", tier: 1 },
-  { name: "ג׳ינס כחול", category: "bottom", color: "כחול ג׳ינס", colorHex: "#3B5998", season: "all", formality: "casual", audience: "all", tier: 1 },
+  { name: "ג׳ינס כחול", category: "bottom", color: "כחול ג׳ינס", colorHex: "#3B5998", season: "all", formality: "casual", audience: "all", tier: 1, image: "/catalog/blue-jeans.png" },
   { name: "ג׳ינס שחור", category: "bottom", color: "שחור", colorHex: "#23232B", season: "all", formality: "casual", audience: "all", tier: 1 },
   { name: "מכנסי טרנינג", category: "bottom", color: "אפור", colorHex: "#7D7D7D", season: "all", formality: "sport", audience: "all", tier: 1 },
   { name: "הודי", category: "top", color: "שחור", colorHex: "#222226", season: "winter", formality: "casual", audience: "all", tier: 1 },
-  { name: "סוודר חם", category: "top", color: "בז׳", colorHex: "#C9B796", season: "winter", formality: "casual", audience: "all", tier: 1 },
-  { name: "חולצה מכופתרת לבנה", category: "top", color: "לבן", colorHex: "#FAFAF5", season: "all", formality: "smart", audience: "all", tier: 1 },
+  { name: "סוודר חם", category: "top", color: "בז׳", colorHex: "#C9B796", season: "winter", formality: "casual", audience: "all", tier: 1, image: "/catalog/beige-sweater.png" },
+  { name: "חולצה מכופתרת לבנה", category: "top", color: "לבן", colorHex: "#FAFAF5", season: "all", formality: "smart", audience: "all", tier: 1, image: "/catalog/white-shirt.png" },
   { name: "ז׳קט ג׳ינס", category: "outerwear", color: "כחול ג׳ינס", colorHex: "#4A6A9D", season: "all", formality: "casual", audience: "all", tier: 1 },
   { name: "מעיל חורף", category: "outerwear", color: "שחור", colorHex: "#1E1E22", season: "winter", formality: "casual", audience: "all", tier: 1 },
   { name: "סניקרס לבנות", category: "shoes", color: "לבן", colorHex: "#F2F0EA", season: "all", formality: "casual", audience: "all", tier: 1 },
@@ -145,6 +148,7 @@ export function buildSeedCandidates(
       colorHex: c.colorHex,
       season: c.season,
       formality: c.formality,
+      image: c.image,
     });
   };
 

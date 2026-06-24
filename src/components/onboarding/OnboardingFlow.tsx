@@ -148,6 +148,7 @@ export default function OnboardingFlow({ onComplete }: { onComplete: () => void 
       const c = candidates[i];
       add({
         ...c,
+        imageUrl: c.image, // real product flat-lay, when we have one
         id: newId("item"),
         createdAt: now - k, // keep stable ordering
         source: "onboarding",
