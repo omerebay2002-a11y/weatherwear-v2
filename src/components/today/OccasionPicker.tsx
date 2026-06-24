@@ -21,6 +21,7 @@ export default function OccasionPicker({ value, onChange }: Props) {
           key={v}
           onClick={() => onChange(v)}
           type="button"
+          aria-pressed={value === v}
           className={cn(
             "flex-shrink-0 px-4 py-2 rounded-sm text-[0.75rem] font-medium tracking-widest uppercase transition",
             value === v
