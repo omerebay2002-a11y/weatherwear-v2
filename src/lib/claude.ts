@@ -108,6 +108,27 @@ export async function generateAvatar(
   return imageUrl;
 }
 
+/** Virtual try-on: dress the current avatar figure in one garment image.
+ *  `figure` and `garment` may be URLs or data URLs. Returns a transparent cutout. */
+export async function tryOnGarment(
+  figure: string,
+  garment: string,
+  category: ClothingItem["category"],
+  name?: string
+): Promise<string> {
+  const r = await fetch("/api/try-on", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ figure, garment, category, name }),
+  });
+  if (!r.ok) {
+    const text = await r.text().catch(() => "");
+    throw new Error(`Try-on failed (${r.status}): ${text}`);
+  }
+  const { imageUrl } = (await r.json()) as { imageUrl: string };
+  return imageUrl;
+}
+
 /** Streams a chat response. Yields text deltas. */
 export async function* chatStream(
   messages: ChatMessage[],

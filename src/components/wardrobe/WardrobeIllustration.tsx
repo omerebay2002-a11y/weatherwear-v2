@@ -3,11 +3,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Archive, Camera, Sparkles } from "lucide-react";
 import type { Compartment } from "../room/Cabinet";
 import type { ClothingCategory, ClothingItem } from "../../types";
-import { loadProfile } from "../../lib/profile";
 import { useWardrobe } from "../../contexts/WardrobeContext";
 import { generateAvatar } from "../../lib/claude";
-
-const RENDER_KEY = "avatar_render_url"; // the user's selfie → in-room cutout
+import { useAvatarRender, defaultFigureSrc } from "../../lib/avatar-store";
 
 function pickItem(items: ClothingItem[], c: ClothingCategory): ClothingItem | null {
   return items.filter((i) => i.category === c)[0] ?? null;
@@ -30,11 +28,6 @@ function buildLook(items: ClothingItem[]) {
 // The avatar is a STABLE cutout layer over the room, so it never shifts when the
 // wardrobe opens. The wardrobe opens/closes for real via two short videos of the
 // doors swinging (both play forward natively → identical smooth speed).
-const AVATAR_SRC: Record<"woman" | "man" | "mixed", string> = {
-  woman: "/avatar-woman.png",
-  man: "/avatar-woman.png", // TODO: add /avatar-man.png cutout
-  mixed: "/avatar-woman.png",
-};
 
 // Hotspot zones are % of the frame — calibrated against the open wardrobe
 // (wardrobe sits on the LEFT, interior ~x 8–40%). Fine-tune visually on device.
@@ -58,12 +51,11 @@ export default function WardrobeIllustration({ onCompartmentClick }: { onCompart
   const [active, setActive] = useState<Active>("none"); // which clip is showing
   const [ready, setReady] = useState(false);
   const [errored, setErrored] = useState(false);
-  const [renderUrl, setRenderUrl] = useState<string | null>(() => localStorage.getItem(RENDER_KEY));
+  const [renderUrl, setRenderUrl] = useAvatarRender();
   const [generating, setGenerating] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
 
-  const defaultAvatar = AVATAR_SRC[loadProfile()?.wardrobeFor ?? "woman"];
-  const avatarSrc = renderUrl ?? defaultAvatar;
+  const avatarSrc = renderUrl ?? defaultFigureSrc();
 
   function handleSelfie(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -77,7 +69,6 @@ export default function WardrobeIllustration({ onCompartmentClick }: { onCompart
         const roomUrl = `${window.location.origin}/wardrobe-closed.png`;
         const url = await generateAvatar(selfie, buildLook(items), roomUrl);
         setRenderUrl(url);
-        localStorage.setItem(RENDER_KEY, url);
       } catch {
         setAvatarError(true);
       } finally {
