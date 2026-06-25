@@ -72,7 +72,7 @@ export default async function handler(req: Request): Promise<Response> {
         garment_image: body.garment,
         category: fashnCategory,
         garment_photo_type: "flat-lay", // our catalog images are flat-lays
-        mode: "quality",
+        mode: "performance", // edge fn has a ~25s wall; quality mode overran it
         num_samples: 1,
         output_format: "png",
       });
