@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Archive, Camera, Sparkles } from "lucide-react";
 import type { Compartment } from "../room/Cabinet";
@@ -55,7 +55,19 @@ export default function WardrobeIllustration({ onCompartmentClick }: { onCompart
   const [generating, setGenerating] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
 
-  const avatarSrc = renderUrl ?? defaultFigureSrc();
+  // The figure layer ALWAYS goes through normalizeFigure so the figure — default
+  // mannequin OR a dressed/selfie render — stands in the exact same right-lane
+  // spot, never overlapping the wardrobe. (Idempotent: re-normalizing an already
+  // placed figure yields the same placement.)
+  const [avatarSrc, setAvatarSrc] = useState<string>(() => renderUrl ?? defaultFigureSrc());
+  useEffect(() => {
+    let cancelled = false;
+    const base = renderUrl ?? defaultFigureSrc();
+    normalizeFigure(base).then((u) => {
+      if (!cancelled) setAvatarSrc(u);
+    });
+    return () => { cancelled = true; };
+  }, [renderUrl]);
 
   function handleSelfie(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
