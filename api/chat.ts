@@ -40,7 +40,7 @@ interface ChatBody {
 
 export default async function handler(req: Request): Promise<Response> {
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.ANTHROPIC_API_KEY ?? process.env.claude;
   if (!apiKey) {
     return new Response("ANTHROPIC_API_KEY not configured. Add it in Vercel.", {
       status: 503,

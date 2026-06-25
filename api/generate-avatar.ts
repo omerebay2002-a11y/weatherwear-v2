@@ -20,7 +20,7 @@ interface GenerateBody { selfie: string; roomUrl?: string; items?: AvatarItem[] 
 export default async function handler(req: Request): Promise<Response> {
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
 
-  const falKey = process.env.FAL_KEY;
+  const falKey = process.env.FAL_KEY ?? process.env.falkey;
   if (!falKey) return jsonError(503, "FAL_KEY not configured");
 
   let body: GenerateBody;
