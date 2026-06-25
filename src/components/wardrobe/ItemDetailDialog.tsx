@@ -34,8 +34,9 @@ export default function ItemDetailDialog({ item, onClose, onDelete }: Props) {
       const url = await tryOnGarment(figure, garment, item.category, item.name);
       setAvatarRender(url); // room updates live
       onClose(); // back to the room to see her wearing it
-    } catch {
-      setError("ההלבשה נכשלה — נסי שוב");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "שגיאה לא ידועה";
+      setError(`ההלבשה נכשלה: ${msg}`);
     } finally {
       setDressing(false);
     }

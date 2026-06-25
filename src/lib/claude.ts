@@ -122,8 +122,14 @@ export async function tryOnGarment(
     body: JSON.stringify({ figure, garment, category, name }),
   });
   if (!r.ok) {
-    const text = await r.text().catch(() => "");
-    throw new Error(`Try-on failed (${r.status}): ${text}`);
+    let detail = `HTTP ${r.status}`;
+    try {
+      const body = (await r.json()) as { error?: string; detail?: string };
+      detail = body.detail || body.error || detail;
+    } catch {
+      /* keep HTTP status */
+    }
+    throw new Error(detail);
   }
   const { imageUrl } = (await r.json()) as { imageUrl: string };
   return imageUrl;
