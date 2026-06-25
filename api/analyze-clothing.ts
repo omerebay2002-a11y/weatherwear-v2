@@ -49,7 +49,12 @@ export default async function handler(req: Request): Promise<Response> {
 
   let body: AnalyzeBody;
   try {
-    body = (await req.json()) as AnalyzeBody;
+    const text = await req.text();
+    // SECURITY: Limit payload size to 10MB (for single image) to prevent DoS
+    if (text.length > 10 * 1024 * 1024) {
+      return jsonError(413, "Payload too large");
+    }
+    body = JSON.parse(text) as AnalyzeBody;
   } catch {
     return jsonError(400, "Invalid JSON body");
   }
