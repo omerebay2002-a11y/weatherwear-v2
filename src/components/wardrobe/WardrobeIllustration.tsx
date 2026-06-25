@@ -1,11 +1,11 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Archive, Camera, Sparkles } from "lucide-react";
 import type { Compartment } from "../room/Cabinet";
 import type { ClothingCategory, ClothingItem } from "../../types";
 import { useWardrobe } from "../../contexts/WardrobeContext";
 import { generateAvatar } from "../../lib/claude";
-import { useAvatarRender, defaultFigureSrc, normalizeFigure } from "../../lib/avatar-store";
+import { useAvatarRender, defaultFigureSrc } from "../../lib/avatar-store";
 
 function pickItem(items: ClothingItem[], c: ClothingCategory): ClothingItem | null {
   return items.filter((i) => i.category === c)[0] ?? null;
@@ -55,19 +55,10 @@ export default function WardrobeIllustration({ onCompartmentClick }: { onCompart
   const [generating, setGenerating] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
 
-  // The figure layer ALWAYS goes through normalizeFigure so the figure — default
-  // mannequin OR a dressed/selfie render — stands in the exact same right-lane
-  // spot, never overlapping the wardrobe. (Idempotent: re-normalizing an already
-  // placed figure yields the same placement.)
-  const [avatarSrc, setAvatarSrc] = useState<string>(() => renderUrl ?? defaultFigureSrc());
-  useEffect(() => {
-    let cancelled = false;
-    const base = renderUrl ?? defaultFigureSrc();
-    normalizeFigure(base).then((u) => {
-      if (!cancelled) setAvatarSrc(u);
-    });
-    return () => { cancelled = true; };
-  }, [renderUrl]);
+  // The figure renders at its ORIGINAL size/placement (object-cover) — the
+  // default mannequin and dressed/selfie renders all keep the framing they were
+  // authored with. Do NOT rescale here.
+  const avatarSrc = renderUrl ?? defaultFigureSrc();
 
   function handleSelfie(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -79,8 +70,7 @@ export default function WardrobeIllustration({ onCompartmentClick }: { onCompart
       setAvatarError(false);
       try {
         const roomUrl = `${window.location.origin}/wardrobe-closed.png`;
-        const raw = await generateAvatar(selfie, buildLook(items), roomUrl);
-        const url = await normalizeFigure(raw);
+        const url = await generateAvatar(selfie, buildLook(items), roomUrl);
         setRenderUrl(url);
       } catch {
         setAvatarError(true);
