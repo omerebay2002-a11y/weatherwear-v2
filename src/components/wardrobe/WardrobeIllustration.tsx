@@ -5,7 +5,7 @@ import type { Compartment } from "../room/Cabinet";
 import type { ClothingCategory, ClothingItem } from "../../types";
 import { useWardrobe } from "../../contexts/WardrobeContext";
 import { generateAvatar } from "../../lib/claude";
-import { useAvatarRender, defaultFigureSrc } from "../../lib/avatar-store";
+import { useAvatarRender, defaultFigureSrc, normalizeFigure } from "../../lib/avatar-store";
 
 function pickItem(items: ClothingItem[], c: ClothingCategory): ClothingItem | null {
   return items.filter((i) => i.category === c)[0] ?? null;
@@ -67,7 +67,8 @@ export default function WardrobeIllustration({ onCompartmentClick }: { onCompart
       setAvatarError(false);
       try {
         const roomUrl = `${window.location.origin}/wardrobe-closed.png`;
-        const url = await generateAvatar(selfie, buildLook(items), roomUrl);
+        const raw = await generateAvatar(selfie, buildLook(items), roomUrl);
+        const url = await normalizeFigure(raw);
         setRenderUrl(url);
       } catch {
         setAvatarError(true);

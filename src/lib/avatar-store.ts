@@ -73,6 +73,73 @@ export async function toFalImage(src: string, maxDim = 1024, quality = 0.9): Pro
   return canvas.toDataURL("image/jpeg", quality);
 }
 
+// The room canvas the figure layer is composited over (wardrobe-closed.png).
+const ROOM_W = 768;
+const ROOM_H = 1376;
+
+/**
+ * Normalize a dressed/rendered figure to a consistent in-room placement so it
+ * ALWAYS stands in the clean right lane and never overlaps the wardrobe — no
+ * matter what size/framing the AI returned. Crops to the figure's bounding box,
+ * then re-places it on a room-shaped (768×1376) transparent canvas anchored
+ * bottom and centered in the right lane. Best-effort: on any failure (CORS, no
+ * pixels) the original URL is returned so dressing still works.
+ */
+export async function normalizeFigure(srcUrl: string): Promise<string> {
+  try {
+    const img = await loadImage(srcUrl);
+    const sw = img.naturalWidth || img.width;
+    const sh = img.naturalHeight || img.height;
+    if (!sw || !sh) return srcUrl;
+
+    const src = document.createElement("canvas");
+    src.width = sw;
+    src.height = sh;
+    const sctx = src.getContext("2d");
+    if (!sctx) return srcUrl;
+    sctx.drawImage(img, 0, 0);
+
+    const data = sctx.getImageData(0, 0, sw, sh).data;
+    let minX = sw, minY = sh, maxX = 0, maxY = 0, found = false;
+    for (let y = 0; y < sh; y++) {
+      for (let x = 0; x < sw; x++) {
+        if (data[(y * sw + x) * 4 + 3] > 16) {
+          found = true;
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+        }
+      }
+    }
+    if (!found) return srcUrl;
+
+    const fw = maxX - minX + 1;
+    const fh = maxY - minY + 1;
+    // Right lane: wardrobe occupies the left ~45%, clean wall/rug is 50–99%.
+    const laneL = 0.5 * ROOM_W;
+    const laneR = 0.99 * ROOM_W;
+    const laneW = laneR - laneL;
+    let scale = (0.9 * ROOM_H) / fh; // figure ~90% of room height
+    if (fw * scale > laneW) scale = laneW / fw; // but never wider than the lane
+    const dw = fw * scale;
+    const dh = fh * scale;
+    const cx = (laneL + laneR) / 2;
+    const dx = cx - dw / 2;
+    const dy = ROOM_H - dh - 0.015 * ROOM_H; // feet near the bottom
+
+    const out = document.createElement("canvas");
+    out.width = ROOM_W;
+    out.height = ROOM_H;
+    const octx = out.getContext("2d");
+    if (!octx) return srcUrl;
+    octx.drawImage(img, minX, minY, fw, fh, dx, dy, dw, dh);
+    return out.toDataURL("image/png");
+  } catch {
+    return srcUrl; // un-normalized still renders; just less precisely placed
+  }
+}
+
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
