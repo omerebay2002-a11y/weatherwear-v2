@@ -43,21 +43,42 @@ export function useAvatarRender(): [string | null, (url: string | null) => void]
 }
 
 /**
- * Normalize an image into something fal can ingest. Same-origin images are
- * inlined to a data URL so generation works on auth-protected preview
- * deployments (fal can't fetch behind Vercel auth); remote URLs pass through.
+ * Normalize an image into something fal can ingest, kept small. Same-origin and
+ * data-URL images are downscaled to a ~1024px JPEG data URL — this both keeps
+ * the request well under the edge body limit and lets generation work on
+ * auth-protected previews (fal can't fetch behind Vercel auth). Remote URLs
+ * (e.g. a prior fal render) pass through untouched (cross-origin canvas would
+ * taint), and fal fetches them directly.
  */
-export async function toFalImage(src: string): Promise<string> {
-  if (src.startsWith("data:")) return src;
-  const isAbsolute = /^https?:\/\//i.test(src);
-  if (isAbsolute && !src.startsWith(window.location.origin)) return src;
-  const res = await fetch(src);
-  if (!res.ok) throw new Error(`fetch ${src} failed (${res.status})`);
-  const blob = await res.blob();
-  return await new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(blob);
+export async function toFalImage(src: string, maxDim = 1024, quality = 0.9): Promise<string> {
+  const isRemote = /^https?:\/\//i.test(src) && !src.startsWith(window.location.origin);
+  if (isRemote) return src;
+
+  const img = await loadImage(src);
+  let w = img.naturalWidth || img.width;
+  let h = img.naturalHeight || img.height;
+  const scale = Math.min(1, maxDim / Math.max(w, h));
+  w = Math.round(w * scale);
+  h = Math.round(h * scale);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("canvas 2d context unavailable");
+  // White matte so transparent cutouts (PNG) flatten cleanly for try-on.
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, w, h);
+  ctx.drawImage(img, 0, 0, w, h);
+  return canvas.toDataURL("image/jpeg", quality);
+}
+
+function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error(`image load failed: ${src.slice(0, 60)}`));
+    img.src = src;
   });
 }

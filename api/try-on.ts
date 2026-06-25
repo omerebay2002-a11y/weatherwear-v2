@@ -44,15 +44,19 @@ interface TryOnBody {
 export default async function handler(req: Request): Promise<Response> {
   if (req.method !== "POST") return jsonError(405, "Method not allowed");
 
-  const falKey = process.env.FAL_KEY;
-  if (!falKey) return jsonError(503, "FAL_KEY not configured", "Set FAL_KEY in the Vercel environment (Preview + Production).");
-
+  // Drain the request body FIRST. Returning a response before the client has
+  // finished uploading a large body resets the connection (ECONNRESET →
+  // FUNCTION_INVOCATION_FAILED), masking the real error — so read, then validate.
   let body: TryOnBody;
   try {
     body = (await req.json()) as TryOnBody;
   } catch {
     return jsonError(400, "Invalid JSON");
   }
+
+  const falKey = process.env.FAL_KEY;
+  if (!falKey) return jsonError(503, "FAL_KEY not configured", "Add FAL_KEY to the Vercel environment for this deployment (Preview + Production).");
+
   if (!body.figure || !body.garment) return jsonError(400, "Missing figure or garment");
 
   const category = body.category ?? "";
