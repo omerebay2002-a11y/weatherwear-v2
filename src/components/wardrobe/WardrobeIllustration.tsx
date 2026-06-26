@@ -5,7 +5,7 @@ import type { Compartment } from "../room/Cabinet";
 import type { ClothingCategory, ClothingItem } from "../../types";
 import { useWardrobe } from "../../contexts/WardrobeContext";
 import { generateAvatar } from "../../lib/claude";
-import { useAvatarRender, defaultFigureSrc, fitFigureToBase } from "../../lib/avatar-store";
+import { useAvatarRender, defaultFigureSrc, fitFigureToBase, useDressing, useDressingError, setDressingError } from "../../lib/avatar-store";
 
 function pickItem(items: ClothingItem[], c: ClothingCategory): ClothingItem | null {
   return items.filter((i) => i.category === c)[0] ?? null;
@@ -42,6 +42,66 @@ const OPEN_RATE = 2.0; // play the door-swing a touch faster than real time
 
 type Active = "none" | "open" | "close";
 
+// Warm, on-brand "designing the look" overlay shown over the room while a try-on
+// runs (quality drape takes ~20-30s — the wait must feel crafted, not stuck).
+const DRESS_LINES = [
+  "בוחרת את הבד…",
+  "מתאימה את הגזרה…",
+  "מסדרת את הקפלים…",
+  "מעצבת את הלוק…",
+  "עוד רגע מוכן…",
+];
+
+function DressingOverlay() {
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setI((n) => (n + 1) % DRESS_LINES.length), 2400);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.4 }}
+      className="absolute inset-0 z-50 flex flex-col items-center justify-center gap-4"
+      style={{ background: "rgba(26,18,10,0.55)", backdropFilter: "blur(3px)", WebkitBackdropFilter: "blur(3px)" }}
+      dir="rtl"
+    >
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+        className="relative flex items-center justify-center"
+      >
+        <Sparkles className="h-9 w-9" style={{ color: "#E9CE7B" }} />
+      </motion.div>
+      <div className="h-6 overflow-hidden text-center">
+        <AnimatePresence mode="wait">
+          <motion.p
+            key={i}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.35 }}
+            className="font-editorial italic text-parchment text-base"
+          >
+            {DRESS_LINES[i]}
+          </motion.p>
+        </AnimatePresence>
+      </div>
+      {/* slim brass shimmer progress bar */}
+      <div className="w-40 h-[3px] rounded-full overflow-hidden" style={{ background: "rgba(242,234,224,0.18)" }}>
+        <motion.div
+          className="h-full w-1/2 rounded-full"
+          style={{ background: "linear-gradient(90deg, transparent, #E9CE7B, transparent)" }}
+          animate={{ x: ["-100%", "260%"] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+        />
+      </div>
+    </motion.div>
+  );
+}
+
 export default function WardrobeIllustration({ onCompartmentClick }: { onCompartmentClick: (c: Compartment) => void }) {
   const openRef = useRef<HTMLVideoElement>(null);
   const closeRef = useRef<HTMLVideoElement>(null);
@@ -54,6 +114,13 @@ export default function WardrobeIllustration({ onCompartmentClick }: { onCompart
   const [renderUrl, setRenderUrl] = useAvatarRender();
   const [generating, setGenerating] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
+  const dressing = useDressing();
+  const dressingError = useDressingError();
+  useEffect(() => {
+    if (!dressingError) return;
+    const id = setTimeout(() => setDressingError(null), 4000);
+    return () => clearTimeout(id);
+  }, [dressingError]);
 
   // The DEFAULT mannequin renders as-is (its authored size — the size Omer
   // locked). Any saved render (dressed/selfie) is fit to the base box at display
@@ -236,7 +303,7 @@ export default function WardrobeIllustration({ onCompartmentClick }: { onCompart
         </div>
       )}
 
-      {/* Generating overlay */}
+      {/* Generating overlay (selfie) */}
       <AnimatePresence>
         {generating && (
           <motion.div
@@ -248,6 +315,23 @@ export default function WardrobeIllustration({ onCompartmentClick }: { onCompart
             <Sparkles className="h-8 w-8 animate-pulse" style={{ color: "#E9CE7B" }} />
             <p className="font-editorial italic text-parchment text-base">בונה אותך בחדר…</p>
             <p className="text-parchment/60 text-xs">כמה שניות</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Dressing overlay (try-on) — elegant wait while the look is designed */}
+      <AnimatePresence>{dressing && <DressingOverlay />}</AnimatePresence>
+
+      {/* Dressing error — transient */}
+      <AnimatePresence>
+        {dressingError && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            className="absolute z-50 left-1/2 -translate-x-1/2 bottom-28 rounded-lg px-3.5 py-2 text-[12px] leading-tight max-w-[80%] text-center"
+            style={{ background: "rgba(140,30,30,0.94)", color: "#fff" }}
+            dir="rtl"
+          >
+            ההלבשה נכשלה — נסי שוב
           </motion.div>
         )}
       </AnimatePresence>

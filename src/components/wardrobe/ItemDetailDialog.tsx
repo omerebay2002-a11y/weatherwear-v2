@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Trash2, Sparkles, Shirt } from "lucide-react";
+import { Trash2, Shirt } from "lucide-react";
 import type { ClothingItem } from "../../types";
 import { CATEGORY_LABEL, SEASON_LABEL, MATERIAL_LABEL } from "../../lib/constants";
 import Sheet from "../ui/Sheet";
@@ -12,6 +11,8 @@ import {
   fitFigureToBase,
   getOutfitMode,
   setOutfitMode,
+  setDressing,
+  setDressingError,
 } from "../../lib/avatar-store";
 
 interface Props {
@@ -21,44 +22,43 @@ interface Props {
 }
 
 export default function ItemDetailDialog({ item, onClose, onDelete }: Props) {
-  const [dressing, setDressing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  async function handleDress() {
-    if (!item?.imageUrl || dressing) return;
+  // Dress, then immediately return to the room so she watches the "designing the
+  // look" overlay there (not a spinner in a sheet). The try-on runs in the
+  // background and swaps the figure in when ready.
+  function handleDress() {
+    const it = item;
+    if (!it?.imageUrl) return;
+    onClose();
     setDressing(true);
-    setError(null);
-    try {
-      const c = item.category;
-      const mode = getOutfitMode();
-      // Outfit rules. The base mannequin already wears a default top + bottom.
-      //  • dress → always rebuild from the base (replaces the whole look)
-      //  • top/bottom while wearing a dress → rebuild from base (drop the dress,
-      //    the base supplies the complementary piece) — no shirt-over-dress
-      //  • top/bottom while in separates, or outerwear/shoes/bag → layer on the
-      //    figure currently in the room
-      const leavingDress = (c === "top" || c === "bottom") && mode === "dress";
-      const fromBase = c === "dress" || leavingDress;
-      const figureSrc = fromBase
-        ? defaultFigureSrc()
-        : getAvatarRender() ?? defaultFigureSrc();
+    setDressingError(null);
+    void (async () => {
+      try {
+        const c = it.category;
+        const mode = getOutfitMode();
+        // Outfit rules. The base mannequin already wears a default top + bottom.
+        //  • dress → rebuild from the base (replaces the whole look)
+        //  • top/bottom while wearing a dress → rebuild from base (drop the dress,
+        //    the base supplies the complementary piece) — no shirt-over-dress
+        //  • top/bottom in separates, or outerwear/shoes/bag → layer on the figure
+        const leavingDress = (c === "top" || c === "bottom") && mode === "dress";
+        const fromBase = c === "dress" || leavingDress;
+        const figureSrc = fromBase ? defaultFigureSrc() : getAvatarRender() ?? defaultFigureSrc();
 
-      const [figure, garment] = await Promise.all([
-        toFalImage(figureSrc),
-        toFalImage(item.imageUrl),
-      ]);
-      const raw = await tryOnGarment(figure, garment, c, item.name);
-      const url = await fitFigureToBase(raw); // whole + same size as the base figure
-      setAvatarRender(url); // room updates live
-      if (c === "dress") setOutfitMode("dress");
-      else if (c === "top" || c === "bottom") setOutfitMode("separates");
-      onClose(); // back to the room to see her wearing it
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : "שגיאה לא ידועה";
-      setError(`ההלבשה נכשלה: ${msg}`);
-    } finally {
-      setDressing(false);
-    }
+        const [figure, garment] = await Promise.all([
+          toFalImage(figureSrc),
+          toFalImage(it.imageUrl as string),
+        ]);
+        const raw = await tryOnGarment(figure, garment, c, it.name);
+        const url = await fitFigureToBase(raw); // whole + same size as the base figure
+        setAvatarRender(url);
+        if (c === "dress") setOutfitMode("dress");
+        else if (c === "top" || c === "bottom") setOutfitMode("separates");
+      } catch (e) {
+        setDressingError(e instanceof Error ? e.message : "שגיאה לא ידועה");
+      } finally {
+        setDressing(false);
+      }
+    })();
   }
 
   return (
@@ -112,24 +112,11 @@ export default function ItemDetailDialog({ item, onClose, onDelete }: Props) {
           {item.imageUrl && (
             <button
               onClick={handleDress}
-              disabled={dressing}
-              className="w-full brass-plate rounded-xl py-3.5 font-semibold text-sm flex items-center justify-center gap-2 shadow-sm disabled:opacity-60"
+              className="w-full brass-plate rounded-xl py-3.5 font-semibold text-sm flex items-center justify-center gap-2 shadow-sm"
             >
-              {dressing ? (
-                <>
-                  <Sparkles className="h-4 w-4 animate-pulse" />
-                  מלבישה את הדמות…
-                </>
-              ) : (
-                <>
-                  <Shirt className="h-4 w-4" />
-                  הלבישי את הדמות
-                </>
-              )}
+              <Shirt className="h-4 w-4" />
+              הלבישי את הדמות
             </button>
-          )}
-          {error && (
-            <p className="text-center text-xs text-red-600 -mt-2">{error}</p>
           )}
 
           <button
@@ -137,8 +124,7 @@ export default function ItemDetailDialog({ item, onClose, onDelete }: Props) {
               onDelete(item.id);
               onClose();
             }}
-            disabled={dressing}
-            className="w-full rounded-sm border border-walnut-200 text-walnut-500 hover:bg-walnut-50 hover:text-ebony transition flex items-center justify-center gap-2 py-3 font-display text-sm disabled:opacity-50"
+            className="w-full rounded-sm border border-walnut-200 text-walnut-500 hover:bg-walnut-50 hover:text-ebony transition flex items-center justify-center gap-2 py-3 font-display text-sm"
           >
             <Trash2 className="h-4 w-4" />
             הסירי מהארון

@@ -39,6 +39,38 @@ export function setOutfitMode(mode: OutfitMode): void {
   localStorage.setItem(MODE_KEY, mode);
 }
 
+// ── Live dressing status (ephemeral) ─────────────────────────────────────────
+// Set while a try-on runs so the ROOM can show an elegant "designing the look"
+// overlay (instead of the user staring at a spinner in a sheet). Not persisted.
+const DRESS_EVENT = "ww2:dressing";
+const DRESS_ERR_EVENT = "ww2:dressing-error";
+
+export function setDressing(on: boolean): void {
+  window.dispatchEvent(new CustomEvent(DRESS_EVENT, { detail: on }));
+}
+export function setDressingError(message: string | null): void {
+  window.dispatchEvent(new CustomEvent(DRESS_ERR_EVENT, { detail: message }));
+}
+
+export function useDressing(): boolean {
+  const [on, setOn] = useState(false);
+  useEffect(() => {
+    const h = (e: Event) => setOn(!!(e as CustomEvent<boolean>).detail);
+    window.addEventListener(DRESS_EVENT, h);
+    return () => window.removeEventListener(DRESS_EVENT, h);
+  }, []);
+  return on;
+}
+export function useDressingError(): string | null {
+  const [err, setErr] = useState<string | null>(null);
+  useEffect(() => {
+    const h = (e: Event) => setErr((e as CustomEvent<string | null>).detail ?? null);
+    window.addEventListener(DRESS_ERR_EVENT, h);
+    return () => window.removeEventListener(DRESS_ERR_EVENT, h);
+  }, []);
+  return err;
+}
+
 export function setAvatarRender(url: string | null): void {
   if (url) localStorage.setItem(KEY, url);
   else localStorage.removeItem(KEY);
