@@ -1,17 +1,21 @@
-// Vercel Edge Function — virtual try-on. Dresses the avatar figure that is
-// standing in the room in ONE garment (a real /catalog flat-lay or a user photo),
-// keeping the same face, body, and pose so it stays aligned in the room layer.
+// Vercel Serverless (Node) Function — virtual try-on. Dresses the avatar figure
+// standing in the room in ONE garment, keeping the same face/body/pose so it
+// stays aligned in the room layer.
 //
-// Body-worn garments (top / bottom / dress / outerwear) use FASHN — a model
-// PURPOSE-BUILT for garment try-on, which preserves identity + pose far more
-// reliably than a general image editor. Accessories that FASHN doesn't cover
-// (shoes / bag / etc.) fall back to Nano Banana edit. Either way the result is
-// cut out on transparent bg (rembg) so it drops into the room layer.
+// Runs on the Node runtime with maxDuration so FASHN can use its high-quality
+// mode (realistic garment DRAPE — a dress falls like a dress, not a flat shirt).
+// The edge runtime's ~25s wall forced the faster, flatter "performance" mode;
+// Node + maxDuration removes that limit.
 //
-// Input:  { figure, garment, category?, name? }   (figure/garment = url or base64 data URL)
-// Output: { imageUrl }  on success  |  { error, detail } on failure (real reason)
+// Body-worn garments (top / bottom / dress / outerwear) → FASHN (purpose-built
+// try-on, preserves identity + pose). Accessories FASHN doesn't cover (shoes /
+// bag / …) → Nano Banana edit with garment-aware prompting. Result is cut out on
+// transparent bg (rembg) so it drops into the room layer.
+//
+// Input:  { figure, garment, category?, name? }   (figure/garment = url or data URL)
+// Output: { imageUrl }  on success  |  { error, detail } on failure
 
-export const config = { runtime: "edge" };
+export const config = { maxDuration: 60 };
 
 const FASHN_MODEL = process.env.FAL_TRYON_MODEL || "fal-ai/fashn/tryon/v1.5";
 const NANO_MODEL = process.env.FAL_AVATAR_MODEL || "fal-ai/nano-banana/edit";
@@ -26,38 +30,53 @@ const FASHN_CATEGORY: Record<string, string> = {
   outerwear: "tops",
 };
 
-const NANO_WORD: Record<string, string> = {
-  shoes: "shoes",
-  bag: "bag",
-  accessory: "accessory",
-  socks: "socks",
-  underwear: "base layer",
+// Garment-aware Nano Banana prompts (from the wardrobe-buyer-critic skill) so
+// accessories sit with real contact points + weight, not pasted flat.
+const NANO_PROMPT: Record<string, string> = {
+  shoes:
+    "Replace ONLY her shoes with this exact pair, correctly scaled to her feet, soles flat on the floor with a soft contact shadow.",
+  bag:
+    "Add this exact bag carried naturally — held by the handle in one hand at her side or on the shoulder — hanging with its weight and a soft shadow where it meets her body, realistic scale.",
+  accessory:
+    "Add this exact accessory worn in its natural place, correct scale, with a soft contact shadow.",
+  socks: "Put these exact socks on her feet/ankles, correct length.",
+  underwear: "Put this exact base layer on her, fitted naturally.",
 };
 
 interface TryOnBody {
-  figure: string;
-  garment: string;
+  figure?: string;
+  garment?: string;
   category?: string;
   name?: string;
 }
 
-export default async function handler(req: Request): Promise<Response> {
-  if (req.method !== "POST") return jsonError(405, "Method not allowed");
+// Minimal req/res typing to avoid a hard @vercel/node dependency.
+export default async function handler(req: any, res: any): Promise<void> {
+  if (req.method !== "POST") {
+    res.status(405).json({ error: "Method not allowed" });
+    return;
+  }
 
-  // Drain the request body FIRST. Returning a response before the client has
-  // finished uploading a large body resets the connection (ECONNRESET →
-  // FUNCTION_INVOCATION_FAILED), masking the real error — so read, then validate.
   let body: TryOnBody;
   try {
-    body = (await req.json()) as TryOnBody;
+    body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : req.body || {};
   } catch {
-    return jsonError(400, "Invalid JSON");
+    res.status(400).json({ error: "Invalid JSON" });
+    return;
   }
 
   const falKey = process.env.FAL_KEY ?? process.env.falkey;
-  if (!falKey) return jsonError(503, "FAL_KEY not configured", "Add FAL_KEY to the Vercel environment for this deployment (Preview + Production).");
-
-  if (!body.figure || !body.garment) return jsonError(400, "Missing figure or garment");
+  if (!falKey) {
+    res.status(503).json({
+      error: "FAL_KEY not configured",
+      detail: "Add FAL_KEY (or falkey) to the Vercel environment for this deployment.",
+    });
+    return;
+  }
+  if (!body.figure || !body.garment) {
+    res.status(400).json({ error: "Missing figure or garment" });
+    return;
+  }
 
   const category = body.category ?? "";
   const fashnCategory = FASHN_CATEGORY[category];
@@ -66,43 +85,52 @@ export default async function handler(req: Request): Promise<Response> {
     let dressedUrl: string;
 
     if (fashnCategory) {
-      // ── Purpose-built try-on (FASHN) ──────────────────────────────────────
-      const res = await fal(FASHN_MODEL, falKey, {
+      // ── Purpose-built try-on (FASHN), high-quality drape ──────────────────
+      const r = await fal(FASHN_MODEL, falKey, {
         model_image: body.figure,
         garment_image: body.garment,
         category: fashnCategory,
         garment_photo_type: "flat-lay", // our catalog images are flat-lays
-        mode: "performance", // edge fn has a ~25s wall; quality mode overran it
+        mode: "quality", // realistic drape/length/silhouette (Node maxDuration covers the time)
         num_samples: 1,
         output_format: "png",
       });
-      if (!res.ok) {
-        return jsonError(502, "Try-on failed", `FASHN ${res.status}: ${res.text.slice(0, 400)}`);
+      if (!r.ok) {
+        res.status(502).json({ error: "Try-on failed", detail: `FASHN ${r.status}: ${r.text.slice(0, 400)}` });
+        return;
       }
-      const data = res.json as { images?: { url: string }[] };
-      const url = data.images?.[0]?.url;
-      if (!url) return jsonError(502, "Try-on failed", "FASHN returned no image");
+      const url = (r.json as { images?: { url: string }[] })?.images?.[0]?.url;
+      if (!url) {
+        res.status(502).json({ error: "Try-on failed", detail: "FASHN returned no image" });
+        return;
+      }
       dressedUrl = url;
     } else {
-      // ── Fallback for accessories FASHN doesn't cover (shoes, bag, …) ───────
-      const word = NANO_WORD[category] ?? "item";
+      // ── Accessories FASHN doesn't cover → Nano Banana edit ────────────────
+      const word = NANO_PROMPT[category] ? category : "item";
+      const action =
+        NANO_PROMPT[category] ??
+        "Add/replace only her relevant item with this exact one, correct scale and a soft contact shadow.";
       const prompt =
         `Two reference images. The FIRST is a full-body photo of a person. The SECOND is a single ${word}` +
-        `${body.name ? ` ("${body.name}")` : ""} on a plain background. Add/replace ONLY the person's ${word} ` +
-        `with this exact one (same color, material, shape). Keep the person's face, hair, body, pose, position, ` +
-        `and background EXACTLY the same. Photorealistic, full body head to toe, no text.`;
-      const res = await fal(NANO_MODEL, falKey, {
+        `${body.name ? ` ("${body.name}")` : ""} on a plain background. ${action} ` +
+        `Keep her face, hair, body, pose, position, and background EXACTLY the same. ` +
+        `Photorealistic, full body head to toe, no text, no extra props.`;
+      const r = await fal(NANO_MODEL, falKey, {
         prompt,
         image_urls: [body.figure, body.garment],
         num_images: 1,
         output_format: "png",
       });
-      if (!res.ok) {
-        return jsonError(502, "Try-on failed", `edit ${res.status}: ${res.text.slice(0, 400)}`);
+      if (!r.ok) {
+        res.status(502).json({ error: "Try-on failed", detail: `edit ${r.status}: ${r.text.slice(0, 400)}` });
+        return;
       }
-      const data = res.json as { images?: { url: string }[] };
-      const url = data.images?.[0]?.url;
-      if (!url) return jsonError(502, "Try-on failed", "edit returned no image");
+      const url = (r.json as { images?: { url: string }[] })?.images?.[0]?.url;
+      if (!url) {
+        res.status(502).json({ error: "Try-on failed", detail: "edit returned no image" });
+        return;
+      }
       dressedUrl = url;
     }
 
@@ -111,8 +139,8 @@ export default async function handler(req: Request): Promise<Response> {
     try {
       const cut = await fal(CUTOUT_MODEL, falKey, { image_url: dressedUrl });
       if (cut.ok) {
-        const cutData = cut.json as { image?: { url: string } };
-        if (cutData.image?.url) imageUrl = cutData.image.url;
+        const cutUrl = (cut.json as { image?: { url: string } })?.image?.url;
+        if (cutUrl) imageUrl = cutUrl;
       } else {
         console.error("rembg error:", cut.status, cut.text.slice(0, 200));
       }
@@ -120,15 +148,14 @@ export default async function handler(req: Request): Promise<Response> {
       console.error("rembg request failed:", e);
     }
 
-    return json(200, { imageUrl });
+    res.status(200).json({ imageUrl });
   } catch (e) {
     console.error("try-on error:", e);
-    return jsonError(500, "Internal server error", e instanceof Error ? e.message : String(e));
+    res.status(500).json({ error: "Internal server error", detail: e instanceof Error ? e.message : String(e) });
   }
 }
 
-// ── helpers ──────────────────────────────────────────────────────────────────
-
+// ── helper ─────────────────────────────────────────────────────────────────
 async function fal(
   model: string,
   key: string,
@@ -148,15 +175,4 @@ async function fal(
   }
   if (!r.ok) console.error(`fal ${model} ${r.status}:`, text.slice(0, 300));
   return { ok: r.ok, status: r.status, json: parsed, text };
-}
-
-function json(status: number, obj: unknown): Response {
-  return new Response(JSON.stringify(obj), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
-
-function jsonError(status: number, error: string, detail?: string): Response {
-  return json(status, detail ? { error, detail } : { error });
 }
