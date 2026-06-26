@@ -180,10 +180,39 @@ export async function fitFigureToBase(srcUrl: string): Promise<string> {
     const octx = out.getContext("2d");
     if (!octx) return srcUrl;
     octx.drawImage(img, minX, minY, fw, fh, dx, dy, dw, dh);
+    // Erode the alpha by ~1px to kill the rembg white halo so the figure blends
+    // into the warm room instead of looking like a pasted cutout.
+    erodeAlpha1px(octx, ROOM_W, ROOM_H);
     return out.toDataURL("image/png");
   } catch {
     return srcUrl;
   }
+}
+
+// Morphological 1px alpha erosion (3×3 min). Removes the outermost edge ring —
+// where the cutout halo lives — while leaving the interior untouched.
+function erodeAlpha1px(ctx: CanvasRenderingContext2D, w: number, h: number): void {
+  const id = ctx.getImageData(0, 0, w, h);
+  const d = id.data;
+  const a = new Uint8ClampedArray(w * h);
+  for (let i = 0; i < w * h; i++) a[i] = d[i * 4 + 3];
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const idx = y * w + x;
+      if (a[idx] === 0) continue;
+      let m = a[idx];
+      for (let dy = -1; dy <= 1 && m > 0; dy++) {
+        const yy = y + dy;
+        for (let dx = -1; dx <= 1; dx++) {
+          const xx = x + dx;
+          const v = xx < 0 || xx >= w || yy < 0 || yy >= h ? 0 : a[yy * w + xx];
+          if (v < m) m = v;
+        }
+      }
+      d[idx * 4 + 3] = m;
+    }
+  }
+  ctx.putImageData(id, 0, 0);
 }
 
 function loadImage(src: string): Promise<HTMLImageElement> {
