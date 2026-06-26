@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Archive, Camera, Sparkles } from "lucide-react";
 import type { Compartment } from "../room/Cabinet";
@@ -55,10 +55,22 @@ export default function WardrobeIllustration({ onCompartmentClick }: { onCompart
   const [generating, setGenerating] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
 
-  // The figure renders at its ORIGINAL size/placement (object-cover) — the
-  // default mannequin and dressed/selfie renders all keep the framing they were
-  // authored with. Do NOT rescale here.
-  const avatarSrc = renderUrl ?? defaultFigureSrc();
+  // The DEFAULT mannequin renders as-is (its authored size — the size Omer
+  // locked). Any saved render (dressed/selfie) is fit to the base box at display
+  // time, so it's always whole + the same size as the default — and old saved
+  // renders from earlier versions self-heal on load. Default is never refit.
+  const [avatarSrc, setAvatarSrc] = useState<string>(() => renderUrl ?? defaultFigureSrc());
+  useEffect(() => {
+    let cancelled = false;
+    if (!renderUrl) {
+      setAvatarSrc(defaultFigureSrc());
+      return;
+    }
+    fitFigureToBase(renderUrl).then((u) => {
+      if (!cancelled) setAvatarSrc(u);
+    });
+    return () => { cancelled = true; };
+  }, [renderUrl]);
 
   function handleSelfie(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
