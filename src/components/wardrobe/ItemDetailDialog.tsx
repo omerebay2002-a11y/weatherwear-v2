@@ -9,6 +9,7 @@ import {
   setAvatarRender,
   defaultFigureSrc,
   toFalImage,
+  fitFigureToBase,
 } from "../../lib/avatar-store";
 
 interface Props {
@@ -31,8 +32,9 @@ export default function ItemDetailDialog({ item, onClose, onDelete }: Props) {
         toFalImage(figureSrc),
         toFalImage(item.imageUrl),
       ]);
-      const url = await tryOnGarment(figure, garment, item.category, item.name);
-      setAvatarRender(url); // room updates live (original size, no rescale)
+      const raw = await tryOnGarment(figure, garment, item.category, item.name);
+      const url = await fitFigureToBase(raw); // whole + same size as the base figure
+      setAvatarRender(url); // room updates live
       onClose(); // back to the room to see her wearing it
     } catch (e) {
       const msg = e instanceof Error ? e.message : "שגיאה לא ידועה";
