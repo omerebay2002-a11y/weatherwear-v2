@@ -179,6 +179,23 @@ export async function fitFigureToBase(srcUrl: string): Promise<string> {
     out.height = ROOM_H;
     const octx = out.getContext("2d");
     if (!octx) return srcUrl;
+
+    // Soft contact shadow on the rug under her feet, so she stands planted in the
+    // room instead of floating. Radial-gradient ellipse (no canvas filter → works
+    // on iOS). Drawn first, under the figure.
+    octx.save();
+    octx.translate(BASE_CX, BASE_BOTTOM - 2);
+    octx.scale(dw * 0.42, ROOM_H * 0.018);
+    const shadow = octx.createRadialGradient(0, 0, 0, 0, 0, 1);
+    shadow.addColorStop(0, "rgba(34,22,12,0.42)");
+    shadow.addColorStop(0.55, "rgba(34,22,12,0.22)");
+    shadow.addColorStop(1, "rgba(34,22,12,0)");
+    octx.fillStyle = shadow;
+    octx.beginPath();
+    octx.arc(0, 0, 1, 0, Math.PI * 2);
+    octx.fill();
+    octx.restore();
+
     octx.drawImage(img, minX, minY, fw, fh, dx, dy, dw, dh);
     // Erode the alpha by ~1px to kill the rembg white halo so the figure blends
     // into the warm room instead of looking like a pasted cutout.

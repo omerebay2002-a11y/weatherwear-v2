@@ -122,22 +122,11 @@ export default function WardrobeIllustration({ onCompartmentClick }: { onCompart
     return () => clearTimeout(id);
   }, [dressingError]);
 
-  // The DEFAULT mannequin renders as-is (its authored size — the size Omer
-  // locked). Any saved render (dressed/selfie) is fit to the base box at display
-  // time, so it's always whole + the same size as the default — and old saved
-  // renders from earlier versions self-heal on load. Default is never refit.
-  const [avatarSrc, setAvatarSrc] = useState<string>(() => renderUrl ?? defaultFigureSrc());
-  useEffect(() => {
-    let cancelled = false;
-    if (!renderUrl) {
-      setAvatarSrc(defaultFigureSrc());
-      return;
-    }
-    fitFigureToBase(renderUrl).then((u) => {
-      if (!cancelled) setAvatarSrc(u);
-    });
-    return () => { cancelled = true; };
-  }, [renderUrl]);
+  // A saved render is ALREADY fit to the base box (+ shadow + de-haloed) once, at
+  // save time — so render it as-is here. The default mannequin shows at its
+  // locked authored size. Never re-process here (re-fitting would fold the baked
+  // contact shadow into the bounding box and shrink the figure).
+  const avatarSrc = renderUrl ?? defaultFigureSrc();
 
   function handleSelfie(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
