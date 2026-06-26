@@ -41,7 +41,11 @@ export default async function handler(req: Request): Promise<Response> {
 
   let body: GenerateBody;
   try {
-    body = (await req.json()) as GenerateBody;
+    const rawText = await req.text();
+    if (rawText.length > 4 * 1024 * 1024) { // 4MB limit for images
+      return jsonError(413, "Payload too large");
+    }
+    body = JSON.parse(rawText) as GenerateBody;
   } catch {
     return jsonError(400, "Invalid JSON");
   }
