@@ -10,6 +10,8 @@ import {
   defaultFigureSrc,
   toFalImage,
   fitFigureToBase,
+  getOutfitMode,
+  setOutfitMode,
 } from "../../lib/avatar-store";
 
 interface Props {
@@ -27,14 +29,29 @@ export default function ItemDetailDialog({ item, onClose, onDelete }: Props) {
     setDressing(true);
     setError(null);
     try {
-      const figureSrc = getAvatarRender() ?? defaultFigureSrc();
+      const c = item.category;
+      const mode = getOutfitMode();
+      // Outfit rules. The base mannequin already wears a default top + bottom.
+      //  • dress → always rebuild from the base (replaces the whole look)
+      //  • top/bottom while wearing a dress → rebuild from base (drop the dress,
+      //    the base supplies the complementary piece) — no shirt-over-dress
+      //  • top/bottom while in separates, or outerwear/shoes/bag → layer on the
+      //    figure currently in the room
+      const leavingDress = (c === "top" || c === "bottom") && mode === "dress";
+      const fromBase = c === "dress" || leavingDress;
+      const figureSrc = fromBase
+        ? defaultFigureSrc()
+        : getAvatarRender() ?? defaultFigureSrc();
+
       const [figure, garment] = await Promise.all([
         toFalImage(figureSrc),
         toFalImage(item.imageUrl),
       ]);
-      const raw = await tryOnGarment(figure, garment, item.category, item.name);
+      const raw = await tryOnGarment(figure, garment, c, item.name);
       const url = await fitFigureToBase(raw); // whole + same size as the base figure
       setAvatarRender(url); // room updates live
+      if (c === "dress") setOutfitMode("dress");
+      else if (c === "top" || c === "bottom") setOutfitMode("separates");
       onClose(); // back to the room to see her wearing it
     } catch (e) {
       const msg = e instanceof Error ? e.message : "שגיאה לא ידועה";

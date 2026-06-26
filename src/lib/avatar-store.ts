@@ -24,6 +24,21 @@ export function getAvatarRender(): string | null {
   return localStorage.getItem(KEY);
 }
 
+// ── Outfit mode ───────────────────────────────────────────────────────────────
+// The figure wears either a one-piece DRESS or SEPARATES (top + bottom). The base
+// mannequin already provides a default top + bottom, so applying a top/bottom to
+// the base yields a complete look. Switching between a dress and separates means
+// rebuilding from the base (you can't layer a shirt onto a dress).
+const MODE_KEY = "avatar_outfit_mode";
+export type OutfitMode = "separates" | "dress";
+
+export function getOutfitMode(): OutfitMode {
+  return localStorage.getItem(MODE_KEY) === "dress" ? "dress" : "separates";
+}
+export function setOutfitMode(mode: OutfitMode): void {
+  localStorage.setItem(MODE_KEY, mode);
+}
+
 export function setAvatarRender(url: string | null): void {
   if (url) localStorage.setItem(KEY, url);
   else localStorage.removeItem(KEY);
