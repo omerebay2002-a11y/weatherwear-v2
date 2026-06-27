@@ -5,7 +5,7 @@ import type { Compartment } from "../room/Cabinet";
 import type { ClothingCategory, ClothingItem } from "../../types";
 import { useWardrobe } from "../../contexts/WardrobeContext";
 import { generateAvatar } from "../../lib/claude";
-import { useAvatarRender, defaultFigureSrc, fitFigureToBase, useDressing, useDressingError, setDressingError } from "../../lib/avatar-store";
+import { useAvatarRender, defaultFigureSrc, fitFigureToBase, toFalImage, useDressing, useDressingError, setDressingError } from "../../lib/avatar-store";
 
 function pickItem(items: ClothingItem[], c: ClothingCategory): ClothingItem | null {
   return items.filter((i) => i.category === c)[0] ?? null;
@@ -137,7 +137,9 @@ export default function WardrobeIllustration({ onCompartmentClick }: { onCompart
       setGenerating(true);
       setAvatarError(false);
       try {
-        const roomUrl = `${window.location.origin}/wardrobe-closed.png`;
+        // Inline the room as a data URL so fal composites it without having to
+        // fetch our (auth-protected) preview origin — selfie works on share links.
+        const roomUrl = await toFalImage("/wardrobe-closed.png");
         const raw = await generateAvatar(selfie, buildLook(items), roomUrl);
         const url = await fitFigureToBase(raw); // whole + same size as the base figure
         setRenderUrl(url);

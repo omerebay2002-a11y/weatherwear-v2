@@ -5,7 +5,23 @@ import App from "./App";
 import { ToastProvider } from "./components/ui/Toast";
 import { AuthProvider } from "./contexts/AuthContext";
 import { WardrobeProvider } from "./contexts/WardrobeContext";
+import { markOnboarded } from "./lib/profile";
+import { fitFigureToBase, setAvatarRender } from "./lib/avatar-store";
 import "./index.css";
+
+// Personalized one-off share links: open with ?avatar=<image-url> to land
+// straight in the room as that figure (skips onboarding, seeds the wardrobe).
+// The image lives at its own URL — nothing personal is committed to the repo.
+(function teaserBootstrap() {
+  try {
+    const av = new URLSearchParams(window.location.search).get("avatar");
+    if (!av) return;
+    markOnboarded();
+    void fitFigureToBase(av).then(setAvatarRender);
+  } catch {
+    /* ignore */
+  }
+})();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
