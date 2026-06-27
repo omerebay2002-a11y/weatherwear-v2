@@ -14,7 +14,12 @@ import "./index.css";
 // The image lives at its own URL — nothing personal is committed to the repo.
 (function teaserBootstrap() {
   try {
-    const av = new URLSearchParams(window.location.search).get("avatar");
+    // Read from the query OR the hash. Vercel's _vercel_share access redirect
+    // strips the query string but preserves the #fragment, so share links use
+    // #avatar=<url>.
+    const fromQuery = new URLSearchParams(window.location.search).get("avatar");
+    const fromHash = new URLSearchParams(window.location.hash.replace(/^#/, "")).get("avatar");
+    const av = fromQuery || fromHash;
     if (!av) return;
     markOnboarded();
     void fitFigureToBase(av).then(setAvatarRender);
