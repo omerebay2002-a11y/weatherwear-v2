@@ -44,9 +44,16 @@ export default async function handler(req: Request): Promise<Response> {
   // If a room image is given, composite the person INTO it (best blend).
   // Otherwise render on plain white (still works, just less integrated).
   const inRoom = !!body.roomUrl;
+  // Identity + adult-proportion controls (see selfie-identity-avatar skill): the
+  // selfie is a face close-up, so the body must be explicitly constrained to
+  // tall adult proportions or the model returns a short, big-headed "dwarf".
+  const IDENTITY =
+    "keep her EXACT face and identity from the LAST reference selfie — same face shape, eyes and eye color, eyebrows, nose, lips, skin tone, and the same hairstyle and hair color; natural look, no added makeup, do not beautify or generalize her features";
+  const PROPORTIONS =
+    "a tall adult woman with realistic, well-proportioned adult body — approximately 7.5 heads tall with long legs, standing upright and relaxed; FULL LENGTH from hair to shoes, both feet flat on the floor, a little headroom above; nothing cropped. NOT a child, NOT chibi, do not enlarge the head, correct adult head-to-body ratio";
   const prompt = inRoom
-    ? `Full-body realistic photograph of the SAME person from the LAST reference image — keep their exact face and identity. Place them standing naturally in the empty standing area to the RIGHT of the wardrobe in the FIRST reference room, wearing ${outfit}. FULLY blend them into the scene: lit by the same warm room light, with a natural soft cast shadow on the rug under their feet, feet grounded on the floor, natural human proportion to the wardrobe, full body head to toe with a little space above the head. Photorealistic, seamlessly present in the room — not pasted, not a cartoon. Tall vertical 9:16 phone photo, no text.`
-    : `Full-body realistic photograph of the same person from the reference image, keeping their exact face and identity, wearing ${outfit}, standing relaxed and natural, full body head to toe, on a plain pure white seamless studio background, soft even lighting, photorealistic, no text.`;
+    ? `Full-length fashion photograph of the SAME woman as the reference selfie. ${IDENTITY}. She is ${PROPORTIONS}, standing in the empty standing area to the RIGHT of the wardrobe in the FIRST reference room, wearing ${outfit}. FULLY blend her into the scene: lit by the same warm room light, a soft contact shadow on the rug under her feet, feet grounded, natural human scale relative to the wardrobe. Photorealistic, seamlessly present in the room — not pasted, not a cartoon. Tall vertical 9:16 phone photo, no text.`
+    : `Full-length fashion photograph of the SAME woman as the reference selfie. ${IDENTITY}. She is ${PROPORTIONS}, wearing ${outfit}, on a plain pure white seamless studio background, soft even lighting. Photorealistic, no text.`;
 
   const imageUrls = inRoom ? [body.roomUrl as string, body.selfie] : [body.selfie];
 
