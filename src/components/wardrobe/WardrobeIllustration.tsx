@@ -109,8 +109,9 @@ export default function WardrobeIllustration({ onCompartmentClick }: { onCompart
   const { items } = useWardrobe();
   const [cabinetOpen, setCabinetOpen] = useState(false);
   const [active, setActive] = useState<Active>("none"); // which clip is showing
-  const [ready, setReady] = useState(false);
+  const [ready, setReady] = useState(true); // interactive immediately (poster cross-fade always works)
   const [errored, setErrored] = useState(false);
+  const [videoOk, setVideoOk] = useState(false); // door clips loaded & playable
   const [renderUrl, setRenderUrl] = useAvatarRender();
   const [generating, setGenerating] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
@@ -162,14 +163,16 @@ export default function WardrobeIllustration({ onCompartmentClick }: { onCompart
 
   const toggle = () => {
     if (!ready) return;
-    if (cabinetOpen) {
-      setCabinetOpen(false);
-      setActive("close");
-      play(closeRef.current);
+    const opening = !cabinetOpen;
+    setCabinetOpen(opening);
+    if (videoOk) {
+      // Premium door-swing (plays on public production).
+      setActive(opening ? "open" : "close");
+      play(opening ? openRef.current : closeRef.current);
     } else {
-      setCabinetOpen(true);
-      setActive("open");
-      play(openRef.current);
+      // Fallback: smooth poster cross-fade (works everywhere — videos are blocked
+      // by Vercel Deployment Protection on preview/share links).
+      setActive("none");
     }
   };
 
@@ -208,30 +211,41 @@ export default function WardrobeIllustration({ onCompartmentClick }: { onCompart
         role="button"
         aria-label={cabinetOpen ? "סגרי את הארון" : "פתחי את הארון"}
       >
-        {/* Closed poster — shown until any clip plays (z1). */}
+        {/* Closed poster (z1) — the base; loading it makes the wardrobe usable. */}
         <img
           src="/wardrobe-closed.png"
           alt="ארון"
           draggable={false}
+          onLoad={() => setReady(true)}
           onError={() => setErrored(true)}
           className={baseVid}
           style={{ zIndex: 1 }}
         />
 
-        {/* Door-OPEN clip (closed → open). First frame === closed room. */}
+        {/* Open-interior poster (z2) — smooth opacity cross-fade on open. This is
+            the reliable animation (images load even behind Vercel protection). */}
+        <img
+          src="/wardrobe-interior.png"
+          alt=""
+          draggable={false}
+          className={baseVid}
+          style={{ zIndex: 2, opacity: cabinetOpen ? 1 : 0, transition: "opacity 600ms ease-in-out" }}
+        />
+
+        {/* Door-OPEN clip (z3) — premium swing, plays only when videos are OK. */}
         <video
           ref={openRef}
           src="/wardrobe-open.mp4"
           muted
           playsInline
           preload="auto"
-          onLoadedData={() => setReady(true)}
-          onError={() => setErrored(true)}
+          onLoadedData={() => setVideoOk(true)}
+          onError={() => setVideoOk(false)}
           className={baseVid}
-          style={{ zIndex: 2, opacity: active === "open" ? 1 : 0 }}
+          style={{ zIndex: 3, opacity: videoOk && active === "open" ? 1 : 0 }}
         />
 
-        {/* Door-CLOSE clip (open → closed). */}
+        {/* Door-CLOSE clip (z4). */}
         <video
           ref={closeRef}
           src="/wardrobe-close.mp4"
@@ -239,7 +253,7 @@ export default function WardrobeIllustration({ onCompartmentClick }: { onCompart
           playsInline
           preload="auto"
           className={baseVid}
-          style={{ zIndex: 3, opacity: active === "close" ? 1 : 0 }}
+          style={{ zIndex: 4, opacity: videoOk && active === "close" ? 1 : 0 }}
         />
 
         {/* Avatar — stable cutout layer, same canvas so it aligns and never shifts. */}
@@ -248,7 +262,7 @@ export default function WardrobeIllustration({ onCompartmentClick }: { onCompart
           alt="הדמות שלך"
           draggable={false}
           className={baseVid}
-          style={{ zIndex: 4 }}
+          style={{ zIndex: 5 }}
         />
 
         {/* Hotspots — visible once open */}
