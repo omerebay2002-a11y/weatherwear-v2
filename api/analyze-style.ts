@@ -52,7 +52,12 @@ export default async function handler(req: Request): Promise<Response> {
 
   let body: StyleBody;
   try {
-    body = (await req.json()) as StyleBody;
+    // SECURITY: Limit input size to prevent CPU DoS and cost abuse during JSON parsing
+    const text = await req.text();
+    if (text.length > 4 * 1024 * 1024) {
+      return jsonError(413, "Payload too large");
+    }
+    body = JSON.parse(text) as StyleBody;
   } catch {
     return jsonError(400, "Invalid JSON body");
   }
