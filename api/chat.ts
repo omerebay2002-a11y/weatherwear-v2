@@ -49,7 +49,11 @@ export default async function handler(req: Request): Promise<Response> {
 
   let body: ChatBody;
   try {
-    body = (await req.json()) as ChatBody;
+    const rawText = await req.text();
+    if (rawText.length > 1048576) {
+      return new Response("Payload too large", { status: 413 });
+    }
+    body = JSON.parse(rawText) as ChatBody;
   } catch {
     return new Response("Invalid JSON", { status: 400 });
   }
