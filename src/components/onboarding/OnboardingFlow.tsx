@@ -466,7 +466,7 @@ export default function OnboardingFlow({ onComplete }: { onComplete: () => void 
                     <p className="text-[11px] font-medium tracking-[0.18em] text-walnut-400 mb-2">
                       {CATEGORY_LABEL[cat]}
                     </p>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="grid grid-cols-3 gap-2.5">
                       {items.map(({ c, i }) => {
                         const on = selected.has(i);
                         return (
@@ -474,19 +474,31 @@ export default function OnboardingFlow({ onComplete }: { onComplete: () => void 
                             key={i}
                             type="button"
                             onClick={() => toggleCandidate(i)}
-                            className={`flex items-center gap-2 rounded-sm border px-3 py-2.5 text-sm transition active:scale-[0.96] ${
-                              on
-                                ? "border-brass bg-parchment-light shadow-brass text-ebony"
-                                : "border-parchment-dark bg-parchment-light text-ebony-muted"
+                            aria-pressed={on}
+                            className={`group relative aspect-[3/4] overflow-hidden rounded-lg border text-right transition active:scale-[0.97] ${
+                              on ? "border-brass ring-2 ring-brass" : "border-parchment-dark"
                             }`}
                           >
-                            <span
-                              className="h-3.5 w-3.5 rounded-full border border-black/10 shrink-0"
-                              style={{ background: c.colorHex }}
-                              aria-hidden
-                            />
-                            {c.name}
-                            {on && <Check className="h-3.5 w-3.5 text-brass-deep" />}
+                            {c.image ? (
+                              <img
+                                src={c.image}
+                                alt={c.name}
+                                loading="lazy"
+                                className="absolute inset-0 h-full w-full object-cover"
+                              />
+                            ) : (
+                              <span className="absolute inset-0" style={{ background: c.colorHex }} aria-hidden />
+                            )}
+                            <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent px-2 pt-6 pb-1.5 text-[11px] font-medium leading-tight text-white">
+                              {c.name}
+                            </span>
+                            {on ? (
+                              <span className="absolute top-1.5 right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-brass text-ebony shadow">
+                                <Check className="h-4 w-4" strokeWidth={2.5} />
+                              </span>
+                            ) : (
+                              <span className="absolute inset-0 bg-black/10 transition group-hover:bg-black/0" aria-hidden />
+                            )}
                           </button>
                         );
                       })}
