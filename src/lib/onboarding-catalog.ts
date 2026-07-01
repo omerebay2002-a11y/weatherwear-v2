@@ -39,39 +39,33 @@ interface SeedDef extends SeedCandidate {
 }
 
 const CATALOG: SeedDef[] = [
-  // Real garments pulled from live young-women fashion stores (Princess Polly /
-  // Edikted) — actual products the user recognizes, each with a real image so the
-  // pick step is a photo grid and every picked item is dressable.
+  // Real garment-only packshots (no models) pulled from live stores — Steve Madden,
+  // Colorful Standard, DL1961 — via their public /products.json, filtered by a
+  // white-background check so every image is the garment as it hangs in a wardrobe
+  // (clean + easy to dress). Dress/jeans use the in-repo clean flat-lays.
   // ── Bottoms ────────────────────────────────────────────────────────
-  { name: "ג׳ינס כחול", category: "bottom", color: "כחול ג׳ינס", colorHex: "#3B5998", season: "all", formality: "casual", audience: "woman", tier: 1, image: "/catalog/real/blue-jeans.jpg" },
-  { name: "מכנס שחור", category: "bottom", color: "שחור", colorHex: "#23232B", season: "all", formality: "smart", audience: "woman", tier: 1, image: "/catalog/real/black-jeans.jpg" },
-  { name: "שורט ג׳ינס", category: "bottom", color: "כחול ג׳ינס", colorHex: "#6E8FC0", season: "summer", formality: "casual", audience: "woman", tier: 2, image: "/catalog/real/denim-shorts.jpg" },
-  { name: "חצאית ג׳ינס", category: "bottom", color: "כחול ג׳ינס", colorHex: "#4A6A9D", season: "summer", formality: "casual", audience: "woman", tier: 2, image: "/catalog/real/denim-skirt.jpg" },
-  { name: "חצאית מקסי שחורה", category: "bottom", color: "שחור", colorHex: "#222226", season: "all", formality: "smart", audience: "woman", tier: 2, image: "/catalog/real/midi-skirt.jpg" },
-  { name: "מכנס רחב", category: "bottom", color: "חום", colorHex: "#8A6A4A", season: "all", formality: "smart", audience: "woman", tier: 2, image: "/catalog/real/wide-pants.jpg" },
+  { name: "ג׳ינס כחול", category: "bottom", color: "כחול ג׳ינס", colorHex: "#3B5998", season: "all", formality: "casual", audience: "woman", tier: 1, image: "/catalog/real/jeans-blue.jpg" },
+  { name: "מכנס שחור רחב", category: "bottom", color: "שחור", colorHex: "#23232B", season: "all", formality: "smart", audience: "woman", tier: 1, image: "/catalog/real/black-pants.jpg" },
+  { name: "מכנס טרנינג בז׳", category: "bottom", color: "בז׳", colorHex: "#B7A793", season: "all", formality: "casual", audience: "woman", tier: 2, image: "/catalog/real/beige-pants.jpg" },
   // ── Tops ───────────────────────────────────────────────────────────
+  { name: "טופ לבן", category: "top", color: "לבן", colorHex: "#F5F5F0", season: "all", formality: "casual", audience: "woman", tier: 1, image: "/catalog/real/white-tee.jpg" },
   { name: "טופ שחור", category: "top", color: "שחור", colorHex: "#20202A", season: "all", formality: "casual", audience: "woman", tier: 1, image: "/catalog/real/black-tee.jpg" },
-  { name: "גופייה שחורה", category: "top", color: "שחור", colorHex: "#1C1C1C", season: "all", formality: "casual", audience: "woman", tier: 1, image: "/catalog/real/black-tank.jpg" },
-  { name: "גופייה לבנה", category: "top", color: "לבן", colorHex: "#FAFAF5", season: "all", formality: "casual", audience: "woman", tier: 1, image: "/catalog/real/white-tank.jpg" },
-  { name: "טופ קרופ", category: "top", color: "שחור", colorHex: "#202024", season: "all", formality: "casual", audience: "woman", tier: 2, image: "/catalog/real/crop-top.jpg" },
-  { name: "בגד גוף שחור", category: "top", color: "שחור", colorHex: "#1C1C1C", season: "all", formality: "smart", audience: "woman", tier: 2, image: "/catalog/real/black-bodysuit.jpg" },
-  { name: "טופ סאטן קרם", category: "top", color: "קרם", colorHex: "#EFE3CE", season: "all", formality: "smart", audience: "woman", tier: 2, image: "/catalog/real/satin-blouse.jpg" },
+  { name: "טופ אפור", category: "top", color: "אפור", colorHex: "#9A9A9A", season: "all", formality: "casual", audience: "woman", tier: 2, image: "/catalog/real/gray-tee.jpg" },
+  { name: "קרדיגן נייבי", category: "top", color: "כחול נייבי", colorHex: "#27374D", season: "winter", formality: "smart", audience: "woman", tier: 2, image: "/catalog/real/black-knit.jpg" },
   // ── Dresses ────────────────────────────────────────────────────────
-  { name: "שמלה שחורה", category: "dress", color: "שחור", colorHex: "#1A1A1A", season: "all", formality: "formal", audience: "woman", tier: 1, image: "/catalog/real/black-dress.jpg" },
-  { name: "שמלה לבנה", category: "dress", color: "לבן", colorHex: "#F5F5F0", season: "summer", formality: "smart", audience: "woman", tier: 2, image: "/catalog/real/white-dress.jpg" },
-  { name: "שמלה פרחונית", category: "dress", color: "פרחוני", colorHex: "#C99AA0", season: "summer", formality: "casual", audience: "woman", tier: 2, image: "/catalog/real/floral-dress.jpg" },
-  { name: "שמלת מקסי", category: "dress", color: "צהוב", colorHex: "#E3C766", season: "summer", formality: "smart", audience: "woman", tier: 3, styles: ["romantic", "elegant"], image: "/catalog/real/maxi-dress.jpg" },
-  // ── Outerwear ──────────────────────────────────────────────────────
-  { name: "ז׳קט שחור", category: "outerwear", color: "שחור", colorHex: "#222226", season: "all", formality: "smart", audience: "woman", tier: 2, image: "/catalog/real/blazer.jpg" },
+  { name: "שמלה שחורה", category: "dress", color: "שחור", colorHex: "#1A1A1A", season: "all", formality: "formal", audience: "woman", tier: 1, image: "/catalog/real/dress-black.jpg" },
+  { name: "שמלה פרחונית", category: "dress", color: "פרחוני", colorHex: "#C99AA0", season: "summer", formality: "casual", audience: "woman", tier: 2, image: "/catalog/real/dress-floral.jpg" },
   // ── Shoes ──────────────────────────────────────────────────────────
-  { name: "סנדלי פלטפורמה", category: "shoes", color: "שחור", colorHex: "#2B2B2B", season: "summer", formality: "casual", audience: "woman", tier: 2, image: "/catalog/real/sandals.jpg" },
-  { name: "עקבים שחורים", category: "shoes", color: "שחור", colorHex: "#18181C", season: "all", formality: "formal", audience: "woman", tier: 2, image: "/catalog/real/black-heels.jpg" },
-  { name: "מגפי עקב שחורים", category: "shoes", color: "שחור", colorHex: "#1A1A1E", season: "winter", formality: "smart", audience: "woman", tier: 2, image: "/catalog/real/black-boots.jpg" },
-  // ── Bags & accessories ─────────────────────────────────────────────
-  { name: "תיק טוט", category: "bag", color: "מנטה", colorHex: "#A9CBB8", season: "all", formality: "casual", audience: "woman", tier: 1, image: "/catalog/real/tote-bag.jpg" },
-  { name: "תיק כתף שחור", category: "bag", color: "שחור", colorHex: "#1E1E22", season: "all", formality: "smart", audience: "woman", tier: 2, image: "/catalog/real/shoulder-bag.jpg" },
-  { name: "משקפי שמש", category: "accessory", color: "שחור", colorHex: "#141414", season: "summer", audience: "woman", tier: 2, image: "/catalog/real/sunglasses.jpg" },
-  { name: "עגילי זהב", category: "accessory", color: "זהב", colorHex: "#C9A84C", season: "all", audience: "woman", tier: 2, image: "/catalog/real/gold-earrings.jpg" },
+  { name: "סניקרס שחורות", category: "shoes", color: "שחור", colorHex: "#1C1C1C", season: "all", formality: "casual", audience: "woman", tier: 1, image: "/catalog/real/white-sneakers.jpg" },
+  { name: "סניקרס אדומות", category: "shoes", color: "אדום", colorHex: "#C0392B", season: "all", formality: "casual", audience: "woman", tier: 2, image: "/catalog/real/black-sneakers.jpg" },
+  { name: "נעלי בובה", category: "shoes", color: "חום", colorHex: "#B98A5A", season: "all", formality: "smart", audience: "woman", tier: 2, image: "/catalog/real/ballet-flats.jpg" },
+  { name: "עקבים", category: "shoes", color: "חום", colorHex: "#6B4423", season: "all", formality: "formal", audience: "woman", tier: 2, image: "/catalog/real/heels.jpg" },
+  { name: "סנדלים", category: "shoes", color: "חום", colorHex: "#5A3A2A", season: "summer", formality: "casual", audience: "woman", tier: 2, image: "/catalog/real/sandals.jpg" },
+  { name: "מגפיים גבוהים", category: "shoes", color: "מאובק", colorHex: "#B08A86", season: "winter", formality: "smart", audience: "woman", tier: 3, styles: ["street", "elegant"], image: "/catalog/real/boots.jpg" },
+  // ── Bags ───────────────────────────────────────────────────────────
+  { name: "תיק ג׳ינס", category: "bag", color: "כחול ג׳ינס", colorHex: "#6E8FC0", season: "all", formality: "casual", audience: "woman", tier: 1, image: "/catalog/real/tote-bag.jpg" },
+  { name: "תיק צבעוני", category: "bag", color: "צבעוני", colorHex: "#C99AA0", season: "summer", formality: "casual", audience: "woman", tier: 2, image: "/catalog/real/crossbody-bag.jpg" },
+  { name: "קלאץ׳ זהב", category: "bag", color: "זהב", colorHex: "#B8860B", season: "all", formality: "formal", audience: "woman", tier: 3, styles: ["elegant"], image: "/catalog/real/clutch.jpg" },
 ];
 
 /** Normalize a name for fuzzy dedup between AI results and the catalog. */
