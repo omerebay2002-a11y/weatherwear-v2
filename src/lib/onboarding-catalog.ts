@@ -44,26 +44,26 @@ const CATALOG: SeedDef[] = [
   // white-background check so every image is the garment as it hangs in a wardrobe
   // (clean + easy to dress). Dress/jeans use the in-repo clean flat-lays.
   // ── Bottoms ────────────────────────────────────────────────────────
-  { name: "ג׳ינס כחול", category: "bottom", color: "כחול ג׳ינס", colorHex: "#3B5998", season: "all", formality: "casual", audience: "woman", tier: 1, image: "/catalog/real/jeans-blue.jpg" },
-  { name: "מכנס שחור רחב", category: "bottom", color: "שחור", colorHex: "#23232B", season: "all", formality: "smart", audience: "woman", tier: 1, image: "/catalog/real/black-pants.jpg" },
-  { name: "מכנס טרנינג בז׳", category: "bottom", color: "בז׳", colorHex: "#B7A793", season: "all", formality: "casual", audience: "woman", tier: 2, image: "/catalog/real/beige-pants.jpg" },
+  { name: "ג׳ינס כחול", category: "bottom", color: "כחול ג׳ינס", colorHex: "#3B5998", season: "all", formality: "casual", audience: "all", tier: 1, image: "/catalog/real/jeans-blue.jpg" },
+  { name: "מכנס שחור רחב", category: "bottom", color: "שחור", colorHex: "#23232B", season: "all", formality: "smart", audience: "all", tier: 1, image: "/catalog/real/black-pants.jpg" },
+  { name: "מכנס טרנינג בז׳", category: "bottom", color: "בז׳", colorHex: "#B7A793", season: "all", formality: "casual", audience: "all", tier: 2, image: "/catalog/real/beige-pants.jpg" },
   // ── Tops ───────────────────────────────────────────────────────────
-  { name: "טופ לבן", category: "top", color: "לבן", colorHex: "#F5F5F0", season: "all", formality: "casual", audience: "woman", tier: 1, image: "/catalog/real/white-tee.jpg" },
-  { name: "טופ שחור", category: "top", color: "שחור", colorHex: "#20202A", season: "all", formality: "casual", audience: "woman", tier: 1, image: "/catalog/real/black-tee.jpg" },
-  { name: "טופ אפור", category: "top", color: "אפור", colorHex: "#9A9A9A", season: "all", formality: "casual", audience: "woman", tier: 2, image: "/catalog/real/gray-tee.jpg" },
-  { name: "קרדיגן נייבי", category: "top", color: "כחול נייבי", colorHex: "#27374D", season: "winter", formality: "smart", audience: "woman", tier: 2, image: "/catalog/real/black-knit.jpg" },
+  { name: "טופ לבן", category: "top", color: "לבן", colorHex: "#F5F5F0", season: "all", formality: "casual", audience: "all", tier: 1, image: "/catalog/real/white-tee.jpg" },
+  { name: "טופ שחור", category: "top", color: "שחור", colorHex: "#20202A", season: "all", formality: "casual", audience: "all", tier: 1, image: "/catalog/real/black-tee.jpg" },
+  { name: "טופ אפור", category: "top", color: "אפור", colorHex: "#9A9A9A", season: "all", formality: "casual", audience: "all", tier: 2, image: "/catalog/real/gray-tee.jpg" },
+  { name: "קרדיגן נייבי", category: "top", color: "כחול נייבי", colorHex: "#27374D", season: "winter", formality: "smart", audience: "all", tier: 2, image: "/catalog/real/black-knit.jpg" },
   // ── Dresses ────────────────────────────────────────────────────────
   { name: "שמלה שחורה", category: "dress", color: "שחור", colorHex: "#1A1A1A", season: "all", formality: "formal", audience: "woman", tier: 1, image: "/catalog/real/dress-black.jpg" },
   { name: "שמלה פרחונית", category: "dress", color: "פרחוני", colorHex: "#C99AA0", season: "summer", formality: "casual", audience: "woman", tier: 2, image: "/catalog/real/dress-floral.jpg" },
   // ── Shoes ──────────────────────────────────────────────────────────
-  { name: "סניקרס שחורות", category: "shoes", color: "שחור", colorHex: "#1C1C1C", season: "all", formality: "casual", audience: "woman", tier: 1, image: "/catalog/real/white-sneakers.jpg" },
-  { name: "סניקרס אדומות", category: "shoes", color: "אדום", colorHex: "#C0392B", season: "all", formality: "casual", audience: "woman", tier: 2, image: "/catalog/real/black-sneakers.jpg" },
+  { name: "סניקרס שחורות", category: "shoes", color: "שחור", colorHex: "#1C1C1C", season: "all", formality: "casual", audience: "all", tier: 1, image: "/catalog/real/white-sneakers.jpg" },
+  { name: "סניקרס אדומות", category: "shoes", color: "אדום", colorHex: "#C0392B", season: "all", formality: "casual", audience: "all", tier: 2, image: "/catalog/real/black-sneakers.jpg" },
   { name: "נעלי בובה", category: "shoes", color: "חום", colorHex: "#B98A5A", season: "all", formality: "smart", audience: "woman", tier: 2, image: "/catalog/real/ballet-flats.jpg" },
   { name: "עקבים", category: "shoes", color: "חום", colorHex: "#6B4423", season: "all", formality: "formal", audience: "woman", tier: 2, image: "/catalog/real/heels.jpg" },
   { name: "סנדלים", category: "shoes", color: "חום", colorHex: "#5A3A2A", season: "summer", formality: "casual", audience: "woman", tier: 2, image: "/catalog/real/sandals.jpg" },
   { name: "מגפיים גבוהים", category: "shoes", color: "מאובק", colorHex: "#B08A86", season: "winter", formality: "smart", audience: "woman", tier: 3, styles: ["street", "elegant"], image: "/catalog/real/boots.jpg" },
   // ── Bags ───────────────────────────────────────────────────────────
-  { name: "תיק ג׳ינס", category: "bag", color: "כחול ג׳ינס", colorHex: "#6E8FC0", season: "all", formality: "casual", audience: "woman", tier: 1, image: "/catalog/real/tote-bag.jpg" },
+  { name: "תיק ג׳ינס", category: "bag", color: "כחול ג׳ינס", colorHex: "#6E8FC0", season: "all", formality: "casual", audience: "all", tier: 1, image: "/catalog/real/tote-bag.jpg" },
   { name: "תיק צבעוני", category: "bag", color: "צבעוני", colorHex: "#C99AA0", season: "summer", formality: "casual", audience: "woman", tier: 2, image: "/catalog/real/crossbody-bag.jpg" },
   { name: "קלאץ׳ זהב", category: "bag", color: "זהב", colorHex: "#B8860B", season: "all", formality: "formal", audience: "woman", tier: 3, styles: ["elegant"], image: "/catalog/real/clutch.jpg" },
 ];
@@ -112,6 +112,14 @@ export function buildSeedCandidates(
 
   for (const tier of [1, 2, 3] as const) {
     CATALOG.filter((d) => d.tier === tier && matches(d)).forEach(push);
+  }
+
+  // Safety net: the pick step must never render empty. If the audience/style
+  // filters happened to match nothing (e.g. every real item is tagged for an
+  // audience the current catalog doesn't cover), fall back to the full catalog
+  // rather than showing a dead-end screen.
+  if (out.length === 0) {
+    CATALOG.forEach(push);
   }
 
   return out;
