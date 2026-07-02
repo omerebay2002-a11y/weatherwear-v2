@@ -6,6 +6,19 @@
 
 export const config = { runtime: "edge" };
 
+// SSRF guard for user-supplied image inputs that fal fetches server-side.
+function unsafeImageInput(v: unknown): string | null {
+  if (typeof v !== "string" || !v) return "missing";
+  if (v.startsWith("data:image/")) return v.length > 12_000_000 ? "image too large" : null;
+  let u: URL;
+  try { u = new URL(v); } catch { return "not a valid URL"; }
+  if (u.protocol !== "https:") return "must be https or a data:image URL";
+  const host = u.hostname.toLowerCase();
+  if (host === "localhost" || host.endsWith(".local") || host.endsWith(".internal") ||
+      /^\d{1,3}(\.\d{1,3}){3}$/.test(host) || host.includes(":")) return "host not allowed";
+  return null;
+}
+
 const FAL_MODEL = process.env.FAL_AVATAR_MODEL || "fal-ai/nano-banana/edit";
 const FAL_CUTOUT_MODEL = process.env.FAL_CUTOUT_MODEL || "fal-ai/imageutils/rembg";
 
@@ -30,6 +43,12 @@ export default async function handler(req: Request): Promise<Response> {
     return jsonError(400, "Invalid JSON");
   }
   if (!body.selfie) return jsonError(400, "Missing selfie");
+  const badSelfie = unsafeImageInput(body.selfie);
+  if (badSelfie) return jsonError(400, `Invalid selfie: ${badSelfie}`);
+  if (body.roomUrl) {
+    const badRoom = unsafeImageInput(body.roomUrl);
+    if (badRoom) return jsonError(400, `Invalid roomUrl: ${badRoom}`);
+  }
 
   const items = body.items ?? [];
   const outfit = items.length

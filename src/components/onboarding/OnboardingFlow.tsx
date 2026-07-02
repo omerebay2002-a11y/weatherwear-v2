@@ -489,11 +489,17 @@ export default function OnboardingFlow({ onComplete }: { onComplete: () => void 
                             ) : (
                               <span className="absolute inset-0" style={{ background: c.colorHex }} aria-hidden />
                             )}
-                            <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent px-2 pt-6 pb-1.5 text-[11px] font-medium leading-tight text-white">
+                            <span
+                              className="absolute inset-x-0 bottom-0 px-2 pt-7 pb-1.5 text-[11px] font-semibold leading-tight text-white"
+                              style={{
+                                background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.55) 45%, transparent 100%)",
+                                textShadow: "0 1px 3px rgba(0,0,0,0.9)",
+                              }}
+                            >
                               {c.name}
                             </span>
                             {on ? (
-                              <span className="absolute top-1.5 right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-brass text-ebony shadow">
+                              <span className="absolute top-1.5 left-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-brass text-ebony shadow-md">
                                 <Check className="h-4 w-4" strokeWidth={2.5} />
                               </span>
                             ) : (

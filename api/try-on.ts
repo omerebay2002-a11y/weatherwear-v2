@@ -17,6 +17,32 @@
 
 export const config = { maxDuration: 60 };
 
+// SSRF guard for user-supplied image inputs that fal fetches server-side.
+// Returns an error string if the value is unsafe, or null if OK.
+function unsafeImageInput(v: unknown): string | null {
+  if (typeof v !== "string" || !v) return "missing";
+  if (v.startsWith("data:image/")) return v.length > 12_000_000 ? "image too large" : null;
+  let u: URL;
+  try {
+    u = new URL(v);
+  } catch {
+    return "not a valid URL";
+  }
+  if (u.protocol !== "https:") return "must be https or a data:image URL";
+  const host = u.hostname.toLowerCase();
+  if (
+    host === "localhost" ||
+    host.endsWith(".local") ||
+    host.endsWith(".internal") ||
+    // block bare IPs (cloud metadata is 169.254.169.254; private ranges, loopback)
+    /^\d{1,3}(\.\d{1,3}){3}$/.test(host) ||
+    host.includes(":")
+  ) {
+    return "host not allowed";
+  }
+  return null;
+}
+
 const FASHN_MODEL = process.env.FAL_TRYON_MODEL || "fal-ai/fashn/tryon/v1.5";
 const NANO_MODEL = process.env.FAL_AVATAR_MODEL || "fal-ai/nano-banana/edit";
 const CUTOUT_MODEL = process.env.FAL_CUTOUT_MODEL || "fal-ai/imageutils/rembg";
@@ -63,6 +89,16 @@ export default async function handler(req: any, res: any): Promise<void> {
   } catch {
     res.status(400).json({ error: "Invalid JSON" });
     return;
+  }
+
+  // SSRF guard: only allow inline data-image URLs or public https images — never
+  // http:, internal hosts, or cloud-metadata IPs that fal would fetch server-side.
+  for (const [field, val] of [["figure", body.figure], ["garment", body.garment]] as const) {
+    const bad = unsafeImageInput(val);
+    if (bad) {
+      res.status(400).json({ error: `Invalid ${field}`, detail: bad });
+      return;
+    }
   }
 
   const falKey = process.env.FAL_KEY ?? process.env.falkey;
