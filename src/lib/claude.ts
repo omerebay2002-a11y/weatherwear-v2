@@ -88,19 +88,48 @@ export interface GenerateAvatarItem {
   material?: ClothingItem["material"];
 }
 
-/** Renders the user (from a selfie) wearing the given outfit. Returns an image URL. */
+/** Renders the user (from a selfie) standing in the room, returns a transparent
+ *  cutout image URL. Pass roomUrl to composite into the room (best blend). */
 export async function generateAvatar(
   selfie: string,
-  items: GenerateAvatarItem[]
+  items: GenerateAvatarItem[],
+  roomUrl?: string
 ): Promise<string> {
   const r = await fetch("/api/generate-avatar", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ selfie, items }),
+    body: JSON.stringify({ selfie, items, roomUrl }),
   });
   if (!r.ok) {
     const text = await r.text().catch(() => "");
     throw new Error(`Avatar failed (${r.status}): ${text}`);
+  }
+  const { imageUrl } = (await r.json()) as { imageUrl: string };
+  return imageUrl;
+}
+
+/** Virtual try-on: dress the current avatar figure in one garment image.
+ *  `figure` and `garment` may be URLs or data URLs. Returns a transparent cutout. */
+export async function tryOnGarment(
+  figure: string,
+  garment: string,
+  category: ClothingItem["category"],
+  name?: string
+): Promise<string> {
+  const r = await fetch("/api/try-on", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ figure, garment, category, name }),
+  });
+  if (!r.ok) {
+    let detail = `HTTP ${r.status}`;
+    try {
+      const body = (await r.json()) as { error?: string; detail?: string };
+      detail = body.detail || body.error || detail;
+    } catch {
+      /* keep HTTP status */
+    }
+    throw new Error(detail);
   }
   const { imageUrl } = (await r.json()) as { imageUrl: string };
   return imageUrl;

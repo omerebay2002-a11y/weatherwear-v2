@@ -25,17 +25,17 @@ type Step = "welcome" | "who" | "age" | "location" | "styles" | "photos" | "anal
 
 const STEP_ORDER: Step[] = ["welcome", "who", "age", "location", "styles", "photos", "analyzing", "pick"];
 
-const WHO_OPTIONS: { value: WardrobeFor; label: string }[] = [
-  { value: "woman", label: "ארון של אישה" },
-  { value: "man", label: "ארון של גבר" },
-  { value: "mixed", label: "קצת מהכל" },
+const WHO_OPTIONS: { value: WardrobeFor; label: string; emoji: string }[] = [
+  { value: "woman", label: "ארון של אישה", emoji: "👗" },
+  { value: "man", label: "ארון של גבר", emoji: "👔" },
+  { value: "mixed", label: "קצת מהכל", emoji: "👫" },
 ];
 
-const AGE_OPTIONS: { value: AgeRange; label: string }[] = [
-  { value: "under20", label: "עד 20" },
-  { value: "20s", label: "20–29" },
-  { value: "30s", label: "30–39" },
-  { value: "40plus", label: "40+" },
+const AGE_OPTIONS: { value: AgeRange; label: string; emoji: string }[] = [
+  { value: "under20", label: "עד 20", emoji: "✨" },
+  { value: "20s", label: "20–29", emoji: "🌿" },
+  { value: "30s", label: "30–39", emoji: "🥂" },
+  { value: "40plus", label: "40+", emoji: "🕊️" },
 ];
 
 const STYLE_OPTIONS: { value: StylePref; label: string; hint: string }[] = [
@@ -148,6 +148,7 @@ export default function OnboardingFlow({ onComplete }: { onComplete: () => void 
       const c = candidates[i];
       add({
         ...c,
+        imageUrl: c.image, // real product flat-lay, when we have one
         id: newId("item"),
         createdAt: now - k, // keep stable ordering
         source: "onboarding",
@@ -183,7 +184,23 @@ export default function OnboardingFlow({ onComplete }: { onComplete: () => void 
   return (
     // Same centered phone-frame as AppShell — onboarding is never full-bleed on desktop
     <div className="min-h-[100dvh] w-full flex justify-center" style={{ background: "#1e1b18" }}>
-      <div className="relative w-full max-w-[440px] min-h-[100dvh] bg-parchment flex flex-col shadow-2xl" dir="rtl">
+      <div
+        className="relative w-full max-w-[440px] min-h-[100dvh] flex flex-col shadow-2xl overflow-hidden"
+        dir="rtl"
+        style={{
+          background:
+            "radial-gradient(120% 80% at 78% 12%, rgba(201,168,76,0.16) 0%, rgba(201,168,76,0) 42%), radial-gradient(110% 70% at 15% 92%, rgba(92,62,34,0.10) 0%, rgba(92,62,34,0) 50%), linear-gradient(180deg, #FAF6EE 0%, #F5EFE6 55%, #EFE6D6 100%)",
+        }}
+      >
+        {/* subtle grain so the warm surface has texture, not flat color */}
+        <div
+          className="pointer-events-none absolute inset-0 z-0 opacity-[0.05] mix-blend-multiply"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+          }}
+        />
+        <div className="relative z-10 flex flex-1 flex-col">
       {/* progress + back */}
       <div className="flex items-center justify-between px-5 pt-5 pb-2">
         {stepIndex > 0 && step !== "analyzing" ? (
@@ -214,10 +231,10 @@ export default function OnboardingFlow({ onComplete }: { onComplete: () => void 
       <AnimatePresence mode="wait">
         <motion.div
           key={step}
-          initial={{ opacity: 0, x: -24 }}
+          initial={{ opacity: 0, x: -16 }}
           animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: 24 }}
-          transition={{ duration: 0.28, ease: [0.2, 0.8, 0.2, 1] }}
+          exit={{ opacity: 0, x: 16 }}
+          transition={{ duration: 0.2, ease: [0.2, 0.8, 0.2, 1] }}
           className="flex-1 flex flex-col px-6 pb-8"
         >
           {/* ── Welcome + name ───────────────────────────── */}
@@ -253,6 +270,7 @@ export default function OnboardingFlow({ onComplete }: { onComplete: () => void 
                 <ChoiceCard
                   key={o.value}
                   label={o.label}
+                  emoji={o.emoji}
                   active={who === o.value}
                   onClick={() => pickAndGo(setWho)(o.value)}
                 />
@@ -267,6 +285,7 @@ export default function OnboardingFlow({ onComplete }: { onComplete: () => void 
                 <ChoiceCard
                   key={o.value}
                   label={o.label}
+                  emoji={o.emoji}
                   active={age === o.value}
                   onClick={() => pickAndGo(setAge)(o.value)}
                 />
@@ -447,7 +466,7 @@ export default function OnboardingFlow({ onComplete }: { onComplete: () => void 
                     <p className="text-[11px] font-medium tracking-[0.18em] text-walnut-400 mb-2">
                       {CATEGORY_LABEL[cat]}
                     </p>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="grid grid-cols-3 gap-2.5">
                       {items.map(({ c, i }) => {
                         const on = selected.has(i);
                         return (
@@ -455,19 +474,37 @@ export default function OnboardingFlow({ onComplete }: { onComplete: () => void 
                             key={i}
                             type="button"
                             onClick={() => toggleCandidate(i)}
-                            className={`flex items-center gap-2 rounded-sm border px-3 py-2.5 text-sm transition active:scale-[0.96] ${
-                              on
-                                ? "border-brass bg-parchment-light shadow-brass text-ebony"
-                                : "border-parchment-dark bg-parchment-light text-ebony-muted"
+                            aria-pressed={on}
+                            className={`group relative aspect-[3/4] overflow-hidden rounded-lg border text-right transition active:scale-[0.97] ${
+                              on ? "border-brass ring-2 ring-brass" : "border-parchment-dark"
                             }`}
                           >
+                            {c.image ? (
+                              <img
+                                src={c.image}
+                                alt={c.name}
+                                loading="lazy"
+                                className="absolute inset-0 h-full w-full object-cover"
+                              />
+                            ) : (
+                              <span className="absolute inset-0" style={{ background: c.colorHex }} aria-hidden />
+                            )}
                             <span
-                              className="h-3.5 w-3.5 rounded-full border border-black/10 shrink-0"
-                              style={{ background: c.colorHex }}
-                              aria-hidden
-                            />
-                            {c.name}
-                            {on && <Check className="h-3.5 w-3.5 text-brass-deep" />}
+                              className="absolute inset-x-0 bottom-0 px-2 pt-7 pb-1.5 text-[11px] font-semibold leading-tight text-white"
+                              style={{
+                                background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.55) 45%, transparent 100%)",
+                                textShadow: "0 1px 3px rgba(0,0,0,0.9)",
+                              }}
+                            >
+                              {c.name}
+                            </span>
+                            {on ? (
+                              <span className="absolute top-1.5 left-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-brass text-ebony shadow-md">
+                                <Check className="h-4 w-4" strokeWidth={2.5} />
+                              </span>
+                            ) : (
+                              <span className="absolute inset-0 bg-black/10 transition group-hover:bg-black/0" aria-hidden />
+                            )}
                           </button>
                         );
                       })}
@@ -502,6 +539,7 @@ export default function OnboardingFlow({ onComplete }: { onComplete: () => void 
         </motion.div>
       </AnimatePresence>
       </div>
+      </div>
     </div>
   );
 }
@@ -528,10 +566,12 @@ function StepShell({
 
 function ChoiceCard({
   label,
+  emoji,
   active,
   onClick,
 }: {
   label: string;
+  emoji?: string;
   active: boolean;
   onClick: () => void;
 }) {
@@ -539,14 +579,27 @@ function ChoiceCard({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-sm border px-4 py-4 text-right text-sm font-medium transition active:scale-[0.98] ${
+      className={`group flex items-center gap-3 rounded-xl border px-4 py-4 text-right transition-all duration-200 active:scale-[0.98] ${
         active
-          ? "border-brass bg-parchment-light shadow-brass text-ebony"
-          : "border-parchment-dark bg-parchment-light text-ebony"
+          ? "border-brass bg-parchment-light shadow-[0_6px_18px_-8px_rgba(60,40,20,0.35)]"
+          : "border-parchment-dark bg-parchment-light/70 hover:border-brass/50 hover:bg-parchment-light hover:shadow-[0_4px_14px_-8px_rgba(60,40,20,0.25)]"
       }`}
     >
-      {active ? "✓ " : ""}
-      {label}
+      {emoji && (
+        <span
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg transition-colors ${
+            active ? "bg-brass/20" : "bg-parchment-dark/50"
+          }`}
+        >
+          {emoji}
+        </span>
+      )}
+      <span className="flex-1 text-base font-medium text-ebony">{label}</span>
+      {active ? (
+        <Check className="h-5 w-5 text-brass-deep" strokeWidth={2.2} />
+      ) : (
+        <ArrowRight className="h-4 w-4 text-walnut-300 transition-transform group-hover:-translate-x-0.5" />
+      )}
     </button>
   );
 }

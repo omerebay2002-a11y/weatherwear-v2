@@ -1,5 +1,20 @@
 # WeatherWear v2 — Project Context for AI Assistants
 
+## ⚙️ הבסיס הגלובלי של עומר (חובה לפני כל עבודה)
+
+- **שפה:** כל תשובה ללקוח **בעברית בלבד**. נשאר באנגלית רק מה שחייב — נתיבי קבצים, פקודות, שמות פונקציות/משתנים, קוד, ושמות מוצרים/כלים (`Vite`, `React`, `Three.js`, `Supabase`...). לא לתרגם אותם, ולא לערבב אנגלית מיותרת בתוך משפט עברי.
+- **המוח המרכזי (מקור אמת):** `C:\Users\omere\OneDrive\Desktop\סידור של קלוד` — לקרוא משם `brain/Foundation.md` לפני החלטות מהותיות.
+- **איכות עיצוב — אסור "גנרי":** זו אפליקציית UI (React/web). **לפני כל עבודת UI חדשה חובה להפעיל `taste-skill`** דרך הסקיל טול — לא להשתמש בברירות המחדל של המודל. על **שדרוג** עיצוב קיים → `redesign-skill` (audit-first).
+- **סקילים להעדיף בפרויקט הזה:**
+  - **UI / web-app:** `taste-skill`, `emil-design-eng`, `react-patterns`, `react-performance`, `make-interfaces-feel-better`, `design:design-critique`, `design:accessibility-review`.
+  - **3D (react-three-fiber):** תמיד דרך סקילי `r3f-*` הספציפיים (תאורה→`r3f-lighting`, חומרים→`r3f-materials`, גאומטריה→`r3f-geometry`, אינטראקציה→`r3f-interaction`, טעינת מודלים→`r3f-loaders`), `react-three-fiber`, `web3d-integration-patterns` — לא `three.js` גנרי.
+  - **אנימציה (framer-motion):** `motion-framer`, `emil-design-eng`.
+  - **קוד / API / backend:** `code-review`, `verify`, `simplify`, `security-review`.
+- **איסור placeholders / קוד חלקי:** פלט מלא בלבד → `output-skill`.
+- **כלי / ספרייה / סקיל חיצוני חדש → להעביר דרך `/vet` לפני התקנה או שימוש.**
+
+---
+
 ## This is the canonical system
 
 **weatherwear-v2** is the active, canonical codebase for the Smart Wardrobe Avatar project.

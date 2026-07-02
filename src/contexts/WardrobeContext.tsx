@@ -3,6 +3,9 @@ import type { ClothingItem } from "../types";
 import { loadItems, saveItems } from "../lib/storage";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "./AuthContext";
+import { STARTER_WARDROBE } from "../lib/starter-wardrobe";
+import { isOnboarded } from "../lib/profile";
+import { newId } from "../lib/utils";
 
 interface WardrobeContextValue {
   items: ClothingItem[];
@@ -119,6 +122,25 @@ export function WardrobeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!useCloud) saveItems(items);
   }, [items, useCloud]);
+
+  // Never-empty wardrobe (offline): once the user has onboarded, fill an empty
+  // closet with the real starter clothes (with real images) so it's alive from
+  // the first second. Runs once on mount.
+  useEffect(() => {
+    if (useCloud) return;
+    if (!isOnboarded()) return; // let the first-run questionnaire happen first
+    if (loadItems().length > 0) return;
+    const now = Date.now();
+    setItems(
+      STARTER_WARDROBE.map((s, i) => ({
+        ...s,
+        id: newId("starter"),
+        createdAt: now - i,
+        source: "onboarding" as ClothingItem["source"],
+      }))
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Fetch from Supabase when logged in
   useEffect(() => {

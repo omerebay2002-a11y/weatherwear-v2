@@ -6,7 +6,9 @@ import ItemDetailDialog from "../components/wardrobe/ItemDetailDialog";
 import AddItemSheet from "../components/wardrobe/AddItemSheet";
 import WardrobeSheet from "../components/wardrobe/WardrobeSheet";
 import WardrobeIllustration from "../components/wardrobe/WardrobeIllustration";
-import RoomAvatar from "../components/wardrobe/RoomAvatar";
+// Option-2 (AI composite): the figure is now baked into the room scene image.
+// RoomAvatar layer is paused while we wire the composite flow (open-state + selfie).
+// import RoomAvatar from "../components/wardrobe/RoomAvatar";
 import type { ClothingItem, ClothingCategory } from "../types";
 import type { Compartment } from "../components/room/Cabinet";
 
@@ -40,8 +42,8 @@ export default function Wardrobe() {
       {/* Illustrated wardrobe — replaces the old 3D scene */}
       <WardrobeIllustration onCompartmentClick={handleCompartmentClick} />
 
-      {/* The avatar stands next to the wardrobe — part of the interface, not a page */}
-      <RoomAvatar />
+      {/* Figure is composited into the room scene (wardrobe-closed.png) for a
+          fully blended look. RoomAvatar layer paused — see import note above. */}
 
       {/* FAB — Add item */}
       <motion.button
