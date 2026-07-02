@@ -62,7 +62,13 @@ export default async function handler(req: Request): Promise<Response> {
 
   let body: SuggestBody;
   try {
-    body = (await req.json()) as SuggestBody;
+    const contentLength = req.headers.get("content-length");
+    if (contentLength && parseInt(contentLength, 10) > 1000000) {
+      return jsonError(413, "Payload too large");
+    }
+    const text = await req.text();
+    if (text.length > 1000000) return jsonError(413, "Payload too large");
+    body = JSON.parse(text) as SuggestBody;
   } catch {
     return jsonError(400, "Invalid JSON");
   }
