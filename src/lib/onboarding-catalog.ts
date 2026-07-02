@@ -39,33 +39,43 @@ interface SeedDef extends SeedCandidate {
 }
 
 const CATALOG: SeedDef[] = [
-  // Real garment-only packshots (no models) pulled from live stores — Steve Madden,
-  // Colorful Standard, DL1961 — via their public /products.json, filtered by a
-  // white-background check so every image is the garment as it hangs in a wardrobe
-  // (clean + easy to dress). Dress/jeans use the in-repo clean flat-lays.
-  // ── Bottoms ────────────────────────────────────────────────────────
-  { name: "ג׳ינס כחול", category: "bottom", color: "כחול ג׳ינס", colorHex: "#3B5998", season: "all", formality: "casual", audience: "all", tier: 1, image: "/catalog/real/jeans-blue.jpg" },
-  { name: "מכנס שחור רחב", category: "bottom", color: "שחור", colorHex: "#23232B", season: "all", formality: "smart", audience: "all", tier: 1, image: "/catalog/real/black-pants.jpg" },
-  { name: "מכנס טרנינג בז׳", category: "bottom", color: "בז׳", colorHex: "#B7A793", season: "all", formality: "casual", audience: "all", tier: 2, image: "/catalog/real/beige-pants.jpg" },
-  // ── Tops ───────────────────────────────────────────────────────────
-  { name: "טופ לבן", category: "top", color: "לבן", colorHex: "#F5F5F0", season: "all", formality: "casual", audience: "all", tier: 1, image: "/catalog/real/white-tee.jpg" },
-  { name: "טופ שחור", category: "top", color: "שחור", colorHex: "#20202A", season: "all", formality: "casual", audience: "all", tier: 1, image: "/catalog/real/black-tee.jpg" },
-  { name: "טופ אפור", category: "top", color: "אפור", colorHex: "#9A9A9A", season: "all", formality: "casual", audience: "all", tier: 2, image: "/catalog/real/gray-tee.jpg" },
-  { name: "קרדיגן נייבי", category: "top", color: "כחול נייבי", colorHex: "#27374D", season: "winter", formality: "smart", audience: "all", tier: 2, image: "/catalog/real/black-knit.jpg" },
-  // ── Dresses ────────────────────────────────────────────────────────
-  { name: "שמלה שחורה", category: "dress", color: "שחור", colorHex: "#1A1A1A", season: "all", formality: "formal", audience: "woman", tier: 1, image: "/catalog/real/dress-black.jpg" },
-  { name: "שמלה פרחונית", category: "dress", color: "פרחוני", colorHex: "#C99AA0", season: "summer", formality: "casual", audience: "woman", tier: 2, image: "/catalog/real/dress-floral.jpg" },
-  // ── Shoes ──────────────────────────────────────────────────────────
-  { name: "סניקרס שחורות", category: "shoes", color: "שחור", colorHex: "#1C1C1C", season: "all", formality: "casual", audience: "all", tier: 1, image: "/catalog/real/white-sneakers.jpg" },
-  { name: "סניקרס אדומות", category: "shoes", color: "אדום", colorHex: "#C0392B", season: "all", formality: "casual", audience: "all", tier: 2, image: "/catalog/real/black-sneakers.jpg" },
-  { name: "נעלי בובה", category: "shoes", color: "חום", colorHex: "#B98A5A", season: "all", formality: "smart", audience: "woman", tier: 2, image: "/catalog/real/ballet-flats.jpg" },
-  { name: "עקבים", category: "shoes", color: "חום", colorHex: "#6B4423", season: "all", formality: "formal", audience: "woman", tier: 2, image: "/catalog/real/heels.jpg" },
-  { name: "סנדלים", category: "shoes", color: "חום", colorHex: "#5A3A2A", season: "summer", formality: "casual", audience: "woman", tier: 2, image: "/catalog/real/sandals.jpg" },
-  { name: "מגפיים גבוהים", category: "shoes", color: "מאובק", colorHex: "#B08A86", season: "winter", formality: "smart", audience: "woman", tier: 3, styles: ["street", "elegant"], image: "/catalog/real/boots.jpg" },
-  // ── Bags ───────────────────────────────────────────────────────────
-  { name: "תיק ג׳ינס", category: "bag", color: "כחול ג׳ינס", colorHex: "#6E8FC0", season: "all", formality: "casual", audience: "all", tier: 1, image: "/catalog/real/tote-bag.jpg" },
-  { name: "תיק צבעוני", category: "bag", color: "צבעוני", colorHex: "#C99AA0", season: "summer", formality: "casual", audience: "woman", tier: 2, image: "/catalog/real/crossbody-bag.jpg" },
-  { name: "קלאץ׳ זהב", category: "bag", color: "זהב", colorHex: "#B8860B", season: "all", formality: "formal", audience: "woman", tier: 3, styles: ["elegant"], image: "/catalog/real/clutch.jpg" },
+  // Real garment-only packshots (no models) sourced from live stores via public
+  // /products.json feeds, each verified white-background so it reads like a
+  // wardrobe item and is dressable. ~34 items across all categories & colors.
+  { name: "חולצה כחול", category: "top", color: "כחול", colorHex: "#3B5998", season: "all", formality: "casual", audience: "all", tier: 1, image: "/catalog/db/top-blue-0.jpg" },
+  { name: "חולצה בורדו", category: "top", color: "בורדו", colorHex: "#7A2E33", season: "all", formality: "casual", audience: "all", tier: 1, image: "/catalog/db/top-red-1.jpg" },
+  { name: "חולצה צהוב", category: "top", color: "צהוב", colorHex: "#E8D07A", season: "all", formality: "casual", audience: "all", tier: 1, image: "/catalog/db/top-yellow-2.jpg" },
+  { name: "חולצה שחור", category: "top", color: "שחור", colorHex: "#1C1C1C", season: "all", formality: "casual", audience: "all", tier: 1, image: "/catalog/db/top-black-3.jpg" },
+  { name: "חולצה סגול", category: "top", color: "סגול", colorHex: "#6A4AA0", season: "all", formality: "casual", audience: "all", tier: 1, image: "/catalog/db/top-violet-4.jpg" },
+  { name: "חולצה אפור", category: "top", color: "אפור", colorHex: "#9A9A9A", season: "all", formality: "casual", audience: "all", tier: 1, image: "/catalog/db/top-grey-5.jpg" },
+  { name: "גופייה", category: "top", color: "מעורב", colorHex: "#9A9A9A", season: "all", formality: "casual", audience: "all", tier: 1, image: "/catalog/db/top-x-6.jpg" },
+  { name: "הודי חאקי", category: "top", color: "חאקי", colorHex: "#A89B7A", season: "all", formality: "casual", audience: "all", tier: 2, image: "/catalog/db/top-khaki-7.jpg" },
+  { name: "ג׳ינס כחול", category: "bottom", color: "כחול", colorHex: "#3B5998", season: "all", formality: "casual", audience: "all", tier: 1, image: "/catalog/db/bottom-blue-0.jpg" },
+  { name: "חצאית כחול כהה", category: "bottom", color: "כחול כהה", colorHex: "#2E3D5A", season: "all", formality: "casual", audience: "woman", tier: 2, image: "/catalog/db/bottom-indigo-1.jpg" },
+  { name: "ג׳ינס כחול כהה", category: "bottom", color: "כחול כהה", colorHex: "#2E3D5A", season: "all", formality: "casual", audience: "all", tier: 1, image: "/catalog/db/bottom-indigo-2.jpg" },
+  { name: "מכנס כחול", category: "bottom", color: "כחול", colorHex: "#3B5998", season: "all", formality: "casual", audience: "all", tier: 1, image: "/catalog/db/bottom-blue-3.jpg" },
+  { name: "טייץ זית", category: "bottom", color: "זית", colorHex: "#6B6B4A", season: "all", formality: "casual", audience: "woman", tier: 2, image: "/catalog/db/bottom-olive-4.jpg" },
+  { name: "מכנס חום", category: "bottom", color: "חום", colorHex: "#5A3A2A", season: "all", formality: "casual", audience: "all", tier: 1, image: "/catalog/db/bottom-brown-5.jpg" },
+  { name: "ג׳ינס לבן", category: "bottom", color: "לבן", colorHex: "#F2F0EA", season: "all", formality: "casual", audience: "all", tier: 1, image: "/catalog/db/bottom-white-6.jpg" },
+  { name: "שמלה לבנדר", category: "dress", color: "לבנדר", colorHex: "#C9B6E0", season: "all", formality: "smart", audience: "woman", tier: 2, image: "/catalog/db/dress-lavender-0.jpg" },
+  { name: "שמלה בורדו", category: "dress", color: "בורדו", colorHex: "#6E1F33", season: "all", formality: "smart", audience: "woman", tier: 2, image: "/catalog/db/dress-burgundy-1.jpg" },
+  { name: "שמלה ורוד", category: "dress", color: "ורוד", colorHex: "#E0B0B0", season: "all", formality: "smart", audience: "woman", tier: 2, image: "/catalog/db/dress-blush-2.jpg" },
+  { name: "שמלה בורדו", category: "dress", color: "בורדו", colorHex: "#6E1F33", season: "all", formality: "smart", audience: "woman", tier: 2, image: "/catalog/db/dress-burgundy-3.jpg" },
+  { name: "נעליים שחור", category: "shoes", color: "שחור", colorHex: "#1C1C1C", season: "all", formality: "casual", audience: "woman", tier: 2, image: "/catalog/db/shoes-black-0.jpg" },
+  { name: "נעליים לבן", category: "shoes", color: "לבן", colorHex: "#F2F0EA", season: "all", formality: "casual", audience: "woman", tier: 2, image: "/catalog/db/shoes-white-1.jpg" },
+  { name: "נעליים לבן", category: "shoes", color: "לבן", colorHex: "#F2F0EA", season: "all", formality: "casual", audience: "woman", tier: 2, image: "/catalog/db/shoes-white-2.jpg" },
+  { name: "נעליים שחור", category: "shoes", color: "שחור", colorHex: "#1C1C1C", season: "all", formality: "casual", audience: "woman", tier: 2, image: "/catalog/db/shoes-black-3.jpg" },
+  { name: "נעליים ורוד", category: "shoes", color: "ורוד", colorHex: "#E39AAE", season: "all", formality: "casual", audience: "woman", tier: 2, image: "/catalog/db/shoes-pink-4.jpg" },
+  { name: "מגפיים שוקולד", category: "shoes", color: "שוקולד", colorHex: "#4A2E22", season: "all", formality: "casual", audience: "woman", tier: 2, image: "/catalog/db/shoes-chocolate-5.jpg" },
+  { name: "מוקסינים חום", category: "shoes", color: "חום", colorHex: "#5A3A2A", season: "all", formality: "casual", audience: "woman", tier: 2, image: "/catalog/db/shoes-brown-6.jpg" },
+  { name: "תיק שחור", category: "bag", color: "שחור", colorHex: "#1C1C1C", season: "all", formality: "casual", audience: "woman", tier: 2, image: "/catalog/db/bag-black-0.jpg" },
+  { name: "תיק ברונזה", category: "bag", color: "ברונזה", colorHex: "#B08A5A", season: "all", formality: "casual", audience: "woman", tier: 2, image: "/catalog/db/bag-bronze-1.jpg" },
+  { name: "תיק אפור", category: "bag", color: "אפור", colorHex: "#9A9A9A", season: "all", formality: "casual", audience: "woman", tier: 2, image: "/catalog/db/bag-grey-2.jpg" },
+  { name: "תיק טבעי", category: "bag", color: "טבעי", colorHex: "#C9B48A", season: "all", formality: "casual", audience: "woman", tier: 2, image: "/catalog/db/bag-natural-3.jpg" },
+  { name: "משקפי שמש זהב", category: "accessory", color: "זהב", colorHex: "#C9A84C", season: "all", formality: "casual", audience: "woman", tier: 2, image: "/catalog/db/accessory-gold-0.jpg" },
+  { name: "משקפי שמש", category: "accessory", color: "מעורב", colorHex: "#9A9A9A", season: "all", formality: "casual", audience: "woman", tier: 2, image: "/catalog/db/accessory-x-1.jpg" },
+  { name: "חגורה שחור", category: "accessory", color: "שחור", colorHex: "#1C1C1C", season: "all", formality: "casual", audience: "woman", tier: 2, image: "/catalog/db/accessory-black-2.jpg" },
+  { name: "שרשרת זהב", category: "accessory", color: "זהב", colorHex: "#C9A84C", season: "all", formality: "casual", audience: "woman", tier: 2, image: "/catalog/db/accessory-gold-3.jpg" },
 ];
 
 /** Normalize a name for fuzzy dedup between AI results and the catalog. */
@@ -87,7 +97,10 @@ export function buildSeedCandidates(
   const out: SeedCandidate[] = [];
 
   const push = (c: SeedCandidate) => {
-    const key = `${c.category}|${normName(c.name)}`;
+    // Key on the image too: two distinct real products can share a generic name
+    // (e.g. two black shoes) and both should survive. Image-less AI hits still
+    // dedup by name.
+    const key = `${c.category}|${normName(c.name)}|${c.image ?? ""}`;
     if (seen.has(key) || out.length >= cap) return;
     seen.add(key);
     out.push({
